@@ -13,14 +13,16 @@ function initGame() {
 }
 
 function generateSudoku() {
-    // Simple generator: fill a diagonal, solve, then remove
+    GameManager.setGame('sudoku');
+
+    // 50 levels scaling
+    const level = GameManager.currentLevel;
+    let removeCount = 30 + Math.floor(level / 2); // 30 to 55
+    if (removeCount > 60) removeCount = 60;
+
     board = Array(81).fill(0);
     solveSudoku(board);
     solution = [...board];
-
-    let removeCount = 40;
-    if (difficultySelect.value === 'medium') removeCount = 50;
-    if (difficultySelect.value === 'hard') removeCount = 60;
 
     while (removeCount > 0) {
         let idx = Math.floor(Math.random() * 81);

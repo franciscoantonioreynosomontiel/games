@@ -2,15 +2,25 @@ const GameManager = {
     lives: 3,
     currentGame: '',
     currentDifficulty: 'medium',
+    currentLevel: 1,
 
     init() {
         this.addPopupStyles();
+        this.loadLevel();
+    },
+
+    loadLevel() {
+        if (Auth.isLoggedIn()) {
+            const saved = localStorage.getItem(`level_${Auth.currentUser.username}_${this.currentGame}`);
+            this.currentLevel = saved ? parseInt(saved) : 1;
+        }
     },
 
     setGame(gameName, difficulty = 'medium') {
         this.currentGame = gameName;
         this.currentDifficulty = difficulty;
         this.lives = 3;
+        this.loadLevel();
     },
 
     loseLife() {
@@ -37,6 +47,15 @@ const GameManager = {
             }]);
 
         if (error) console.error('Error saving score:', error);
+
+        if (result === 'win' && this.currentLevel < 50) {
+            this.currentLevel++;
+            localStorage.setItem(`level_${Auth.currentUser.username}_${this.currentGame}`, this.currentLevel);
+        }
+    },
+
+    showInstructions(title, text) {
+        return UIManager.alert(title, text, 'info');
     },
 
     showResult(type, score = 0) {
@@ -46,8 +65,8 @@ const GameManager = {
         const content = document.createElement('div');
         content.className = 'game-over-content animated zoomIn';
 
-        const title = type === 'win' ? '¡FELICIDADES!' : 'JUEGO TERMINADO';
-        const msg = type === 'win' ? 'Has ganado la partida.' : 'Te has quedado sin vidas.';
+        const title = type === 'win' ? '¡FELICIDADES!' : 'NIVEL FALLIDO';
+        const msg = type === 'win' ? `Has superado el nivel ${this.currentLevel}.` : `Te has quedado sin vidas en el nivel ${this.currentLevel}.`;
         const icon = type === 'win' ? 'emoji_events' : 'sentiment_very_dissatisfied';
 
         content.innerHTML = `
@@ -55,7 +74,7 @@ const GameManager = {
             <h2>${title}</h2>
             <p>${msg}</p>
             <div class="result-buttons">
-                <button onclick="location.reload()" class="btn-retry">Reiniciar</button>
+                <button onclick="location.reload()" class="btn-retry">${type === 'win' ? 'Siguiente' : 'Reintentar'}</button>
                 <button onclick="location.href='../../index.html'" class="btn-menu">Menú</button>
             </div>
         `;

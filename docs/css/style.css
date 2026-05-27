@@ -207,18 +207,23 @@ body {
 .tab-btn.active { background: var(--primary-color); color: white; }
 
 /* Score Items */
-.score-item { background: white; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; box-shadow: var(--shadow); }
-.game-tag { background: #e3f2fd; color: var(--primary-color); padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 4px; }
-.user-name { font-weight: 500; display: block; }
-.date { font-size: 12px; color: #999; }
+.score-item { background: white; padding: 20px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 5px solid var(--primary-color); }
+.game-tag { background: #f0f0f0; color: #444; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; display: inline-block; margin-bottom: 6px; }
+.user-name { font-size: 18px; font-weight: 700; display: block; color: #222; }
+.date { font-size: 12px; color: #888; }
 .score-value { text-align: right; }
-.res { display: block; font-size: 10px; font-weight: bold; text-transform: uppercase; }
-.res.win { color: #4CAF50; }
-.res.loss { color: #F44336; }
+.score-value strong { font-size: 24px; color: var(--primary-color); }
+.res { display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+.res.win { color: #2e7d32; }
+.res.loss { color: #c62828; }
 
-/* User List */
-.user-item { display: flex; align-items: center; gap: 12px; padding: 15px; background: white; border-radius: 12px; margin-bottom: 10px; box-shadow: var(--shadow); }
+/* User List - Professional Card */
+.user-item { display: flex; align-items: center; gap: 16px; padding: 20px; background: white; border-radius: 16px; margin-bottom: 15px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); transition: transform 0.2s; }
+.user-item:hover { transform: scale(1.02); }
+.user-item .material-icons { font-size: 40px; color: var(--primary-color); }
 .user-info { flex-grow: 1; display: flex; flex-direction: column; }
+.user-info strong { font-size: 18px; color: #333; }
+.user-info span { color: #777; font-size: 14px; }
 
 /* Login Page specific */
 .login-page { background: #6200ee; }

@@ -19,19 +19,24 @@
         </header>
 
         <main class="game-area">
-            <div class="game-info">
-                <div class="info-box">Vidas: <span id="lives">6</span></div>
-                <button id="reset-btn">Nuevo</button>
+            <div class="game-controls" style="width:100%; display:flex; gap:10px; margin-bottom:10px;">
+                <button id="mode-1p" class="tab-btn active">1 Jugador</button>
+                <button id="mode-2p" class="tab-btn">2 Jugadores</button>
             </div>
 
+            <div class="game-info">
+                <div class="info-box">Nivel: <span id="lvl-display">1</span></div>
+                <div class="info-box">Vidas: <span id="lives">6</span></div>
+            </div>
+
+            <div id="hint-box" style="margin: 5px 0; color: #666; font-style: italic; min-height: 20px;"></div>
+
             <div class="hangman-display">
-                <svg width="150" height="150" viewBox="0 0 150 150" class="hangman-svg">
-                    <!-- Gallows -->
+                <svg width="120" height="120" viewBox="0 0 150 150" class="hangman-svg">
                     <line x1="20" y1="140" x2="130" y2="140" />
                     <line x1="40" y1="140" x2="40" y2="20" />
                     <line x1="40" y1="20" x2="100" y2="20" />
                     <line x1="100" y1="20" x2="100" y2="40" />
-                    <!-- Body parts -->
                     <circle cx="100" cy="50" r="10" class="part" id="head" />
                     <line x1="100" y1="60" x2="100" y2="100" class="part" id="body" />
                     <line x1="100" y1="70" x2="80" y2="90" class="part" id="left-arm" />
@@ -42,14 +47,26 @@
             </div>
 
             <div class="word-display" id="word"></div>
-
             <div class="keyboard" id="keyboard"></div>
         </main>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal-overlay" id="word-entry-modal">
+        <div class="modal-content">
+            <h2>Jugador 1</h2>
+            <p>Escribe la palabra para que el Jugador 2 la adivine:</p>
+            <div class="form-group">
+                <input type="password" id="custom-word" placeholder="PALABRA" style="text-transform: uppercase;">
+            </div>
+            <button class="btn-primary" id="start-2p">COMENZAR</button>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../../js/config.js"></script>
     <script src="../../js/auth.js"></script>
+    <script src="../../js/ui-manager.js"></script>
     <script src="../../js/game-manager.js"></script>
     <script src="script.js"></script>
 </body>
