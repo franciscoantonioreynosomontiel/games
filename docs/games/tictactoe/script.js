@@ -55,17 +55,26 @@ function checkForWinner() {
     if (roundWon) {
         statusElement.innerText = `¡Jugador ${currentPlayer} ha ganado!`;
         isGameActive = false;
+
+        if (gameMode === 'pva') {
+            if (currentPlayer === 'X') GameManager.showResult('win');
+            else GameManager.showResult('loss');
+        }
         return;
     }
 
     if (!board.includes('')) {
         statusElement.innerText = '¡Empate!';
         isGameActive = false;
+        if (gameMode === 'pva') GameManager.saveResult('draw');
         return;
     }
 
     changePlayer();
 }
+
+// Init GameManager
+GameManager.setGame('tictactoe', difficulty);
 
 function makeAIMove() {
     let move;

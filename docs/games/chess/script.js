@@ -235,10 +235,15 @@ function updateStatus() {
   // checkmate?
   if (game.in_checkmate()) {
     status = 'Juego terminado, ' + moveColor + ' está en jaque mate.';
+    if (gameMode === 'pva') {
+        if (game.turn() === 'b') GameManager.showResult('win'); // IA lost
+        else GameManager.showResult('loss');
+    }
   }
   // draw?
   else if (game.in_draw()) {
     status = 'Juego terminado, posición de tablas';
+    if (gameMode === 'pva') GameManager.saveResult('draw');
   }
   // game still on
   else {
@@ -263,6 +268,7 @@ var config = {
 };
 board = Chessboard('board', config);
 
+GameManager.setGame('chess', difficulty);
 updateStatus();
 
 $('#reset-btn').on('click', function() {

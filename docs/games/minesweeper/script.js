@@ -126,7 +126,7 @@ function checkWin() {
 function endGame(won) {
     gameOver = true;
     if (won) {
-        alert('¡Felicidades! Has ganado.');
+        GameManager.showResult('win');
     } else {
         board.forEach((cell, i) => {
             if (cell.isMine) {
@@ -134,9 +134,10 @@ function endGame(won) {
                 boardElement.children[i].innerText = '💣';
             }
         });
-        alert('BOOM! Juego terminado.');
+        GameManager.showResult('loss');
     }
 }
 
+GameManager.setGame('minesweeper');
 resetBtn.addEventListener('click', initGame);
 initGame();

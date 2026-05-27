@@ -66,6 +66,12 @@ function makeAIMove() {
     if (!gameOver) {
         currentPlayer = 'red';
         statusElement.innerText = 'Turno: Rojo';
+    } else {
+        if (statusElement.innerText.includes('Amarillo')) {
+            GameManager.showResult('loss');
+        } else if (statusElement.innerText.includes('Rojo')) {
+            GameManager.showResult('win');
+        }
     }
 }
 
@@ -180,5 +186,6 @@ function checkWin(b, r, c) {
     return false;
 }
 
+GameManager.setGame('connect4');
 resetBtn.addEventListener('click', initGame);
 initGame();
