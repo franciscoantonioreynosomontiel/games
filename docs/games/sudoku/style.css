@@ -1,0 +1,105 @@
+.game-area {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+}
+
+.game-controls {
+    width: 100%;
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.game-controls select, .game-controls button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    background: white;
+}
+
+.game-controls button {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    font-weight: 500;
+}
+
+.sudoku-board {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    width: 100%;
+    max-width: 360px;
+    aspect-ratio: 1/1;
+    border: 2px solid #333;
+    background-color: #333;
+    gap: 1px;
+}
+
+.sudoku-cell {
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.sudoku-cell.fixed {
+    background-color: #f0f0f0;
+    font-weight: bold;
+    color: #333;
+}
+
+.sudoku-cell.selected {
+    background-color: #e3f2fd;
+}
+
+.sudoku-cell.wrong {
+    color: var(--error-color);
+}
+
+/* Sub-grid borders */
+.sudoku-cell:nth-child(3n) { border-right: 2px solid #333; }
+.sudoku-cell:nth-child(9n) { border-right: none; }
+.sudoku-board > div:nth-child(n+19):nth-child(-n+27),
+.sudoku-board > div:nth-child(n+46):nth-child(-n+54) {
+    border-bottom: 2px solid #333;
+}
+
+.number-pad {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+    width: 100%;
+    max-width: 360px;
+}
+
+.numpad-btn {
+    aspect-ratio: 1/1;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background: white;
+    font-size: 18px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.numpad-btn:active {
+    background: #eee;
+}
+
+.back-icon {
+    text-decoration: none;
+    color: white;
+}
