@@ -1,0 +1,78 @@
+.game-area {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.game-info {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.info-box {
+    background: #eee;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+#reset-btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.memory-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    width: 100%;
+    max-width: 350px;
+}
+
+.card {
+    aspect-ratio: 3/4;
+    background: var(--primary-color);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.3s;
+    transform-style: preserve-3d;
+    position: relative;
+}
+
+.card.flipped {
+    transform: rotateY(180deg);
+    background: white;
+    color: #333;
+    border: 2px solid var(--primary-color);
+}
+
+.card .front, .card .back {
+    position: absolute;
+    backface-visibility: hidden;
+}
+
+.card .front {
+    transform: rotateY(180deg);
+}
+
+.card.matched {
+    visibility: hidden;
+}
+
+.back-icon {
+    text-decoration: none;
+    color: white;
+}
