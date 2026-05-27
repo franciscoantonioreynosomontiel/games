@@ -80,9 +80,9 @@
 
         <footer class="app-footer">
             <nav class="bottom-nav">
-                <div class="nav-item active"><span class="material-icons">home</span><span>Inicio</span></div>
-                <div class="nav-item"><span class="material-icons">star</span><span>Favoritos</span></div>
-                <div class="nav-item"><span class="material-icons">settings</span><span>Ajustes</span></div>
+                <div class="nav-item active" onclick="location.href='index.html'"><span class="material-icons">home</span><span>Inicio</span></div>
+                <div class="nav-item" onclick="location.href='scores.html'"><span class="material-icons">emoji_events</span><span>Puntajes</span></div>
+                <div class="nav-item" id="admin-nav" style="display: none;" onclick="location.href='admin.html'"><span class="material-icons">admin_panel_settings</span><span>Admin</span></div>
             </nav>
         </footer>
     </div>
@@ -109,6 +109,7 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
+    <script src="js/ui-manager.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/main.js"></script>
 </body>

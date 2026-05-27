@@ -198,6 +198,41 @@ body {
     color: white; border: none; border-radius: 8px; font-weight: 500;
 }
 
+/* Content Areas */
+.content-area { padding: 20px; flex-grow: 1; overflow-y: auto; }
+
+/* Tabs */
+.tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+.tab-btn { flex: 1; padding: 10px; border: none; border-radius: 20px; background: #eee; cursor: pointer; font-weight: 500; }
+.tab-btn.active { background: var(--primary-color); color: white; }
+
+/* Score Items */
+.score-item { background: white; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; box-shadow: var(--shadow); }
+.game-tag { background: #e3f2fd; color: var(--primary-color); padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 4px; }
+.user-name { font-weight: 500; display: block; }
+.date { font-size: 12px; color: #999; }
+.score-value { text-align: right; }
+.res { display: block; font-size: 10px; font-weight: bold; text-transform: uppercase; }
+.res.win { color: #4CAF50; }
+.res.loss { color: #F44336; }
+
+/* User List */
+.user-item { display: flex; align-items: center; gap: 12px; padding: 15px; background: white; border-radius: 12px; margin-bottom: 10px; box-shadow: var(--shadow); }
+.user-info { flex-grow: 1; display: flex; flex-direction: column; }
+
+/* Login Page specific */
+.login-page { background: #6200ee; }
+.login-container { background: transparent; box-shadow: none; align-items: center; justify-content: center; }
+.login-box { background: white; padding: 40px 30px; border-radius: 24px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+.brand { text-align: center; margin-bottom: 30px; }
+.brand-icon { font-size: 60px; color: var(--primary-color); }
+.brand h1 { margin: 10px 0 5px; }
+.brand p { color: #666; font-size: 14px; }
+
+.input-with-icon { position: relative; }
+.input-with-icon .material-icons { position: absolute; left: 12px; top: 12px; color: #999; }
+.input-with-icon input { padding-left: 44px !important; }
+
 /* Tablet and PC specific adjustments */
 @media (min-width: 768px) {
     .app-container {

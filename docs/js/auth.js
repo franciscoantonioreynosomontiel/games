@@ -35,7 +35,7 @@ const Auth = {
     logout() {
         this.currentUser = null;
         localStorage.removeItem('gamehub_user');
-        window.location.href = '/docs/index.html';
+        window.location.href = 'login.html';
     },
 
     isAdmin() {
