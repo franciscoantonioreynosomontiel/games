@@ -31,13 +31,13 @@
 
 .puzzle-board {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
+    grid-template-columns: repeat(var(--size, 4), 1fr);
+    gap: 5px;
     background: #ccc;
-    padding: 8px;
+    padding: 5px;
     border-radius: 8px;
     width: 100%;
-    max-width: 350px;
+    max-width: 380px;
     aspect-ratio: 1/1;
 }
 
@@ -47,7 +47,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
+    font-size: calc(40px - (var(--size) * 4px));
     font-weight: bold;
     color: var(--primary-color);
     cursor: pointer;
