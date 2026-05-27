@@ -102,6 +102,13 @@ body {
 .chess-icon { background-color: #4CAF50; }
 .sudoku-icon { background-color: #2196F3; }
 .tictactoe-icon { background-color: #FF9800; }
+.game2048-icon { background-color: #8f7a66; }
+.minesweeper-icon { background-color: #9e9e9e; }
+.memory-icon { background-color: #e91e63; }
+.sliding-icon { background-color: #009688; }
+.connect4-icon { background-color: #3f51b5; }
+.simon-icon { background-color: #795548; }
+.hangman-icon { background-color: #607d8b; }
 
 .card-content h2 {
     font-size: 18px;

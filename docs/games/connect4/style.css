@@ -1,0 +1,62 @@
+.game-area {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+}
+
+.game-info {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.info-box {
+    background: #eee;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+#reset-btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.board-container {
+    background: #2196F3;
+    padding: 10px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 350px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.connect4-board {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    gap: 8px;
+}
+
+.cell {
+    aspect-ratio: 1/1;
+    background: white;
+    border-radius: 50%;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    cursor: pointer;
+}
+
+.cell.red { background: #f44336; }
+.cell.yellow { background: #ffeb3b; }
+
+.back-icon {
+    text-decoration: none;
+    color: white;
+}
