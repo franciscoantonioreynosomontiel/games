@@ -54,7 +54,10 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('display-username').innerText = Auth.currentUser.username;
             if (Auth.isAdmin()) {
                 document.getElementById('admin-section').style.display = 'block';
+                document.getElementById('admin-nav').style.display = 'flex';
             }
+        } else {
+            window.location.href = 'login.html';
         }
     }
 });

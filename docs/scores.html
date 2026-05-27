@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puntajes - GameHub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-top">
+                <a href="index.html" class="material-icons back-icon" style="color: white; text-decoration: none;">arrow_back</a>
+                <h1 class="app-title">Salón de la Fama</h1>
+            </div>
+        </header>
+
+        <main class="content-area">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="global">Global</button>
+                <button class="tab-btn" data-tab="personal">Mi Historial</button>
+            </div>
+
+            <div id="scores-content" class="scores-list animated fadeInUp">
+                <!-- Data will be loaded here -->
+                <div class="loader">Cargando...</div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/ui-manager.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!Auth.isLoggedIn()) window.location.href = 'login.html';
+
+            const content = document.getElementById('scores-content');
+            const tabs = document.querySelectorAll('.tab-btn');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    loadScores(tab.dataset.tab);
+                });
+            });
+
+            async function loadScores(type) {
+                content.innerHTML = '<div class="loader">Cargando...</div>';
+                try {
+                    let data;
+                    if (type === 'global') {
+                        const res = await window.appConfig.supabase
+                            .from('game_stats')
+                            .select('*')
+                            .order('score', { ascending: false })
+                            .limit(20);
+                        data = res.data;
+                    } else {
+                        const res = await window.appConfig.supabase
+                            .from('game_stats')
+                            .select('*')
+                            .eq('username', Auth.currentUser.username)
+                            .order('played_at', { ascending: false })
+                            .limit(20);
+                        data = res.data;
+                    }
+
+                    renderScores(data, type);
+                } catch (e) {
+                    content.innerHTML = '<p class="error">Error al cargar datos</p>';
+                }
+            }
+
+            function renderScores(scores, type) {
+                if (!scores || scores.length === 0) {
+                    content.innerHTML = '<p class="empty-msg">No hay registros aún</p>';
+                    return;
+                }
+
+                content.innerHTML = scores.map(s => `
+                    <div class="score-item">
+                        <div class="score-info">
+                            <span class="game-tag">${s.game_type}</span>
+                            <span class="user-name">${s.username}</span>
+                            <span class="date">${new Date(s.played_at).toLocaleDateString()}</span>
+                        </div>
+                        <div class="score-value">
+                            <span class="res ${s.result}">${s.result}</span>
+                            <strong>${s.score}</strong>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            loadScores('global');
+        });
+    </script>
+</body>
+</html>

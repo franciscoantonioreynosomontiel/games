@@ -39,7 +39,7 @@ const GameManager = {
         if (error) console.error('Error saving score:', error);
     },
 
-    showResult(type) {
+    showResult(type, score = 0) {
         const overlay = document.createElement('div');
         overlay.className = 'game-over-overlay';
 
@@ -63,7 +63,7 @@ const GameManager = {
         overlay.appendChild(content);
         document.body.appendChild(overlay);
 
-        this.saveResult(type);
+        this.saveResult(type, score);
     },
 
     addPopupStyles() {
