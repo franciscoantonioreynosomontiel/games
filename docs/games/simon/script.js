@@ -6,33 +6,47 @@ let sequence = [];
 let userSequence = [];
 let level = 0;
 let playingSequence = false;
+let playbackSpeed = 500;
 
 function startGame() {
+    GameManager.setGame('simon');
     sequence = [];
-    level = 0;
+    level = GameManager.currentLevel - 1; // Start from saved level
     nextLevel();
 }
 
 function nextLevel() {
-    GameManager.setGame('simon');
     userSequence = [];
     level++;
     levelElement.innerText = level;
 
-    // Win if level reached 5 or something, or just keep going
-    if (level > 5 && level % 5 === 0) {
-        // Option to win current level segment
+    // Randomize first color or just build on top?
+    // User asked to NOT always start with blue.
+    // If it's a new level sequence, we can randomize.
+    if (sequence.length === 0) {
+        sequence.push(Math.floor(Math.random() * 4));
+    } else {
+        sequence.push(Math.floor(Math.random() * 4));
     }
 
-    sequence.push(Math.floor(Math.random() * 4));
+    // Speed scaling: playback gets faster
+    playbackSpeed = Math.max(150, 600 - (level * 15));
+
     playSequence();
 }
 
 async function playSequence() {
     playingSequence = true;
+
+    // Challenge Mode: every 5 levels, something happens
+    if (level % 5 === 0) {
+        document.body.style.filter = 'invert(1)';
+        setTimeout(() => document.body.style.filter = 'none', 500);
+    }
+
     for (const id of sequence) {
         await flashPad(id);
-        await sleep(400);
+        await sleep(playbackSpeed);
     }
     playingSequence = false;
 }
@@ -41,11 +55,10 @@ function flashPad(id) {
     return new Promise(resolve => {
         const pad = document.querySelector(`.pad[data-id="${id}"]`);
         pad.classList.add('active');
-        // Play sound could go here
         setTimeout(() => {
             pad.classList.remove('active');
             resolve();
-        }, 500);
+        }, playbackSpeed);
     });
 }
 
@@ -70,7 +83,11 @@ function checkInput() {
     }
 
     if (userSequence.length === sequence.length) {
-        setTimeout(nextLevel, 1000);
+        if (level % 5 === 0) {
+             GameManager.showResult('win', level);
+        } else {
+             setTimeout(nextLevel, 1000);
+        }
     }
 }
 

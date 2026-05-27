@@ -63,9 +63,9 @@ const GameManager = {
         overlay.className = 'game-over-overlay';
 
         const content = document.createElement('div');
-        content.className = 'game-over-content animated zoomIn';
+        content.className = `game-over-content animated ${type === 'win' ? 'bounceIn' : 'shake'}`;
 
-        const title = type === 'win' ? '¡FELICIDADES!' : 'NIVEL FALLIDO';
+        const title = type === 'win' ? '¡FELICIDADES!' : (type === 'draw' ? 'EMPATE' : 'NIVEL FALLIDO');
         const msg = type === 'win' ? `Has superado el nivel ${this.currentLevel}.` : `Te has quedado sin vidas en el nivel ${this.currentLevel}.`;
         const icon = type === 'win' ? 'emoji_events' : 'sentiment_very_dissatisfied';
 
@@ -116,6 +116,24 @@ const GameManager = {
                 50% { opacity: 1; }
             }
             .zoomIn { animation-name: zoomIn; }
+
+            @keyframes bounceIn {
+                0%, 20%, 40%, 60%, 80%, 100% { animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1); }
+                0% { opacity: 0; transform: scale3d(0.3, 0.3, 0.3); }
+                20% { transform: scale3d(1.1, 1.1, 1.1); }
+                40% { transform: scale3d(0.9, 0.9, 0.9); }
+                60% { opacity: 1; transform: scale3d(1.03, 1.03, 1.03); }
+                80% { transform: scale3d(0.97, 0.97, 0.97); }
+                100% { opacity: 1; transform: scale3d(1, 1, 1); }
+            }
+            .bounceIn { animation-name: bounceIn; }
+
+            @keyframes shake {
+                from, to { transform: translate3d(0, 0, 0); }
+                10%, 30%, 50%, 70%, 90% { transform: translate3d(-10px, 0, 0); }
+                20%, 40%, 60%, 80% { transform: translate3d(10px, 0, 0); }
+            }
+            .shake { animation-name: shake; }
         `;
         document.head.appendChild(style);
     }
