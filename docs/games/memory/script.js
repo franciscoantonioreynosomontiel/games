@@ -57,13 +57,16 @@ function checkMatch() {
             pairsElement.innerText = matchedPairs;
             resetTurn();
             if (matchedPairs === icons.length) {
-                alert('¡Felicidades! Has encontrado todas las parejas.');
+                GameManager.showResult('win');
             }
         }, 500);
     } else {
         setTimeout(() => {
             card1.classList.remove('flipped');
             card2.classList.remove('flipped');
+            if (GameManager.loseLife()) {
+                // Game over
+            }
             resetTurn();
         }, 1000);
     }
@@ -74,5 +77,6 @@ function resetTurn() {
     lockBoard = false;
 }
 
+GameManager.setGame('memory');
 resetBtn.addEventListener('click', initGame);
 initGame();

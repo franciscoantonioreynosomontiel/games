@@ -55,16 +55,17 @@ function handleGuess(letter) {
         livesElement.innerText = lives;
         document.getElementById(parts[5 - lives]).classList.add('visible');
         if (lives === 0) {
-            alert('¡Perdiste! La palabra era: ' + selectedWord);
+            GameManager.showResult('loss');
         }
     }
 }
 
 function checkWin() {
     if (wordElement.innerText === selectedWord) {
-        alert('¡Felicidades! Ganaste.');
+        GameManager.showResult('win');
     }
 }
 
+GameManager.setGame('hangman');
 resetBtn.addEventListener('click', initGame);
 initGame();

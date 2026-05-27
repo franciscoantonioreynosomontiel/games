@@ -81,7 +81,7 @@ function move(direction) {
         moved = true;
         addRandomTile();
         updateUI();
-        if (isGameOver()) alert('Game Over!');
+        if (isGameOver()) GameManager.showResult('loss', score);
     }
 }
 
@@ -121,5 +121,6 @@ gridElement.addEventListener('touchend', e => {
     }
 });
 
+GameManager.setGame('2048');
 newGameBtn.addEventListener('click', initGame);
 initGame();

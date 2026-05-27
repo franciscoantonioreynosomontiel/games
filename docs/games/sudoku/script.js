@@ -97,6 +97,9 @@ function handleInput(num) {
         selectedCell.innerText = n;
         if (n !== solution[idx]) {
             selectedCell.classList.add('wrong');
+            if (GameManager.loseLife()) {
+                // Game over handled by GameManager
+            }
         } else {
             selectedCell.classList.remove('wrong');
             checkWin();
@@ -106,9 +109,11 @@ function handleInput(num) {
 
 function checkWin() {
     if (!board.includes(0) && !document.querySelector('.wrong')) {
-        alert('¡Felicidades! Has completado el Sudoku.');
+        GameManager.showResult('win');
     }
 }
+
+GameManager.setGame('sudoku', difficultySelect.value);
 
 newGameBtn.addEventListener('click', initGame);
 numpadBtns.forEach(btn => {

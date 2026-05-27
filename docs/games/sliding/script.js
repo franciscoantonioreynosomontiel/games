@@ -73,9 +73,10 @@ function moveTile(idx) {
 function checkWin() {
     const isWin = tiles.slice(0, 15).every((num, i) => num === i + 1);
     if (isWin) {
-        alert(`¡Felicidades! Completaste el puzzle en ${moves} movimientos.`);
+        GameManager.showResult('win', moves);
     }
 }
 
+GameManager.setGame('sliding');
 resetBtn.addEventListener('click', initGame);
 initGame();

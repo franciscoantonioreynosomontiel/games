@@ -55,7 +55,7 @@ function handlePadClick(e) {
 function checkInput() {
     const currentIdx = userSequence.length - 1;
     if (userSequence[currentIdx] !== sequence[currentIdx]) {
-        alert('¡Juego Terminado! Te equivocaste.');
+        GameManager.showResult('loss', level);
         sequence = [];
         level = 0;
         levelElement.innerText = 0;
@@ -71,5 +71,6 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+GameManager.setGame('simon');
 pads.forEach(pad => pad.addEventListener('click', handlePadClick));
 startBtn.addEventListener('click', startGame);
