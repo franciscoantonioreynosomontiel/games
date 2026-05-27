@@ -5,6 +5,13 @@ const scoreElement = document.getElementById('score');
 const newGameBtn = document.getElementById('new-game');
 
 function initGame() {
+    GameManager.setGame('2048');
+
+    if (localStorage.getItem('2048_first') !== 'true') {
+        GameManager.showInstructions('Cómo jugar', 'Desliza para mover las fichas. Cuando dos fichas con el mismo número se tocan, ¡se unen en una sola! Tu objetivo es llegar a 2048.');
+        localStorage.setItem('2048_first', 'true');
+    }
+
     grid = Array(16).fill(0);
     score = 0;
     addRandomTile();
@@ -26,9 +33,7 @@ function updateUI() {
     grid.forEach((val, i) => {
         cells[i].innerText = val === 0 ? '' : val;
         cells[i].className = 'grid-cell';
-        if (val > 0) {
-            cells[i].classList.add(`tile-${val}`);
-        }
+        if (val > 0) cells[i].classList.add(`tile-${val}`);
     });
 }
 
@@ -36,20 +41,13 @@ function move(direction) {
     let moved = false;
     const rows = [];
     for (let i = 0; i < 4; i++) {
-        if (direction === 'left' || direction === 'right') {
-            rows.push(grid.slice(i * 4, (i + 1) * 4));
-        } else {
-            rows.push([grid[i], grid[i + 4], grid[i + 8], grid[i + 12]]);
-        }
+        if (direction === 'left' || direction === 'right') rows.push(grid.slice(i * 4, (i + 1) * 4));
+        else rows.push([grid[i], grid[i + 4], grid[i + 8], grid[i + 12]]);
     }
 
     const newRows = rows.map(row => {
         if (direction === 'right' || direction === 'down') row.reverse();
-
-        // Filter zeros
         let filtered = row.filter(val => val !== 0);
-
-        // Merge
         for (let i = 0; i < filtered.length - 1; i++) {
             if (filtered[i] === filtered[i + 1]) {
                 filtered[i] *= 2;
@@ -57,10 +55,7 @@ function move(direction) {
                 filtered.splice(i + 1, 1);
             }
         }
-
-        // Add zeros back
         while (filtered.length < 4) filtered.push(0);
-
         if (direction === 'right' || direction === 'down') filtered.reverse();
         return filtered;
     });
@@ -68,20 +63,17 @@ function move(direction) {
     const newGrid = Array(16).fill(0);
     for (let i = 0; i < 4; i++) {
         for (let j = 0; j < 4; j++) {
-            if (direction === 'left' || direction === 'right') {
-                newGrid[i * 4 + j] = newRows[i][j];
-            } else {
-                newGrid[j * 4 + i] = newRows[i][j];
-            }
+            if (direction === 'left' || direction === 'right') newGrid[i * 4 + j] = newRows[i][j];
+            else newGrid[j * 4 + i] = newRows[i][j];
         }
     }
 
     if (JSON.stringify(grid) !== JSON.stringify(newGrid)) {
         grid = newGrid;
-        moved = true;
         addRandomTile();
         updateUI();
-        if (isGameOver()) GameManager.showResult('loss', score);
+        if (grid.includes(2048)) GameManager.showResult('win', score);
+        else if (isGameOver()) GameManager.showResult('loss', score);
     }
 }
 
@@ -101,7 +93,6 @@ document.addEventListener('keydown', e => {
     if (e.key === 'ArrowDown') move('down');
 });
 
-// Swipe support for mobile
 let touchStartX, touchStartY;
 gridElement.addEventListener('touchstart', e => {
     touchStartX = e.touches[0].clientX;
@@ -113,14 +104,11 @@ gridElement.addEventListener('touchend', e => {
     const deltaX = e.changedTouches[0].clientX - touchStartX;
     const deltaY = e.changedTouches[0].clientY - touchStartY;
     if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        if (deltaX > 30) move('right');
-        else if (deltaX < -30) move('left');
+        if (deltaX > 30) move('right'); else if (deltaX < -30) move('left');
     } else {
-        if (deltaY > 30) move('down');
-        else if (deltaY < -30) move('up');
+        if (deltaY > 30) move('down'); else if (deltaY < -30) move('up');
     }
 });
 
-GameManager.setGame('2048');
 newGameBtn.addEventListener('click', initGame);
 initGame();

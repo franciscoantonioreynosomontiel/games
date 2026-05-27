@@ -16,9 +16,13 @@ function initGame() {
 }
 
 function shuffle() {
-    // Perform 200 random valid moves to ensure solvability
+    GameManager.setGame('sliding');
+    const level = GameManager.currentLevel;
+    const moves_count = 50 + (level * 10);
+
+    // Perform random valid moves based on level to ensure solvability
     let emptyIdx = 15;
-    for (let i = 0; i < 200; i++) {
+    for (let i = 0; i < moves_count; i++) {
         const neighbors = getNeighbors(emptyIdx);
         const moveIdx = neighbors[Math.floor(Math.random() * neighbors.length)];
         [tiles[emptyIdx], tiles[moveIdx]] = [tiles[moveIdx], tiles[emptyIdx]];

@@ -14,9 +14,16 @@ function startGame() {
 }
 
 function nextLevel() {
+    GameManager.setGame('simon');
     userSequence = [];
     level++;
     levelElement.innerText = level;
+
+    // Win if level reached 5 or something, or just keep going
+    if (level > 5 && level % 5 === 0) {
+        // Option to win current level segment
+    }
+
     sequence.push(Math.floor(Math.random() * 4));
     playSequence();
 }

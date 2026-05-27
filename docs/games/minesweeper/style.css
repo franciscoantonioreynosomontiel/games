@@ -31,17 +31,21 @@
 
 .minesweeper-board {
     display: grid;
-    grid-template-columns: repeat(10, 1fr);
+    grid-template-columns: repeat(var(--cols, 10), 30px);
+    grid-template-rows: repeat(var(--rows, 10), 30px);
     gap: 2px;
     background: #999;
     padding: 2px;
     border: 2px solid #555;
-    width: 100%;
-    max-width: 350px;
-    aspect-ratio: 1/1;
+    justify-content: center;
+    margin: 0 auto;
+    overflow: auto;
+    max-width: 100%;
 }
 
 .cell {
+    width: 30px;
+    height: 30px;
     background: #ccc;
     display: flex;
     align-items: center;
@@ -49,6 +53,7 @@
     font-weight: bold;
     cursor: pointer;
     user-select: none;
+    font-size: 14px;
 }
 
 .cell.revealed {

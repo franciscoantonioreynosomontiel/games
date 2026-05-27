@@ -51,6 +51,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             if (!Auth.isAdmin()) {
+                document.body.innerHTML = '';
                 UIManager.alert('Acceso Denegado', 'Solo administradores pueden ver esta página', 'error')
                     .then(() => window.location.href = 'index.html');
                 return;

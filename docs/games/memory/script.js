@@ -9,12 +9,17 @@ let matchedPairs = 0;
 let lockBoard = false;
 
 function initGame() {
+    GameManager.setGame('memory');
+    const level = GameManager.currentLevel;
+
     gridElement.innerHTML = '';
     matchedPairs = 0;
     pairsElement.innerText = '0';
     flippedCards = [];
     lockBoard = false;
 
+    // Scaling: levels 1-50 can increase number of pairs or use same grid
+    // For simplicity, we keep 8 pairs but can track time or level
     cards = shuffle([...icons, ...icons]);
 
     cards.forEach((icon, i) => {
