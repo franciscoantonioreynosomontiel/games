@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameHub - Puzzle Arcade</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-top">
+                <span class="material-icons menu-icon">menu</span>
+                <h1 class="app-title">GameHub</h1>
+                <span class="material-icons profile-icon">account_circle</span>
+            </div>
+        </header>
+
+        <main class="game-grid">
+            <a href="games/chess/index.html" class="game-card">
+                <div class="card-icon chess-icon">
+                    <span class="material-icons">extension</span>
+                </div>
+                <div class="card-content">
+                    <h2 class="game-name">Ajedrez</h2>
+                    <p class="game-desc">1 o 2 Jugadores</p>
+                </div>
+            </a>
+
+            <a href="games/sudoku/index.html" class="game-card">
+                <div class="card-icon sudoku-icon">
+                    <span class="material-icons">grid_on</span>
+                </div>
+                <div class="card-content">
+                    <h2 class="game-name">Sudoku</h2>
+                    <p class="game-desc">Desafío Mental</p>
+                </div>
+            </a>
+
+            <a href="games/tictactoe/index.html" class="game-card">
+                <div class="card-icon tictactoe-icon">
+                    <span class="material-icons">close</span>
+                </div>
+                <div class="card-content">
+                    <h2 class="game-name">Tres en Raya</h2>
+                    <p class="game-desc">Vs IA o Amigo</p>
+                </div>
+            </a>
+        </main>
+
+        <footer class="app-footer">
+            <nav class="bottom-nav">
+                <div class="nav-item active">
+                    <span class="material-icons">home</span>
+                    <span>Inicio</span>
+                </div>
+                <div class="nav-item">
+                    <span class="material-icons">star</span>
+                    <span>Favoritos</span>
+                </div>
+                <div class="nav-item">
+                    <span class="material-icons">settings</span>
+                    <span>Ajustes</span>
+                </div>
+            </nav>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
+    <script src="js/config.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
