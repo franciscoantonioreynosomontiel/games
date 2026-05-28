@@ -58,7 +58,12 @@ const levels = [
     { w: 'UNIVERSO', h: 'Todo lo que existe: planetas, estrellas, galaxias y el espacio infinito' },
     { w: 'CIENCIA', h: 'Conjunto de conocimientos que explican cómo funciona el mundo real' },
     { w: 'HISTORIA', h: 'Relato de los sucesos que ocurrieron en el pasado de la humanidad' },
-    { w: 'FUTURO', h: 'El tiempo que todavía no ha llegado, lo que sucederá después de ahora' }
+    { w: 'FUTURO', h: 'El tiempo que todavía no ha llegado, lo que sucederá después de ahora' },
+    { w: 'ARQUITECTURA', h: 'Arte y técnica de diseñar y construir edificios hermosos' },
+    { w: 'ELECTRICIDAD', h: 'Forma de energía que ilumina nuestras casas y hace funcionar la TV' },
+    { w: 'GASTRONOMIA', h: 'Conocimientos y actividades relacionados con la comida y el buen comer' },
+    { w: 'PALEONTOLOGIA', h: 'Ciencia que estudia los fósiles de dinosaurios y seres muy antiguos' },
+    { w: 'CONSTELACION', h: 'Grupo de estrellas que forman figuras imaginarias en el cielo nocturno' }
 ];
 
 let selectedWord = '';
@@ -81,6 +86,22 @@ function initGame() {
     hintBox.innerText = `Pista: ${current.h}`;
 
     resetBoard();
+
+    // Pre-reveal some letters for long words in high levels
+    if (GameManager.currentLevel > 10 && selectedWord.length > 5) {
+        const revealCount = Math.floor(selectedWord.length / 4);
+        const uniqueLetters = [...new Set(selectedWord.split(''))];
+        // Don't reveal vowels or common letters if possible, pick randomly
+        for(let i=0; i<revealCount; i++) {
+            const randIdx = Math.floor(Math.random() * uniqueLetters.length);
+            const letter = uniqueLetters[randIdx];
+            if (!guessedLetters.includes(letter)) {
+                guessedLetters.push(letter);
+            }
+        }
+        renderWord();
+        renderKeyboard();
+    }
 }
 
 function resetBoard() {

@@ -116,6 +116,7 @@ body {
 .connect4-icon { background-color: #3f51b5; }
 .simon-icon { background-color: #795548; }
 .hangman-icon { background-color: #607d8b; }
+.hanoi-icon { background-color: #ff5722; }
 
 .card-content h2 {
     font-size: 18px;
