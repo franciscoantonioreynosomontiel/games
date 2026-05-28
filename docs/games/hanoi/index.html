@@ -5,37 +5,97 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Torres de Hanoi - GameHub</title>
     <link rel="stylesheet" href="../../css/style.css">
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .hanoi-board {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            width: 100%;
+            max-width: 500px;
+            height: 250px;
+            background: #f0f0f0;
+            border-bottom: 10px solid #795548;
+            border-radius: 10px;
+            position: relative;
+            margin: 40px 0;
+            padding-bottom: 0;
+        }
+        .pole {
+            width: 10px;
+            height: 180px;
+            background: #795548;
+            position: relative;
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            border-radius: 5px 5px 0 0;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .pole.selected {
+            background: var(--primary-color);
+        }
+        .pole::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: -40px;
+            width: 90px;
+            height: 10px;
+            background: transparent;
+        }
+        .disk {
+            height: 20px;
+            border-radius: 10px;
+            background: var(--primary-color);
+            border: 1px solid rgba(0,0,0,0.1);
+            position: absolute;
+            transition: all 0.3s;
+            pointer-events: none;
+        }
+        .disk[data-size="1"] { background: #f44336; }
+        .disk[data-size="2"] { background: #2196f3; }
+        .disk[data-size="3"] { background: #4caf50; }
+        .disk[data-size="4"] { background: #ffeb3b; }
+        .disk[data-size="5"] { background: #9c27b0; }
+        .disk[data-size="6"] { background: #ff9800; }
+        .disk[data-size="7"] { background: #795548; }
+
+        .stats {
+            margin: 20px 0;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-    <div class="app-container">
-        <header class="app-header">
-            <div class="header-top">
-                <a href="../../index.html" class="material-icons back-icon">arrow_back</a>
-                <h1 class="app-title">Torres de Hanoi</h1>
-            </div>
-        </header>
+    <header class="app-header">
+        <div class="header-top">
+            <a href="../../index.html" class="material-icons back-icon">arrow_back</a>
+            <h1 class="app-title">Torres de Hanoi</h1>
+        </div>
+    </header>
 
-        <main class="game-area">
-            <div class="game-info">
-                <div class="info-box">Nivel: <span id="lvl">1</span></div>
-                <div class="info-box">Movimientos: <span id="moves">0</span></div>
-                <button id="reset-btn">Reiniciar</button>
-            </div>
+    <main class="game-container">
+        <div class="stats">Movimientos: <span id="moves">0</span> | Nivel: <span id="level-display">1</span></div>
 
-            <div class="hanoi-board">
-                <div class="tower" data-id="0"><div class="base"></div><div class="pole"></div></div>
-                <div class="tower" data-id="1"><div class="base"></div><div class="pole"></div></div>
-                <div class="tower" data-id="2"><div class="base"></div><div class="pole"></div></div>
-            </div>
+        <div class="hanoi-board">
+            <div class="pole" id="pole-0" data-index="0"></div>
+            <div class="pole" id="pole-1" data-index="1"></div>
+            <div class="pole" id="pole-2" data-index="2"></div>
+        </div>
 
-            <p id="target-moves" style="margin-top: 10px; color: #666; font-size: 14px;"></p>
-        </main>
-    </div>
+        <button id="reset-btn" class="btn-primary" style="width: auto; padding: 12px 30px;">REINICIAR</button>
+    </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="../../js/config.js"></script>
     <script src="../../js/auth.js"></script>
     <script src="../../js/ui-manager.js"></script>

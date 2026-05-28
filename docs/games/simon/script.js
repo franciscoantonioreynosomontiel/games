@@ -1,100 +1,91 @@
-const levelElement = document.getElementById('level');
+const gameBoard = document.getElementById('game-board');
 const startBtn = document.getElementById('start-btn');
-const pads = document.querySelectorAll('.pad');
+const statusDisplay = document.getElementById('status-display');
 
+const colors = ['red', 'blue', 'green', 'yellow'];
 let sequence = [];
 let userSequence = [];
-let level = 0;
-let playingSequence = false;
-let playbackSpeed = 500;
+let isPlaying = false;
+let speed = 600;
 
-function startGame() {
+function initGame() {
     GameManager.setGame('simon');
     sequence = [];
-    level = GameManager.currentLevel - 1; // Start from saved level
-    nextLevel();
-}
-
-function nextLevel() {
     userSequence = [];
-    level++;
-    levelElement.innerText = level;
-
-    // Randomize first color or just build on top?
-    // User asked to NOT always start with blue.
-    // If it's a new level sequence, we can randomize.
-    if (sequence.length === 0) {
-        sequence.push(Math.floor(Math.random() * 4));
-    } else {
-        sequence.push(Math.floor(Math.random() * 4));
-    }
-
-    // Speed scaling: playback gets faster
-    playbackSpeed = Math.max(150, 600 - (level * 15));
-
-    playSequence();
+    isPlaying = false;
+    statusDisplay.innerText = 'Presiona comenzar';
+    speed = Math.max(200, 600 - (GameManager.currentLevel * 20));
 }
 
-async function playSequence() {
-    playingSequence = true;
+async function startRound() {
+    userSequence = [];
+    isPlaying = false;
+    statusDisplay.innerText = 'Observa...';
 
-    // Challenge Mode: every 5 levels, something happens
-    if (level % 5 === 0) {
-        document.body.style.filter = 'invert(1)';
-        setTimeout(() => document.body.style.filter = 'none', 500);
+    // Add random color to sequence
+    sequence.push(colors[Math.floor(Math.random() * colors.length)]);
+
+    for (const color of sequence) {
+        await flashColor(color);
+        await new Promise(r => setTimeout(r, speed / 2));
     }
 
-    for (const id of sequence) {
-        await flashPad(id);
-        await sleep(playbackSpeed);
-    }
-    playingSequence = false;
+    isPlaying = true;
+    statusDisplay.innerText = 'Tu turno';
 }
 
-function flashPad(id) {
+function flashColor(color) {
     return new Promise(resolve => {
-        const pad = document.querySelector(`.pad[data-id="${id}"]`);
-        pad.classList.add('active');
+        const btn = document.getElementById(color);
+        btn.classList.add('active');
+        // Play sound if any
         setTimeout(() => {
-            pad.classList.remove('active');
+            btn.classList.remove('active');
             resolve();
-        }, playbackSpeed);
+        }, speed);
     });
 }
 
-function handlePadClick(e) {
-    if (playingSequence || sequence.length === 0) return;
+function handleColorClick(color) {
+    if (!isPlaying) return;
 
-    const id = parseInt(e.target.dataset.id);
-    userSequence.push(id);
-    flashPad(id);
+    flashColor(color);
+    userSequence.push(color);
 
-    checkInput();
-}
-
-function checkInput() {
     const currentIdx = userSequence.length - 1;
     if (userSequence[currentIdx] !== sequence[currentIdx]) {
-        GameManager.showResult('loss', level);
-        sequence = [];
-        level = 0;
-        levelElement.innerText = 0;
+        isPlaying = false;
+        if (GameManager.loseLife()) {
+            // Game Over
+        } else {
+            statusDisplay.innerText = '¡Error! Reintentando ronda...';
+            userSequence = [];
+            setTimeout(() => {
+                isPlaying = true;
+                statusDisplay.innerText = 'Tu turno';
+            }, 1000);
+        }
         return;
     }
 
     if (userSequence.length === sequence.length) {
-        if (level % 5 === 0) {
-             GameManager.showResult('win', level);
+        isPlaying = false;
+        if (sequence.length >= 5 + Math.floor(GameManager.currentLevel / 2)) {
+            GameManager.showResult('win');
         } else {
-             setTimeout(nextLevel, 1000);
+            statusDisplay.innerText = '¡Bien!';
+            setTimeout(startRound, 1000);
         }
     }
 }
 
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
+startBtn.onclick = () => {
+    initGame();
+    startRound();
+};
 
-GameManager.setGame('simon');
-pads.forEach(pad => pad.addEventListener('click', handlePadClick));
-startBtn.addEventListener('click', startGame);
+colors.forEach(color => {
+    document.getElementById(color).onclick = () => handleColorClick(color);
+});
+
+initGame();

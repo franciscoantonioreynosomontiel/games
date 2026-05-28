@@ -1,58 +1,59 @@
-const boardElement = document.getElementById('board');
-const statusElement = document.getElementById('status');
-const resetBtn = document.getElementById('reset-btn');
+const grid = document.getElementById('grid');
+const status = document.getElementById('status');
+const gameModeSelect = document.getElementById('game-mode');
+const difficultySelect = document.getElementById('difficulty');
 
-const ROWS = 6;
-const COLS = 7;
 let board = [];
-let currentPlayer = 'red';
+let currentPlayer = 1;
 let gameOver = false;
+let gameMode = 'pva';
+let difficulty = 'easy';
 
 function initGame() {
-    board = Array(ROWS).fill().map(() => Array(COLS).fill(null));
-    currentPlayer = 'red';
+    GameManager.setGame('connect4', difficulty);
+    board = Array(6).fill().map(() => Array(7).fill(0));
+    currentPlayer = 1;
     gameOver = false;
-    statusElement.innerText = 'Turno: Rojo';
+    status.innerText = "Turno: Jugador 1";
     renderBoard();
 }
 
 function renderBoard() {
-    boardElement.innerHTML = '';
-    for (let r = 0; r < ROWS; r++) {
-        for (let c = 0; c < COLS; c++) {
+    grid.innerHTML = '';
+    for (let r = 0; r < 6; r++) {
+        for (let c = 0; c < 7; c++) {
             const cell = document.createElement('div');
-            cell.classList.add('cell');
-            if (board[r][c]) cell.classList.add(board[r][c]);
-            cell.addEventListener('click', () => handleMove(c));
-            boardElement.appendChild(cell);
+            cell.className = 'cell';
+            if (board[r][c] === 1) cell.classList.add('player1');
+            if (board[r][c] === 2) cell.classList.add('player2');
+            cell.onclick = () => handleMove(c);
+            grid.appendChild(cell);
         }
     }
 }
 
 function handleMove(col) {
-    if (gameOver || (currentPlayer === 'yellow')) return;
-
-    if (makeMove(col, 'red')) {
-        if (!gameOver) {
-            currentPlayer = 'yellow';
-            statusElement.innerText = 'Turno: Amarillo (IA)';
+    if (gameOver || (gameMode === 'pva' && currentPlayer === 2)) return;
+    if (makeMove(col)) {
+        if (!gameOver && gameMode === 'pva') {
             setTimeout(makeAIMove, 500);
         }
     }
 }
 
-function makeMove(col, player) {
-    for (let r = ROWS - 1; r >= 0; r--) {
-        if (!board[r][col]) {
-            board[r][col] = player;
-            if (checkWin(board, r, col)) {
-                statusElement.innerText = `¡${player === 'red' ? 'Rojo' : 'Amarillo'} Gana!`;
-                gameOver = true;
-            } else if (board.every(row => row.every(cell => cell))) {
-                statusElement.innerText = 'Empate';
-                gameOver = true;
-            }
+function makeMove(col) {
+    for (let r = 5; r >= 0; r--) {
+        if (board[r][col] === 0) {
+            board[r][col] = currentPlayer;
             renderBoard();
+            if (checkWin(r, col)) {
+                endGame(currentPlayer);
+            } else if (board.every(row => row.every(c => c !== 0))) {
+                endGame(0);
+            } else {
+                currentPlayer = currentPlayer === 1 ? 2 : 1;
+                status.innerText = `Turno: Jugador ${currentPlayer}`;
+            }
             return true;
         }
     }
@@ -61,131 +62,85 @@ function makeMove(col, player) {
 
 function makeAIMove() {
     if (gameOver) return;
-    const bestMove = getBestMove();
-    makeMove(bestMove, 'yellow');
-    if (!gameOver) {
-        currentPlayer = 'red';
-        statusElement.innerText = 'Turno: Rojo';
+    let col;
+    if (difficulty === 'easy') {
+        const available = board[0].map((v, i) => v === 0 ? i : null).filter(v => v !== null);
+        col = available[Math.floor(Math.random() * available.length)];
     } else {
-        if (statusElement.innerText.includes('Amarillo')) {
-            GameManager.showResult('loss');
-        } else if (statusElement.innerText.includes('Rojo')) {
-            GameManager.showResult('win');
-        }
+        col = getBestMove();
     }
+
+    if (col !== undefined) makeMove(col);
 }
 
 function getBestMove() {
-    let bestScore = -Infinity;
-    let move = 0;
-    for (let c = 0; c < COLS; c++) {
-        const r = getAvailableRow(board, c);
-        if (r !== -1) {
-            board[r][c] = 'yellow';
-            let score = minimax(board, 4, false, -Infinity, Infinity);
-            board[r][c] = null;
-            if (score > bestScore) {
-                bestScore = score;
-                move = c;
-            }
-        }
+    // Try to win
+    for (let c = 0; c < 7; c++) {
+        if (board[0][c] === 0 && canWin(c, 2)) return c;
     }
-    return move;
+    // Block player
+    for (let c = 0; c < 7; c++) {
+        if (board[0][c] === 0 && canWin(c, 1)) return c;
+    }
+    // Random
+    const available = board[0].map((v, i) => v === 0 ? i : null).filter(v => v !== null);
+    return available[Math.floor(Math.random() * available.length)];
 }
 
-function getAvailableRow(b, c) {
-    for (let r = ROWS - 1; r >= 0; r--) {
-        if (!b[r][c]) return r;
-    }
-    return -1;
-}
-
-function minimax(b, depth, isMaximizing, alpha, beta) {
-    if (depth === 0) return evaluateBoard(b);
-
-    if (isMaximizing) {
-        let maxEval = -Infinity;
-        for (let c = 0; c < COLS; c++) {
-            const r = getAvailableRow(b, c);
-            if (r !== -1) {
-                b[r][c] = 'yellow';
-                if (checkWin(b, r, c)) {
-                    b[r][c] = null;
-                    return 1000 + depth;
-                }
-                let eval = minimax(b, depth - 1, false, alpha, beta);
-                b[r][c] = null;
-                maxEval = Math.max(maxEval, eval);
-                alpha = Math.max(alpha, eval);
-                if (beta <= alpha) break;
-            }
-        }
-        return maxEval;
-    } else {
-        let minEval = Infinity;
-        for (let c = 0; c < COLS; c++) {
-            const r = getAvailableRow(b, c);
-            if (r !== -1) {
-                b[r][c] = 'red';
-                if (checkWin(b, r, c)) {
-                    b[r][c] = null;
-                    return -1000 - depth;
-                }
-                let eval = minimax(b, depth - 1, true, alpha, beta);
-                b[r][c] = null;
-                minEval = Math.min(minEval, eval);
-                beta = Math.min(beta, eval);
-                if (beta <= alpha) break;
-            }
-        }
-        return minEval;
-    }
-}
-
-function evaluateBoard(b) {
-    // Simple evaluation: center control
-    let score = 0;
-    for (let r = 0; r < ROWS; r++) {
-        if (b[r][3] === 'yellow') score += 3;
-        if (b[r][3] === 'red') score -= 3;
-    }
-    return score;
-}
-
-function checkWin(b, r, c) {
-    const player = b[r][c];
-
-    // Horizontal
-    let count = 0;
-    for (let j = 0; j < COLS; j++) {
-        if (b[r][j] === player) {
-            count++;
-            if (count === 4) return true;
-        } else count = 0;
-    }
-    // Vertical
-    count = 0;
-    for (let i = 0; i < ROWS; i++) {
-        if (b[i][c] === player) {
-            count++;
-            if (count === 4) return true;
-        } else count = 0;
-    }
-    // Diagonal \
-    for (let i = 0; i <= ROWS - 4; i++) {
-        for (let j = 0; j <= COLS - 4; j++) {
-            if (b[i][j] === player && b[i+1][j+1] === player && b[i+2][j+2] === player && b[i+3][j+3] === player) return true;
-        }
-    }
-    // Diagonal /
-    for (let i = 3; i < ROWS; i++) {
-        for (let j = 0; j <= COLS - 4; j++) {
-            if (b[i][j] === player && b[i-1][j+1] === player && b[i-2][j+2] === player && b[i-3][j+3] === player) return true;
+function canWin(col, player) {
+    for (let r = 5; r >= 0; r--) {
+        if (board[r][col] === 0) {
+            board[r][col] = player;
+            const won = checkWin(r, col);
+            board[r][col] = 0;
+            return won;
         }
     }
     return false;
 }
 
-GameManager.setGame('connect4');
-resetBtn.addEventListener('click', initGame);
+function checkWin(r, c) {
+    const p = board[r][c];
+    const directions = [[0,1], [1,0], [1,1], [1,-1]];
+    for (const [dr, dc] of directions) {
+        let count = 1;
+        for (const i of [-1, 1]) {
+            let nr = r + dr * i, nc = c + dc * i;
+            while (nr >= 0 && nr < 6 && nc >= 0 && nc < 7 && board[nr][nc] === p) {
+                count++;
+                nr += dr * i; nc += dc * i;
+            }
+        }
+        if (count >= 4) return true;
+    }
+    return false;
+}
+
+function endGame(winner) {
+    gameOver = true;
+    if (winner === 0) {
+        status.innerText = "¡Empate!";
+        if (gameMode === 'pva') GameManager.showResult('draw');
+    } else {
+        if (gameMode === 'pva') {
+            status.innerText = winner === 1 ? "¡Has Ganado!" : "¡La IA ha ganado!";
+            GameManager.showResult(winner === 1 ? 'win' : 'loss');
+        } else {
+            status.innerText = `¡Jugador ${winner} ha ganado!`;
+            UIManager.alert('Fin del juego', `¡Jugador ${winner} ha ganado!`, 'success');
+        }
+    }
+}
+
+gameModeSelect.onchange = (e) => {
+    gameMode = e.target.value;
+    difficultySelect.style.display = gameMode === 'pva' ? 'block' : 'none';
+    initGame();
+};
+
+difficultySelect.onchange = (e) => {
+    difficulty = e.target.value;
+    initGame();
+};
+
 initGame();
