@@ -1,6 +1,5 @@
 const boardElement = document.getElementById('board');
 const moveCountElement = document.getElementById('move-count');
-const resetBtn = document.getElementById('reset-btn');
 
 let size = 3;
 let board = [];
@@ -8,28 +7,24 @@ let moves = 0;
 
 function initGame() {
     GameManager.setGame('sliding');
-    const level = GameManager.currentLevel;
 
-    // Scale grid size with levels
-    if (level <= 10) size = 3;
-    else if (level <= 20) size = 4;
-    else if (level <= 30) size = 5;
-    else if (level <= 40) size = 6;
-    else size = 7;
+    // Scale container based on size
+    const containerSize = Math.min(window.innerWidth * 0.9, 350);
+    const tileSize = Math.floor((containerSize - (size * 6)) / size);
 
-    boardElement.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
-    boardElement.style.width = '300px';
-    boardElement.style.height = '300px';
+    boardElement.style.gridTemplateColumns = `repeat(${size}, ${tileSize}px)`;
+    boardElement.style.gridTemplateRows = `repeat(${size}, ${tileSize}px)`;
 
     board = Array.from({length: size * size}, (_, i) => i);
     shuffleBoard();
     moves = 0;
     moveCountElement.innerText = moves;
-    renderBoard();
+    renderBoard(tileSize);
 }
 
 function shuffleBoard() {
-    for (let i = 0; i < size * size * 20; i++) {
+    // Start from solved state and do random valid moves
+    for (let i = 0; i < size * size * 30; i++) {
         const emptyIdx = board.indexOf(size * size - 1);
         const neighbors = getNeighbors(emptyIdx);
         const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
@@ -48,25 +43,17 @@ function getNeighbors(idx) {
     return neighbors;
 }
 
-function renderBoard() {
+function renderBoard(tileSize) {
     boardElement.innerHTML = '';
     board.forEach((val, i) => {
         const tile = document.createElement('div');
         tile.className = 'tile';
-        tile.style.border = '1px solid #ccc';
-        tile.style.display = 'flex';
-        tile.style.alignItems = 'center';
-        tile.style.justifyContent = 'center';
-        tile.style.fontSize = '20px';
-        tile.style.fontWeight = 'bold';
-        tile.style.cursor = 'pointer';
-        tile.style.backgroundColor = '#6200ee';
-        tile.style.color = 'white';
+        tile.style.width = `${tileSize}px`;
+        tile.style.height = `${tileSize}px`;
+        tile.style.fontSize = size > 4 ? '1.1rem' : '1.4rem';
 
         if (val === size * size - 1) {
             tile.classList.add('empty');
-            tile.style.backgroundColor = '#eee';
-            tile.style.cursor = 'default';
             tile.innerText = '';
         } else {
             tile.innerText = val + 1;
@@ -83,16 +70,13 @@ function moveTile(idx) {
         [board[emptyIdx], board[idx]] = [board[idx], board[emptyIdx]];
         moves++;
         moveCountElement.innerText = moves;
-        renderBoard();
+        renderBoard(parseInt(boardElement.children[0].style.width));
         checkWin();
     }
 }
 
 function checkWin() {
     if (board.every((val, i) => val === i)) {
-        GameManager.showResult('win');
+        setTimeout(() => GameManager.showResult('win'), 200);
     }
 }
-
-resetBtn.onclick = initGame;
-initGame();

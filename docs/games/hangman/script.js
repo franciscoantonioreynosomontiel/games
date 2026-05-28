@@ -2,33 +2,29 @@ const wordElement = document.getElementById('word-display');
 const hintElement = document.getElementById('hint-display');
 const keyboard = document.getElementById('keyboard');
 const canvas = document.getElementById('hangman-canvas');
-const ctx = canvas.getContext('ctx');
+const ctx = canvas.getContext('2d');
 const modeSelect = document.getElementById('game-mode');
 const p2Input = document.getElementById('p2-custom-word');
 
 let selectedWord = '';
-let selectedHint = '';
 let guessedLetters = [];
 let mistakes = 0;
 const maxMistakes = 6;
 let gameMode = 'p1';
 
 const p1Words = [
-    { word: 'AJEDREZ', hint: 'Juego de mesa con reyes y reinas' },
-    { word: 'SUDOKU', hint: 'Puzzle numérico japonés' },
-    { word: 'PUZZLE', hint: 'Rompecabezas' },
-    { word: 'CASCADA', hint: 'Caída de agua' },
-    { word: 'GALAXY', hint: 'Conjunto de estrellas' }
+    'AJEDREZ', 'SUDOKU', 'PUZZLE', 'CASCADA', 'GALAXY',
+    'DINOSAURIO', 'ELECTRICIDAD', 'PROGRAMACION', 'AVENTURA', 'MONTANA',
+    'OCEANO', 'TECLADO', 'PANTALLA', 'CELULAR', 'GUITARRA',
+    'PIANO', 'BATERIA', 'ESTRELLA', 'COMETA', 'PLANETA'
 ];
 
 function initGame() {
+    // Only call setGame in P1 mode to track levels
     if (gameMode === 'p1') {
         GameManager.setGame('hangman');
         const level = GameManager.currentLevel;
-        // Basic words for now, in a real app we'd have a larger list or API
-        const wordData = p1Words[(level - 1) % p1Words.length];
-        selectedWord = wordData.word;
-        selectedHint = wordData.hint;
+        selectedWord = p1Words[(level - 1) % p1Words.length];
     }
 
     guessedLetters = [];
@@ -40,10 +36,8 @@ function initGame() {
 function renderGame() {
     wordElement.innerHTML = selectedWord.split('').map(letter =>
         `<span class="letter">${guessedLetters.includes(letter) ? letter : '_'}</span>`
-    ).join('');
+    ).join(' ');
 
-    // Auto-reveal some letters based on level in P1 mode if needed, or just keep it hard
-    // User requested "letras de ayuda" instead of hints
     hintElement.innerText = `Longitud: ${selectedWord.length} letras`;
 
     keyboard.innerHTML = 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'.split('').map(l =>
@@ -52,53 +46,33 @@ function renderGame() {
 }
 
 function guess(letter) {
-    if (guessedLetters.includes(letter)) return;
+    if (guessedLetters.includes(letter) || mistakes >= maxMistakes) return;
     guessedLetters.push(letter);
 
     if (!selectedWord.includes(letter)) {
         mistakes++;
         drawHangman();
         if (mistakes >= maxMistakes) {
-            endGame(false);
+            setTimeout(() => endGame(false), 300);
         }
     } else {
-        checkWin();
+        if (selectedWord.split('').every(l => guessedLetters.includes(l))) {
+            setTimeout(() => endGame(true), 300);
+        }
     }
     renderGame();
-}
-
-function checkWin() {
-    if (selectedWord.split('').every(l => guessedLetters.includes(l))) {
-        endGame(true);
-    }
 }
 
 function endGame(won) {
     if (gameMode === 'p1') {
         GameManager.showResult(won ? 'win' : 'loss');
     } else {
-        UIManager.alert(won ? '¡Ganaste!' : 'Perdiste', `La palabra era: ${selectedWord}`, won ? 'success' : 'error');
-        p2Input.style.display = 'block';
+        UIManager.alert(won ? '¡Ganaste!' : 'Perdiste', `La palabra era: ${selectedWord}`, won ? 'success' : 'error').then(() => {
+            // Reset to splash for 2P mode
+            location.reload();
+        });
     }
 }
-
-modeSelect.onchange = (e) => {
-    gameMode = e.target.value;
-    p2Input.style.display = gameMode === 'p2' ? 'block' : 'none';
-    initGame();
-};
-
-document.getElementById('start-p2').onclick = () => {
-    const word = document.getElementById('custom-word').value.toUpperCase();
-    if (word.length < 3) {
-        UIManager.alert('Error', 'Palabra muy corta', 'error');
-        return;
-    }
-    selectedWord = word;
-    gameMode = 'p2';
-    p2Input.style.display = 'none';
-    initGame();
-};
 
 function drawHangman() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -124,5 +98,3 @@ function drawHangman() {
         ctx.beginPath(); ctx.moveTo(120, 130); ctx.lineTo(150, 160); ctx.stroke();
     }
 }
-
-initGame();

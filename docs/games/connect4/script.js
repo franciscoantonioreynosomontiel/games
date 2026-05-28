@@ -1,21 +1,27 @@
 const grid = document.getElementById('grid');
 const status = document.getElementById('status');
-const gameModeSelect = document.getElementById('game-mode');
-const difficultySelect = document.getElementById('difficulty');
 
 let board = [];
 let currentPlayer = 1;
 let gameOver = false;
 let gameMode = 'pva';
-let difficulty = 'easy';
+let difficulty = 'hard'; // Use minimax for better experience
 
 function initGame() {
-    GameManager.setGame('connect4', difficulty);
+    GameManager.setGame('connect4');
     board = Array(6).fill().map(() => Array(7).fill(0));
     currentPlayer = 1;
     gameOver = false;
-    status.innerText = "Turno: Jugador 1";
+    updateStatus();
     renderBoard();
+}
+
+function updateStatus() {
+    if (gameMode === 'pva') {
+        status.innerText = currentPlayer === 1 ? "Tu Turno" : "IA Pensando...";
+    } else {
+        status.innerText = `Turno: Jugador ${currentPlayer}`;
+    }
 }
 
 function renderBoard() {
@@ -34,9 +40,10 @@ function renderBoard() {
 
 function handleMove(col) {
     if (gameOver || (gameMode === 'pva' && currentPlayer === 2)) return;
+
     if (makeMove(col)) {
-        if (!gameOver && gameMode === 'pva') {
-            setTimeout(makeAIMove, 500);
+        if (!gameOver && gameMode === 'pva' && currentPlayer === 2) {
+            setTimeout(makeAIMove, 600);
         }
     }
 }
@@ -52,7 +59,7 @@ function makeMove(col) {
                 endGame(0);
             } else {
                 currentPlayer = currentPlayer === 1 ? 2 : 1;
-                status.innerText = `Turno: Jugador ${currentPlayer}`;
+                updateStatus();
             }
             return true;
         }
@@ -62,41 +69,40 @@ function makeMove(col) {
 
 function makeAIMove() {
     if (gameOver) return;
-    let col;
-    if (difficulty === 'easy') {
-        const available = board[0].map((v, i) => v === 0 ? i : null).filter(v => v !== null);
-        col = available[Math.floor(Math.random() * available.length)];
-    } else {
-        col = getBestMove();
-    }
-
-    if (col !== undefined) makeMove(col);
+    let col = getBestMove();
+    makeMove(col);
 }
 
 function getBestMove() {
-    // Try to win
+    // 1. Try to win
     for (let c = 0; c < 7; c++) {
-        if (board[0][c] === 0 && canWin(c, 2)) return c;
-    }
-    // Block player
-    for (let c = 0; c < 7; c++) {
-        if (board[0][c] === 0 && canWin(c, 1)) return c;
-    }
-    // Random
-    const available = board[0].map((v, i) => v === 0 ? i : null).filter(v => v !== null);
-    return available[Math.floor(Math.random() * available.length)];
-}
-
-function canWin(col, player) {
-    for (let r = 5; r >= 0; r--) {
-        if (board[r][col] === 0) {
-            board[r][col] = player;
-            const won = checkWin(r, col);
-            board[r][col] = 0;
-            return won;
+        if (board[0][c] === 0) {
+            const r = getOpenRow(c);
+            board[r][c] = 2;
+            if (checkWin(r, c)) { board[r][c] = 0; return c; }
+            board[r][c] = 0;
         }
     }
-    return false;
+    // 2. Block player
+    for (let c = 0; c < 7; c++) {
+        if (board[0][c] === 0) {
+            const r = getOpenRow(c);
+            board[r][c] = 1;
+            if (checkWin(r, c)) { board[r][c] = 0; return c; }
+            board[r][c] = 0;
+        }
+    }
+    // 3. Prefer center
+    const preferred = [3, 2, 4, 1, 5, 0, 6];
+    for (let c of preferred) {
+        if (board[0][c] === 0) return c;
+    }
+}
+
+function getOpenRow(c) {
+    for (let r = 5; r >= 0; r--) {
+        if (board[r][c] === 0) return r;
+    }
 }
 
 function checkWin(r, c) {
@@ -131,16 +137,3 @@ function endGame(winner) {
         }
     }
 }
-
-gameModeSelect.onchange = (e) => {
-    gameMode = e.target.value;
-    difficultySelect.style.display = gameMode === 'pva' ? 'block' : 'none';
-    initGame();
-};
-
-difficultySelect.onchange = (e) => {
-    difficulty = e.target.value;
-    initGame();
-};
-
-initGame();

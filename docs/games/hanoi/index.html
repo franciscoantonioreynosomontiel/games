@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="../../css/style.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        .game-container {
+        .game-area {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -17,48 +17,39 @@
             display: flex;
             justify-content: space-around;
             align-items: flex-end;
-            width: 100%;
-            max-width: 500px;
-            height: 250px;
-            background: #f0f0f0;
-            border-bottom: 10px solid #795548;
+            width: 90%;
+            max-width: 400px;
+            background: #eee;
+            border-bottom: 8px solid #795548;
             border-radius: 10px;
-            position: relative;
-            margin: 40px 0;
-            padding-bottom: 0;
+            margin: 30px 0;
+            padding: 0 15px;
+            min-height: 150px;
         }
         .pole {
-            width: 10px;
-            height: 180px;
+            width: 12px;
             background: #795548;
             position: relative;
             display: flex;
             flex-direction: column-reverse;
             align-items: center;
-            border-radius: 5px 5px 0 0;
+            border-radius: 6px 6px 0 0;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.2s;
         }
         .pole.selected {
             background: var(--primary-color);
-        }
-        .pole::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: -40px;
-            width: 90px;
-            height: 10px;
-            background: transparent;
+            box-shadow: 0 0 15px var(--primary-color);
         }
         .disk {
-            height: 20px;
-            border-radius: 10px;
+            height: 22px;
+            border-radius: 11px;
             background: var(--primary-color);
             border: 1px solid rgba(0,0,0,0.1);
             position: absolute;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             pointer-events: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
         .disk[data-size="1"] { background: #f44336; }
         .disk[data-size="2"] { background: #2196f3; }
@@ -69,37 +60,62 @@
         .disk[data-size="7"] { background: #795548; }
 
         .stats {
-            margin: 20px 0;
-            font-size: 1.2rem;
-            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #333;
         }
     </style>
 </head>
 <body>
-    <header class="app-header">
-        <div class="header-top">
-            <a href="../../index.html" class="material-icons back-icon">arrow_back</a>
-            <h1 class="app-title">Torres de Hanoi</h1>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-top">
+                <a href="../../index.html" class="material-icons back-icon">arrow_back</a>
+                <h1 class="app-title">Torres de Hanoi</h1>
+            </div>
+        </header>
+
+        <div id="splash" class="splash-screen">
+            <span class="material-icons" style="font-size: 80px; color: var(--primary-color); margin-bottom: 20px;">layers</span>
+            <h2>Torres de Hanoi</h2>
+            <p style="color: #666; margin-bottom: 30px;">Mueve todos los discos a la última torre.<br>Un disco grande no puede estar sobre uno pequeño.</p>
+            <div class="level-grid">
+                <button class="btn-premium" onclick="startGame(3)">Fácil (3)</button>
+                <button class="btn-premium" onclick="startGame(5)">Medio (5)</button>
+                <button class="btn-premium" onclick="startGame(7)">Difícil (7)</button>
+            </div>
         </div>
-    </header>
 
-    <main class="game-container">
-        <div class="stats">Movimientos: <span id="moves">0</span> | Nivel: <span id="level-display">1</span></div>
+        <main class="game-area" id="main-game" style="display: none;">
+            <div class="stats">Movimientos: <span id="moves">0</span></div>
 
-        <div class="hanoi-board">
-            <div class="pole" id="pole-0" data-index="0"></div>
-            <div class="pole" id="pole-1" data-index="1"></div>
-            <div class="pole" id="pole-2" data-index="2"></div>
-        </div>
+            <div class="hanoi-board">
+                <div class="pole" id="pole-0"></div>
+                <div class="pole" id="pole-1"></div>
+                <div class="pole" id="pole-2"></div>
+            </div>
 
-        <button id="reset-btn" class="btn-primary" style="width: auto; padding: 12px 30px;">REINICIAR</button>
-    </main>
+            <button id="reset-btn" class="btn-premium">REINICIAR</button>
+        </main>
+    </div>
 
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../../js/config.js"></script>
     <script src="../../js/auth.js"></script>
     <script src="../../js/ui-manager.js"></script>
     <script src="../../js/game-manager.js"></script>
     <script src="script.js"></script>
+    <script>
+        function startGame(d) {
+            document.getElementById('splash').classList.add('animated', 'fadeOut');
+            setTimeout(() => {
+                document.getElementById('splash').style.display = 'none';
+                document.getElementById('main-game').style.display = 'flex';
+                document.getElementById('main-game').classList.add('animated', 'fadeInUp');
+                initGameWithDisks(d);
+            }, 300);
+        }
+    </script>
 </body>
 </html>

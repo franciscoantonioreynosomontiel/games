@@ -1,6 +1,5 @@
 const boardElement = document.getElementById('board');
 const scoreDisplay = document.getElementById('score');
-const resetBtn = document.getElementById('reset-btn');
 
 let score = 0;
 let size = 4;
@@ -11,20 +10,11 @@ function initGame() {
     const state = GameManager.setGame('2048');
     const level = state.level;
 
-    // Level Scaling
-    if (level <= 10) {
-        size = 4;
-        goal = 2048;
-    } else if (level <= 20) {
-        size = 5;
-        goal = 2048;
-    } else if (level <= 30) {
-        size = 4;
-        goal = 4096;
-    } else {
-        size = 5;
-        goal = 4096;
-    }
+    // Hardcoded level logic as example
+    if (level <= 10) { size = 4; goal = 2048; }
+    else if (level <= 20) { size = 5; goal = 2048; }
+    else if (level <= 30) { size = 4; goal = 4096; }
+    else { size = 5; goal = 4096; }
 
     boardElement.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
     boardElement.style.gridTemplateRows = `repeat(${size}, 1fr)`;
@@ -35,9 +25,6 @@ function initGame() {
     addRandomTile();
     addRandomTile();
     renderBoard();
-
-    const instr = document.querySelector('.instructions');
-    if (instr) instr.innerText = `Nivel ${level}: ¡Llega al ${goal}! Desliza para combinar.`;
 }
 
 function addRandomTile() {
@@ -50,9 +37,12 @@ function addRandomTile() {
 
 function renderBoard() {
     boardElement.innerHTML = '';
+    const tileSize = Math.floor(280 / size);
     board.forEach(val => {
         const tile = document.createElement('div');
         tile.className = 'tile';
+        tile.style.width = `${tileSize}px`;
+        tile.style.height = `${tileSize}px`;
         if (val > 0) {
             tile.innerText = val;
             tile.dataset.value = val;
@@ -155,6 +145,3 @@ boardElement.addEventListener('touchend', e => {
         if (Math.abs(dy) > 30) move(dy > 0 ? 'down' : 'up');
     }
 }, {passive: false});
-
-resetBtn.onclick = initGame;
-initGame();

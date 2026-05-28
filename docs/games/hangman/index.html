@@ -5,9 +5,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ahorcado - GameHub</title>
     <link rel="stylesheet" href="../../css/style.css">
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        .game-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        #word-display {
+            font-size: 1.8rem;
+            letter-spacing: 0.3rem;
+            margin: 20px 0;
+            font-family: 'Roboto Mono', monospace;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            width: 100%;
+            max-width: 450px;
+            margin-top: 20px;
+        }
+        .keyboard button {
+            padding: 12px 5px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+        }
+        .keyboard button:active { transform: scale(0.9); }
+        .keyboard button:disabled {
+            background: #eee;
+            color: #bbb;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        #hangman-canvas {
+            background: transparent;
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
     <div class="app-container">
@@ -18,49 +62,30 @@
             </div>
         </header>
 
-        <main class="game-area">
-            <div class="game-controls" style="width:100%; display:flex; gap:10px; margin-bottom:10px;">
-                <button id="mode-1p" class="tab-btn active">1 Jugador</button>
-                <button id="mode-2p" class="tab-btn">2 Jugadores</button>
+        <!-- Mode Splash -->
+        <div id="splash" class="splash-screen">
+            <span class="material-icons" style="font-size: 80px; color: var(--primary-color); margin-bottom: 20px;">help_center</span>
+            <h2>Ahorcado</h2>
+            <div class="level-grid">
+                <button class="btn-premium" onclick="startMode('p1')">Niveles (1 Jugador)</button>
+                <button class="btn-premium" style="background: #03dac6; color: black;" onclick="showP2Input()">Personalizado (2P)</button>
             </div>
 
-            <div class="game-info">
-                <div class="info-box">Nivel: <span id="lvl-display">1</span></div>
-                <div class="info-box">Vidas: <span id="lives">6</span></div>
+            <div id="p2-setup" style="display: none; margin-top: 30px; width: 100%; max-width: 300px;">
+                <input type="password" id="custom-word" placeholder="Escribe la palabra..."
+                       style="width: 100%; padding: 12px; border-radius: 25px; border: 2px solid var(--primary-color); margin-bottom: 15px; text-align: center;">
+                <button class="btn-premium" onclick="startP2()">Comenzar</button>
             </div>
+        </div>
 
-            <div id="hint-box" style="margin: 5px 0; color: #666; font-style: italic; min-height: 20px;"></div>
+        <main class="game-area" id="main-game" style="display: none;">
+            <canvas id="hangman-canvas" width="200" height="200"></canvas>
 
-            <div class="hangman-display">
-                <svg width="120" height="120" viewBox="0 0 150 150" class="hangman-svg">
-                    <line x1="20" y1="140" x2="130" y2="140" />
-                    <line x1="40" y1="140" x2="40" y2="20" />
-                    <line x1="40" y1="20" x2="100" y2="20" />
-                    <line x1="100" y1="20" x2="100" y2="40" />
-                    <circle cx="100" cy="50" r="10" class="part" id="head" />
-                    <line x1="100" y1="60" x2="100" y2="100" class="part" id="body" />
-                    <line x1="100" y1="70" x2="80" y2="90" class="part" id="left-arm" />
-                    <line x1="100" y1="70" x2="120" y2="90" class="part" id="right-arm" />
-                    <line x1="100" y1="100" x2="80" y2="130" class="part" id="left-leg" />
-                    <line x1="100" y1="100" x2="120" y2="130" class="part" id="right-leg" />
-                </svg>
-            </div>
+            <div id="word-display">_ _ _ _</div>
+            <div id="hint-display" style="margin-bottom: 10px; color: #666; font-weight: 500;"></div>
 
-            <div class="word-display" id="word"></div>
             <div class="keyboard" id="keyboard"></div>
         </main>
-    </div>
-
-    <!-- Modals -->
-    <div class="modal-overlay" id="word-entry-modal">
-        <div class="modal-content">
-            <h2>Jugador 1</h2>
-            <p>Escribe la palabra para que el Jugador 2 la adivine:</p>
-            <div class="form-group">
-                <input type="password" id="custom-word" placeholder="PALABRA" style="text-transform: uppercase;">
-            </div>
-            <button class="btn-primary" id="start-2p">COMENZAR</button>
-        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -69,5 +94,29 @@
     <script src="../../js/ui-manager.js"></script>
     <script src="../../js/game-manager.js"></script>
     <script src="script.js"></script>
+    <script>
+        function startMode(m) {
+            gameMode = m;
+            document.getElementById('splash').style.display = 'none';
+            document.getElementById('main-game').style.display = 'flex';
+            initGame();
+        }
+        function showP2Input() {
+            document.querySelector('.level-grid').style.display = 'none';
+            document.getElementById('p2-setup').style.display = 'block';
+        }
+        function startP2() {
+            const word = document.getElementById('custom-word').value.toUpperCase().trim();
+            if (word.length < 3) {
+                UIManager.alert('Error', 'Palabra muy corta', 'error');
+                return;
+            }
+            selectedWord = word;
+            gameMode = 'p2';
+            document.getElementById('splash').style.display = 'none';
+            document.getElementById('main-game').style.display = 'flex';
+            initGame();
+        }
+    </script>
 </body>
 </html>

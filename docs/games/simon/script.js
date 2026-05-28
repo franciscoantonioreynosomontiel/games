@@ -1,4 +1,3 @@
-const gameBoard = document.getElementById('game-board');
 const startBtn = document.getElementById('start-btn');
 const statusDisplay = document.getElementById('status-display');
 
@@ -13,16 +12,20 @@ function initGame() {
     sequence = [];
     userSequence = [];
     isPlaying = false;
-    statusDisplay.innerText = 'Presiona comenzar';
-    speed = Math.max(200, 600 - (GameManager.currentLevel * 20));
+    statusDisplay.innerText = 'Listo';
+    statusDisplay.className = 'status-badge';
+    speed = Math.max(250, 700 - (GameManager.currentLevel * 15));
 }
 
 async function startRound() {
+    startBtn.disabled = true;
+    startBtn.style.opacity = '0.5';
     userSequence = [];
     isPlaying = false;
     statusDisplay.innerText = 'Observa...';
+    statusDisplay.className = 'status-badge watching';
 
-    // Add random color to sequence
+    // Add 1 random color per round
     sequence.push(colors[Math.floor(Math.random() * colors.length)]);
 
     for (const color of sequence) {
@@ -32,13 +35,13 @@ async function startRound() {
 
     isPlaying = true;
     statusDisplay.innerText = 'Tu turno';
+    statusDisplay.className = 'status-badge playing';
 }
 
 function flashColor(color) {
     return new Promise(resolve => {
         const btn = document.getElementById(color);
         btn.classList.add('active');
-        // Play sound if any
         setTimeout(() => {
             btn.classList.remove('active');
             resolve();
@@ -58,11 +61,11 @@ function handleColorClick(color) {
         if (GameManager.loseLife()) {
             // Game Over
         } else {
-            statusDisplay.innerText = '¡Error! Reintentando ronda...';
-            userSequence = [];
+            statusDisplay.innerText = '¡Error!';
+            statusDisplay.className = 'status-badge watching';
             setTimeout(() => {
-                isPlaying = true;
-                statusDisplay.innerText = 'Tu turno';
+                userSequence = [];
+                startRound();
             }, 1000);
         }
         return;
@@ -70,7 +73,8 @@ function handleColorClick(color) {
 
     if (userSequence.length === sequence.length) {
         isPlaying = false;
-        if (sequence.length >= 5 + Math.floor(GameManager.currentLevel / 2)) {
+        // Level up every 3 rounds or based on sequence length
+        if (sequence.length >= 4 + Math.floor(GameManager.currentLevel / 3)) {
             GameManager.showResult('win');
         } else {
             statusDisplay.innerText = '¡Bien!';
@@ -79,13 +83,8 @@ function handleColorClick(color) {
     }
 }
 
-startBtn.onclick = () => {
-    initGame();
-    startRound();
-};
+startBtn.onclick = startRound;
 
 colors.forEach(color => {
     document.getElementById(color).onclick = () => handleColorClick(color);
 });
-
-initGame();
