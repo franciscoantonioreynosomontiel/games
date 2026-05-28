@@ -1,47 +1,88 @@
 const boardElement = document.getElementById('sudoku-board');
 const newGameBtn = document.getElementById('new-game');
-const difficultySelect = document.getElementById('difficulty');
-const numpadBtns = document.querySelectorAll('.numpad-btn');
+const numpad = document.getElementById('numpad');
+const splash = document.getElementById('level-selector');
+const gameBoard = document.getElementById('game-board');
+const modeDisplay = document.getElementById('mode-display');
 
 let selectedCell = null;
 let board = [];
 let solution = [];
+let size = 9;
+let difficulty = 'medium';
+let symbols = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+function initNumpad() {
+    numpad.innerHTML = '';
+    symbols.forEach(s => {
+        const btn = document.createElement('button');
+        btn.className = 'numpad-btn';
+        btn.innerText = s;
+        btn.onclick = () => handleInput(s);
+        numpad.appendChild(btn);
+    });
+    const erase = document.createElement('button');
+    erase.className = 'numpad-btn';
+    erase.innerHTML = '<span class="material-icons">backspace</span>';
+    erase.onclick = () => handleInput('erase');
+    numpad.appendChild(erase);
+}
+
+document.querySelectorAll('.lvl-btn').forEach(btn => {
+    btn.onclick = () => {
+        const mode = btn.dataset.mode;
+        difficulty = btn.dataset.diff;
+        if (mode === 'mega') {
+            size = 16;
+            symbols = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', '0'];
+            modeDisplay.innerText = 'Mega 16x16';
+        } else {
+            size = 9;
+            symbols = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
+            modeDisplay.innerText = 'Clásico 9x9';
+        }
+        document.documentElement.style.setProperty('--size', size);
+        boardElement.className = `sudoku-board size-${size}`;
+        splash.style.display = 'none';
+        gameBoard.style.display = 'flex';
+        initNumpad();
+        initGame();
+    };
+});
 
 function initGame() {
+    GameManager.setGame('sudoku', difficulty);
     generateSudoku();
     renderBoard();
 }
 
 function generateSudoku() {
-    GameManager.setGame('sudoku');
-
-    // 50 levels scaling
-    const level = GameManager.currentLevel;
-    let removeCount = 30 + Math.floor(level / 2); // 30 to 55
-    if (removeCount > 60) removeCount = 60;
-
-    board = Array(81).fill(0);
+    board = Array(size * size).fill(null);
     solveSudoku(board);
     solution = [...board];
 
+    let removeCount = size === 9 ? 40 : 120;
+    if (difficulty === 'easy') removeCount -= 10;
+    if (difficulty === 'hard') removeCount += 10;
+
     while (removeCount > 0) {
-        let idx = Math.floor(Math.random() * 81);
-        if (board[idx] !== 0) {
-            board[idx] = 0;
+        let idx = Math.floor(Math.random() * size * size);
+        if (board[idx] !== null) {
+            board[idx] = null;
             removeCount--;
         }
     }
 }
 
 function solveSudoku(b) {
-    for (let i = 0; i < 81; i++) {
-        if (b[i] === 0) {
-            let nums = [1, 2, 3, 4, 5, 6, 7, 8, 9].sort(() => Math.random() - 0.5);
-            for (let num of nums) {
-                if (isValid(b, i, num)) {
-                    b[i] = num;
+    for (let i = 0; i < size * size; i++) {
+        if (b[i] === null) {
+            let shuffled = [...symbols].sort(() => Math.random() - 0.5);
+            for (let sym of shuffled) {
+                if (isValid(b, i, sym)) {
+                    b[i] = sym;
                     if (solveSudoku(b)) return true;
-                    b[i] = 0;
+                    b[i] = null;
                 }
             }
             return false;
@@ -50,16 +91,19 @@ function solveSudoku(b) {
     return true;
 }
 
-function isValid(b, idx, num) {
-    let row = Math.floor(idx / 9);
-    let col = idx % 9;
-    let boxRow = Math.floor(row / 3) * 3;
-    let boxCol = Math.floor(col / 3) * 3;
+function isValid(b, idx, sym) {
+    let row = Math.floor(idx / size);
+    let col = idx % size;
+    let boxSize = Math.sqrt(size);
+    let boxRow = Math.floor(row / boxSize) * boxSize;
+    let boxCol = Math.floor(col / boxSize) * boxSize;
 
-    for (let i = 0; i < 9; i++) {
-        if (b[row * 9 + i] === num) return false;
-        if (b[i * 9 + col] === num) return false;
-        if (b[(boxRow + Math.floor(i / 3)) * 9 + (boxCol + i % 3)] === num) return false;
+    for (let i = 0; i < size; i++) {
+        if (b[row * size + i] === sym) return false;
+        if (b[i * size + col] === sym) return false;
+        let r = boxRow + Math.floor(i / boxSize);
+        let c = boxCol + (i % boxSize);
+        if (b[r * size + c] === sym) return false;
     }
     return true;
 }
@@ -69,39 +113,33 @@ function renderBoard() {
     board.forEach((val, i) => {
         const cell = document.createElement('div');
         cell.classList.add('sudoku-cell');
-        if (val !== 0) {
+        if (val !== null) {
             cell.innerText = val;
             cell.classList.add('fixed');
         }
         cell.dataset.index = i;
-        cell.addEventListener('click', () => selectCell(cell));
+        cell.onclick = () => {
+            if (selectedCell) selectedCell.classList.remove('selected');
+            selectedCell = cell;
+            cell.classList.add('selected');
+        };
         boardElement.appendChild(cell);
     });
 }
 
-function selectCell(cell) {
-    if (selectedCell) selectedCell.classList.remove('selected');
-    selectedCell = cell;
-    selectedCell.classList.add('selected');
-}
-
-function handleInput(num) {
+function handleInput(sym) {
     if (!selectedCell || selectedCell.classList.contains('fixed')) return;
-
     const idx = parseInt(selectedCell.dataset.index);
-    if (num === 'erase') {
-        board[idx] = 0;
+    if (sym === 'erase') {
+        board[idx] = null;
         selectedCell.innerText = '';
         selectedCell.classList.remove('wrong');
     } else {
-        const n = parseInt(num);
-        board[idx] = n;
-        selectedCell.innerText = n;
-        if (n !== solution[idx]) {
+        board[idx] = sym;
+        selectedCell.innerText = sym;
+        if (sym !== solution[idx]) {
             selectedCell.classList.add('wrong');
-            if (GameManager.loseLife()) {
-                // Game over handled by GameManager
-            }
+            GameManager.loseLife();
         } else {
             selectedCell.classList.remove('wrong');
             checkWin();
@@ -110,21 +148,9 @@ function handleInput(num) {
 }
 
 function checkWin() {
-    if (!board.includes(0) && !document.querySelector('.wrong')) {
+    if (!board.includes(null) && !document.querySelector('.wrong')) {
         GameManager.showResult('win');
     }
 }
 
-GameManager.setGame('sudoku', difficultySelect.value);
-
-newGameBtn.addEventListener('click', initGame);
-numpadBtns.forEach(btn => {
-    btn.addEventListener('click', () => handleInput(btn.dataset.num));
-});
-
-document.addEventListener('keydown', (e) => {
-    if (e.key >= '1' && e.key <= '9') handleInput(e.key);
-    if (e.key === 'Backspace' || e.key === 'Delete') handleInput('erase');
-});
-
-initGame();
+newGameBtn.onclick = initGame;

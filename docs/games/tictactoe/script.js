@@ -44,22 +44,32 @@ function changePlayer() {
 
 function checkForWinner() {
     let roundWon = false;
+    let winCombo = null;
+
     for (let i = 0; i < winningConditions.length; i++) {
         const [a, b, c] = winningConditions[i];
         if (board[a] && board[a] === board[b] && board[a] === board[c]) {
             roundWon = true;
+            winCombo = [a, b, c];
             break;
         }
     }
 
     if (roundWon) {
-        statusElement.innerText = `¡Jugador ${currentPlayer} ha ganado!`;
-        isGameActive = false;
+        winCombo.forEach(idx => cells[idx].classList.add('winner'));
 
         if (gameMode === 'pva') {
-            if (currentPlayer === 'X') GameManager.showResult('win');
-            else GameManager.showResult('loss');
+            if (currentPlayer === 'X') {
+                statusElement.innerText = '¡Has Ganado!';
+                setTimeout(() => GameManager.showResult('win'), 1000);
+            } else {
+                statusElement.innerText = '¡La IA ha ganado!';
+                setTimeout(() => GameManager.showResult('loss'), 1000);
+            }
+        } else {
+            statusElement.innerText = `¡Jugador ${currentPlayer} ha ganado!`;
         }
+        isGameActive = false;
         return;
     }
 
@@ -73,10 +83,8 @@ function checkForWinner() {
     changePlayer();
 }
 
-// Init GameManager
-GameManager.setGame('tictactoe', difficulty);
-
 function makeAIMove() {
+    if (!isGameActive) return;
     let move;
     if (difficulty === 'easy') {
         move = getRandomMove();
@@ -99,7 +107,6 @@ function getRandomMove() {
 }
 
 function getMediumMove() {
-    // Try to win or block
     const move = findWinningOrBlockingMove('O') || findWinningOrBlockingMove('X');
     return move !== null ? move : getRandomMove();
 }
@@ -185,7 +192,7 @@ function resetGame() {
     statusElement.innerText = `Turno de ${currentPlayer}`;
     cells.forEach(cell => {
         cell.innerText = '';
-        cell.classList.remove('x', 'o');
+        cell.classList.remove('x', 'o', 'winner');
     });
 }
 
@@ -197,8 +204,12 @@ modeSelect.addEventListener('change', (e) => {
 
 difficultySelect.addEventListener('change', (e) => {
     difficulty = e.target.value;
+    GameManager.setGame('tictactoe', difficulty);
     resetGame();
 });
 
 cells.forEach(cell => cell.addEventListener('click', handleCellClick));
 resetBtn.addEventListener('click', resetGame);
+
+// Initial set
+GameManager.setGame('tictactoe', difficulty);

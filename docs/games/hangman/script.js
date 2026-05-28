@@ -9,16 +9,16 @@ const modal2p = document.getElementById('word-entry-modal');
 const start2pBtn = document.getElementById('start-2p');
 
 const levels = [
-    { w: 'SOL', h: 'El gran astro que nos ilumina y nos da calor durante el día' },
-    { w: 'LUNA', h: 'Cuerpo celeste que brilla de noche y cambia de forma cada mes' },
-    { w: 'CASA', h: 'El lugar donde vives con tu familia y te proteges del clima' },
-    { w: 'GATO', h: 'Mascota pequeña que maúlla y le gusta perseguir ratones' },
-    { w: 'PERRO', h: 'Fiel animal doméstico que ladra y es el mejor amigo del hombre' },
-    { w: 'ARBOL', h: 'Planta de tronco leñoso muy alta que tiene ramas y muchas hojas' },
-    { w: 'LIBRO', h: 'Objeto con muchas hojas de papel escritas que sirve para leer historias' },
-    { w: 'AGUA', h: 'Líquido transparente y vital que bebes cuando tienes sed' },
-    { w: 'FUEGO', h: 'Fenómeno que quema, da luz y calor, pero es peligroso tocarlo' },
-    { w: 'TIGRE', h: 'Gran felino salvaje de color naranja con rayas negras muy marcadas' },
+    { w: 'ORQUESTA', h: 'Gran grupo de músicos que tocan diversos instrumentos dirigidos por un director' },
+    { w: 'ASTRONAUTA', h: 'Persona entrenada para viajar al espacio exterior en una nave espacial' },
+    { w: 'BIBLIOTECA', h: 'Lugar donde se guardan y prestan miles de libros de forma organizada' },
+    { w: 'ESPECTACULO', h: 'Función o actuación que se realiza para entretener a un público' },
+    { w: 'AVENTURERO', h: 'Alguien que busca experiencias nuevas y emocionantes, a menudo arriesgadas' },
+    { w: 'DICCIONARIO', h: 'Libro donde puedes buscar el significado de todas las palabras' },
+    { w: 'FERROCARRIL', h: 'Sistema de transporte de trenes que circulan sobre vías de metal' },
+    { w: 'SUBMARINO', h: 'Vehículo capaz de navegar bajo el agua a grandes profundidades' },
+    { w: 'TELESCOPIO', h: 'Instrumento óptico para observar estrellas y planetas muy lejanos' },
+    { w: 'REFRIGERADOR', h: 'Aparato eléctrico de la cocina que mantiene los alimentos fríos' },
     { w: 'ESPAÑA', h: 'País de Europa famoso por la paella, el flamenco y el fútbol' },
     { w: 'MEXICO', h: 'País americano conocido por sus tacos, mariachis y pirámides' },
     { w: 'TECLADO', h: 'Conjunto de teclas que usas para escribir en una computadora' },
@@ -87,9 +87,9 @@ function initGame() {
 
     resetBoard();
 
-    // Pre-reveal some letters for long words in high levels
-    if (GameManager.currentLevel > 10 && selectedWord.length > 5) {
-        const revealCount = Math.floor(selectedWord.length / 4);
+    // Pre-reveal some letters for every word (make it fill-in-the-blanks style)
+    if (selectedWord.length > 3) {
+        const revealCount = Math.max(1, Math.floor(selectedWord.length / 5));
         const uniqueLetters = [...new Set(selectedWord.split(''))];
         // Don't reveal vowels or common letters if possible, pick randomly
         for(let i=0; i<revealCount; i++) {

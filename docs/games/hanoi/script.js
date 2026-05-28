@@ -1,98 +1,94 @@
-const towers = [document.querySelectorAll('.tower')[0], document.querySelectorAll('.tower')[1], document.querySelectorAll('.tower')[2]];
-const movesElement = document.getElementById('moves');
-const lvlElement = document.getElementById('lvl');
-const targetMovesElement = document.getElementById('target-moves');
-const resetBtn = document.getElementById('reset-btn');
+const poles = [document.getElementById('pole-0'), document.getElementById('pole-1'), document.getElementById('pole-2')];
+const movesDisplay = document.getElementById('moves');
+const levelDisplay = document.getElementById('level-display');
 
-let towersData = [[], [], []];
-let selectedTowerIdx = null;
+let disks = [];
 let moves = 0;
 let diskCount = 3;
+let selectedPole = null;
 
 function initGame() {
-    GameManager.setGame('hanoi');
-    const level = GameManager.currentLevel;
-    lvlElement.innerText = level;
-
-    // Scale disk count by level segments
-    if (level < 10) diskCount = 3;
-    else if (level < 20) diskCount = 4;
-    else if (level < 30) diskCount = 5;
-    else if (level < 40) diskCount = 6;
-    else diskCount = 7;
-
-    const minMoves = Math.pow(2, diskCount) - 1;
-    targetMovesElement.innerText = `Mínimo de movimientos: ${minMoves}`;
+    const gameState = GameManager.setGame('hanoi');
+    diskCount = 3 + Math.floor((gameState.level - 1) / 5); // Increase disk every 5 levels
+    levelDisplay.innerText = gameState.level;
 
     moves = 0;
-    movesElement.innerText = moves;
-    selectedTowerIdx = null;
-    towersData = [[], [], []];
+    movesDisplay.innerText = moves;
+    selectedPole = null;
 
-    for (let i = diskCount; i >= 1; i--) {
-        towersData[0].push(i);
+    poles.forEach(p => {
+        p.innerHTML = '<div class="pole-line"></div>';
+        p.classList.remove('selected');
+        p.onclick = () => handlePoleClick(p);
+    });
+
+    disks = [];
+    for (let i = diskCount; i > 0; i--) {
+        const disk = document.createElement('div');
+        disk.className = 'disk';
+        disk.style.width = `${(i / diskCount) * 100}%`;
+        disk.style.bottom = `${(diskCount - i) * 25}px`;
+        disk.dataset.size = i;
+        poles[0].appendChild(disk);
     }
-
-    renderBoard();
+    updateDiskPositions();
 }
 
-function renderBoard() {
-    towers.forEach((towerEl, tIdx) => {
-        // Clear disks only, keep base and pole
-        const existingDisks = towerEl.querySelectorAll('.disk');
-        existingDisks.forEach(d => d.remove());
+function handlePoleClick(pole) {
+    const poleIndex = parseInt(pole.id.split('-')[1]);
 
-        towersData[tIdx].forEach((diskSize, dIdx) => {
-            const disk = document.createElement('div');
-            disk.classList.add('disk', `disk-${diskSize}`);
-            disk.innerText = diskSize;
-            if (selectedTowerIdx === tIdx && dIdx === towersData[tIdx].length - 1) {
-                disk.classList.add('selected');
+    if (selectedPole === null) {
+        // Select source
+        const topDisk = getTopDisk(pole);
+        if (topDisk) {
+            selectedPole = pole;
+            pole.classList.add('selected');
+        }
+    } else {
+        // Select target
+        if (selectedPole === pole) {
+            selectedPole.classList.remove('selected');
+            selectedPole = null;
+        } else {
+            const targetPole = pole;
+            const diskToMove = getTopDisk(selectedPole);
+            const targetTopDisk = getTopDisk(targetPole);
+
+            if (!targetTopDisk || parseInt(diskToMove.dataset.size) < parseInt(targetTopDisk.dataset.size)) {
+                targetPole.appendChild(diskToMove);
+                moves++;
+                movesDisplay.innerText = moves;
+                checkWin();
             }
-            towerEl.appendChild(disk);
+
+            selectedPole.classList.remove('selected');
+            selectedPole = null;
+            updateDiskPositions();
+        }
+    }
+}
+
+function getTopDisk(pole) {
+    const disksOnPole = pole.querySelectorAll('.disk');
+    if (disksOnPole.length === 0) return null;
+    return disksOnPole[disksOnPole.length - 1];
+}
+
+function updateDiskPositions() {
+    poles.forEach(pole => {
+        const disksOnPole = pole.querySelectorAll('.disk');
+        disksOnPole.forEach((disk, index) => {
+            disk.style.bottom = `${index * 25}px`;
         });
     });
 }
 
-function handleTowerClick(idx) {
-    if (selectedTowerIdx === null) {
-        if (towersData[idx].length > 0) {
-            selectedTowerIdx = idx;
-            renderBoard();
-        }
-    } else {
-        if (selectedTowerIdx === idx) {
-            selectedTowerIdx = null;
-            renderBoard();
-            return;
-        }
-
-        const sourceTower = towersData[selectedTowerIdx];
-        const targetTower = towersData[idx];
-        const movingDisk = sourceTower[sourceTower.length - 1];
-
-        if (targetTower.length === 0 || movingDisk < targetTower[targetTower.length - 1]) {
-            targetTower.push(sourceTower.pop());
-            moves++;
-            movesElement.innerText = moves;
-            selectedTowerIdx = null;
-            renderBoard();
-            checkWin();
-        } else {
-            UIManager.alert('Error', 'No puedes poner un disco grande sobre uno pequeño', 'warning');
-            selectedTowerIdx = null;
-            renderBoard();
-        }
-    }
-}
-
 function checkWin() {
-    if (towersData[2].length === diskCount) {
-        GameManager.showResult('win', moves);
+    const disksOnLastPole = poles[2].querySelectorAll('.disk');
+    if (disksOnLastPole.length === diskCount) {
+        setTimeout(() => GameManager.showResult('win'), 500);
     }
 }
 
-towers.forEach((t, i) => t.addEventListener('click', () => handleTowerClick(i)));
-resetBtn.addEventListener('click', initGame);
-
+document.getElementById('reset-btn').onclick = initGame;
 initGame();
