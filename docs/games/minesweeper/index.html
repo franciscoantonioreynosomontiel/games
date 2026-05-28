@@ -5,9 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Buscaminas - GameHub</title>
     <link rel="stylesheet" href="../../css/style.css">
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        .game-area { padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .mines-board {
+            display: grid;
+            background: #999;
+            padding: 2px;
+            gap: 2px;
+            border: 3px solid #333;
+            margin: 20px 0;
+        }
+        .cell {
+            background: #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+        }
+        .cell.revealed { background: #eee; }
+        .cell.mine { background: #f44336; }
+    </style>
 </head>
 <body>
     <div class="app-container">
@@ -18,20 +38,38 @@
             </div>
         </header>
 
-        <main class="game-area">
-            <div class="game-info">
-                <div class="info-box">Minas: <span id="mine-count">10</span></div>
-                <button id="reset-btn">Reiniciar</button>
+        <!-- Splash -->
+        <div id="splash" class="splash-screen">
+            <span class="material-icons" style="font-size: 80px; color: var(--primary-color); margin-bottom: 20px;">dangerous</span>
+            <h2>Buscaminas</h2>
+            <div class="level-grid">
+                <button class="btn-premium" onclick="startGame(8, 10)">Fácil (8x8)</button>
+                <button class="btn-premium" onclick="startGame(10, 20)">Medio (10x10)</button>
+                <button class="btn-premium" onclick="startGame(12, 35)">Difícil (12x12)</button>
             </div>
+        </div>
 
-            <div class="minesweeper-board" id="board"></div>
+        <main class="game-area" id="main-game" style="display: none;">
+            <div style="font-weight: bold;">Minas: <span id="mine-count">0</span></div>
+            <div class="mines-board" id="board"></div>
+            <button class="btn-premium" onclick="initGame()">REINICIAR</button>
         </main>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../../js/config.js"></script>
     <script src="../../js/auth.js"></script>
+    <script src="../../js/ui-manager.js"></script>
     <script src="../../js/game-manager.js"></script>
     <script src="script.js"></script>
+    <script>
+        function startGame(s, m) {
+            size = s;
+            mines = m;
+            document.getElementById('splash').style.display = 'none';
+            document.getElementById('main-game').style.display = 'flex';
+            initGame();
+        }
+    </script>
 </body>
 </html>

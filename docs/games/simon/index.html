@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simon Dice - GameHub</title>
-    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="../../css/style.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        .game-container {
+        .game-area {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -23,66 +23,82 @@
             background: #333;
             padding: 20px;
             border-radius: 50%;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            border: 8px solid #222;
         }
         .color-btn {
             border: none;
             border-radius: 20px;
             cursor: pointer;
             transition: all 0.1s;
-            opacity: 0.6;
+            opacity: 0.4;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.3);
         }
         .color-btn.active {
             opacity: 1;
-            transform: scale(0.95);
-            box-shadow: 0 0 20px currentColor;
+            transform: scale(0.96);
+            box-shadow: 0 0 30px currentColor;
         }
-        #red { background: #f44336; color: #ff8a80; border-top-left-radius: 100%; }
-        #blue { background: #2196f3; color: #82b1ff; border-top-right-radius: 100%; }
-        #green { background: #4caf50; color: #b9f6ca; border-bottom-left-radius: 100%; }
-        #yellow { background: #ffeb3b; color: #ffff8d; border-bottom-right-radius: 100%; }
+        #red { background: #f44336; border-top-left-radius: 100%; }
+        #blue { background: #2196f3; border-top-right-radius: 100%; }
+        #green { background: #4caf50; border-bottom-left-radius: 100%; }
+        #yellow { background: #ffeb3b; border-bottom-right-radius: 100%; }
 
-        .controls {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            width: 100%;
-        }
-        #status-display {
-            font-size: 1.2rem;
+        .status-badge {
+            padding: 8px 24px;
+            border-radius: 20px;
+            background: #eee;
             font-weight: bold;
-            color: var(--primary-color);
-            min-height: 1.5em;
+            margin-bottom: 10px;
+            transition: all 0.3s;
         }
+        .status-badge.watching { background: #ffebee; color: #f44336; }
+        .status-badge.playing { background: #e8f5e9; color: #4caf50; }
     </style>
 </head>
 <body>
-    <header>
-        <a href="../../index.html" class="back-btn"><span class="material-icons">arrow_back</span></a>
-        <h1>Simon Dice</h1>
-    </header>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-top">
+                <a href="../../index.html" class="material-icons back-icon">arrow_back</a>
+                <h1 class="app-title">Simon Dice</h1>
+            </div>
+        </header>
 
-    <main class="game-container">
-        <div id="status-display">Presiona comenzar</div>
-
-        <div class="simon-board" id="game-board">
-            <button id="red" class="color-btn"></button>
-            <button id="blue" class="color-btn"></button>
-            <button id="green" class="color-btn"></button>
-            <button id="yellow" class="color-btn"></button>
+        <!-- Splash -->
+        <div id="splash" class="splash-screen">
+            <span class="material-icons" style="font-size: 80px; color: var(--primary-color); margin-bottom: 20px;">graphic_eq</span>
+            <h2>Simon Dice</h2>
+            <p style="color: #666; margin-bottom: 30px;">Memoriza la secuencia de colores y repítela.<br>¡Cuidado! Cada ronda es más rápida.</p>
+            <button class="btn-premium" onclick="startSimon()">COMENZAR JUEGO</button>
         </div>
 
-        <div class="controls">
-            <button id="start-btn" class="btn-primary">COMENZAR JUEGO</button>
-        </div>
-    </main>
+        <main class="game-area" id="main-game" style="display: none;">
+            <div id="status-display" class="status-badge">Presiona comenzar</div>
 
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+            <div class="simon-board" id="game-board">
+                <button id="red" class="color-btn"></button>
+                <button id="blue" class="color-btn"></button>
+                <button id="green" class="color-btn"></button>
+                <button id="yellow" class="color-btn"></button>
+            </div>
+
+            <button id="start-btn" class="btn-premium" style="width: auto; padding: 12px 40px;">INICIAR RONDA</button>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../../js/config.js"></script>
     <script src="../../js/auth.js"></script>
     <script src="../../js/ui-manager.js"></script>
     <script src="../../js/game-manager.js"></script>
     <script src="script.js"></script>
+    <script>
+        function startSimon() {
+            document.getElementById('splash').style.display = 'none';
+            document.getElementById('main-game').style.display = 'flex';
+            initGame();
+        }
+    </script>
 </body>
 </html>

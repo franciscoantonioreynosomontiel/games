@@ -5,9 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sudoku - GameHub</title>
     <link rel="stylesheet" href="../../css/style.css">
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        .game-area { padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .sudoku-board {
+            display: grid;
+            gap: 1px;
+            background: #333;
+            border: 2px solid #333;
+            margin: 20px 0;
+        }
+        .sudoku-board.size-9 { grid-template-columns: repeat(9, 1fr); width: 320px; }
+        .sudoku-board.size-16 { grid-template-columns: repeat(16, 1fr); width: 350px; }
+        .sudoku-cell {
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            aspect-ratio: 1;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .sudoku-cell.fixed { background: #eee; color: #666; cursor: default; }
+        .sudoku-cell.selected { background: #e1f5fe; }
+        .sudoku-cell.wrong { color: #f44336; }
+        .numpad {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            width: 100%;
+            max-width: 320px;
+        }
+        .numpad-btn {
+            padding: 12px 5px;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
     <div class="app-container">
@@ -18,29 +56,23 @@
             </div>
         </header>
 
-        <main class="game-area">
-            <!-- Level Selector Splash -->
-            <div id="level-selector" class="splash-screen">
-                <h2>Elige tu desafío</h2>
-                <div class="level-grid">
-                    <button class="lvl-btn" data-mode="classic" data-diff="easy">Clásico - Fácil</button>
-                    <button class="lvl-btn" data-mode="classic" data-diff="medium">Clásico - Medio</button>
-                    <button class="lvl-btn" data-mode="classic" data-diff="hard">Clásico - Difícil</button>
-                    <button class="lvl-btn mega" data-mode="mega" data-diff="medium">Mega Sudoku (16x16)</button>
-                </div>
+        <!-- Splash -->
+        <div id="splash" class="splash-screen">
+            <span class="material-icons" style="font-size: 80px; color: var(--primary-color); margin-bottom: 20px;">grid_4x4</span>
+            <h2>Sudoku</h2>
+            <div class="level-grid">
+                <button class="btn-premium" onclick="startGame('classic', 'easy')">9x9 Fácil</button>
+                <button class="btn-premium" onclick="startGame('classic', 'medium')">9x9 Medio</button>
+                <button class="btn-premium" onclick="startGame('classic', 'hard')">9x9 Difícil</button>
+                <button class="btn-premium" style="background: #03dac6; color: black;" onclick="startGame('mega', 'medium')">16x16 Mega</button>
             </div>
+        </div>
 
-            <!-- Game Board (hidden initially) -->
-            <div id="game-board" style="display: none; width: 100%; flex-direction: column; align-items: center;">
-                <div class="game-controls">
-                    <div class="info-box" id="mode-display">Clásico</div>
-                    <button id="new-game">Nuevo</button>
-                </div>
-
-                <div class="sudoku-board" id="sudoku-board"></div>
-
-                <div class="number-pad" id="numpad"></div>
-            </div>
+        <main class="game-area" id="main-game" style="display: none;">
+            <div id="mode-display" style="font-weight: bold; margin-bottom: 10px;">Clásico 9x9</div>
+            <div class="sudoku-board" id="sudoku-board"></div>
+            <div class="numpad" id="numpad"></div>
+            <button class="btn-premium" id="new-game" style="margin-top: 20px;">REINICIAR</button>
         </main>
     </div>
 
@@ -50,5 +82,25 @@
     <script src="../../js/ui-manager.js"></script>
     <script src="../../js/game-manager.js"></script>
     <script src="script.js"></script>
+    <script>
+        function startGame(m, d) {
+            difficulty = d;
+            if (m === 'mega') {
+                size = 16;
+                symbols = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', '0'];
+                document.getElementById('mode-display').innerText = 'Mega 16x16';
+            } else {
+                size = 9;
+                symbols = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
+                document.getElementById('mode-display').innerText = 'Clásico 9x9';
+            }
+            document.getElementById('splash').style.display = 'none';
+            document.getElementById('main-game').style.display = 'flex';
+            document.documentElement.style.setProperty('--size', size);
+            boardElement.className = `sudoku-board size-${size}`;
+            initNumpad();
+            initGame();
+        }
+    </script>
 </body>
 </html>

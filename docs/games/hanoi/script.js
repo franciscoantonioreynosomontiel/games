@@ -1,32 +1,38 @@
 const poles = [document.getElementById('pole-0'), document.getElementById('pole-1'), document.getElementById('pole-2')];
 const movesDisplay = document.getElementById('moves');
-const levelDisplay = document.getElementById('level-display');
 
 let moves = 0;
 let diskCount = 3;
 let selectedPole = null;
 
-function initGame() {
-    const gameState = GameManager.setGame('hanoi');
-    diskCount = 3 + Math.floor((gameState.level - 1) / 5);
-    levelDisplay.innerText = gameState.level;
+function initGameWithDisks(d) {
+    diskCount = d;
+    GameManager.setGame('hanoi');
+    resetHanoi();
+}
 
+function resetHanoi() {
     moves = 0;
     movesDisplay.innerText = moves;
     selectedPole = null;
 
+    // Tighter pole height: height of all disks + a small margin
+    const poleHeight = diskCount * 25 + 20;
     poles.forEach(p => {
+        p.style.height = `${poleHeight}px`;
+        p.style.width = `12px`; // Slightly thicker pole
         p.innerHTML = '';
         p.classList.remove('selected');
         p.onclick = () => handlePoleClick(p);
     });
 
+    document.querySelector('.hanoi-board').style.minHeight = `${poleHeight + 30}px`;
+
     for (let i = diskCount; i > 0; i--) {
         const disk = document.createElement('div');
         disk.className = 'disk';
-        // Correctly calculate width based on size relative to max disks
         disk.style.width = `${(i / (diskCount + 1)) * 100}%`;
-        disk.style.bottom = `${(diskCount - i) * 22}px`;
+        disk.style.height = `22px`;
         disk.dataset.size = i;
         poles[0].appendChild(disk);
     }
@@ -72,7 +78,7 @@ function updateDiskPositions() {
     poles.forEach(pole => {
         const disksOnPole = pole.querySelectorAll('.disk');
         disksOnPole.forEach((disk, index) => {
-            disk.style.bottom = `${index * 22}px`;
+            disk.style.bottom = `${index * 24}px`;
             disk.style.left = '50%';
             disk.style.transform = 'translateX(-50%)';
         });
@@ -86,5 +92,4 @@ function checkWin() {
     }
 }
 
-document.getElementById('reset-btn').onclick = initGame;
-initGame();
+document.getElementById('reset-btn').onclick = resetHanoi;
