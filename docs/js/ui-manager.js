@@ -1,4 +1,8 @@
 const UIManager = {
+    showAlert(title, message, type = 'info') {
+        return this.alert(title, message, type);
+    },
+
     alert(title, message, type = 'info') {
         const overlay = document.createElement('div');
         overlay.className = 'modal-overlay';

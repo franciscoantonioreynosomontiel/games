@@ -13,14 +13,15 @@ document.addEventListener('DOMContentLoaded', () => {
             await Auth.login(user, pass);
             location.reload();
         } catch (e) {
-            alert(e.message);
+            UIManager.alert('Error', e.message, 'error');
         }
     });
 
     // Logout logic
-    document.getElementById('profile-btn')?.addEventListener('click', () => {
+    document.getElementById('profile-btn')?.addEventListener('click', async () => {
         if (Auth.isLoggedIn()) {
-            if (confirm('¿Cerrar sesión?')) Auth.logout();
+            const confirmed = await UIManager.confirm('Cerrar Sesión', '¿Estás seguro de que quieres salir?');
+            if (confirmed) Auth.logout();
         }
     });
 
@@ -34,10 +35,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const pass = document.getElementById('reg-pass').value;
         try {
             await Auth.register(user, pass);
-            alert('Usuario creado exitosamente');
+            UIManager.alert('Éxito', 'Usuario creado exitosamente', 'success');
             document.getElementById('register-modal').style.display = 'none';
         } catch (e) {
-            alert(e.message);
+            UIManager.alert('Error', e.message, 'error');
         }
     });
 
@@ -50,14 +51,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateAuthUI() {
         if (Auth.isLoggedIn()) {
-            document.getElementById('login-section').style.display = 'none';
-            document.getElementById('display-username').innerText = Auth.currentUser.username;
+            const loginSection = document.getElementById('login-section');
+            if (loginSection) loginSection.style.display = 'none';
+
+            const displayUsername = document.getElementById('display-username');
+            if (displayUsername) displayUsername.innerText = Auth.currentUser.username;
+
             if (Auth.isAdmin()) {
-                document.getElementById('admin-section').style.display = 'block';
-                document.getElementById('admin-nav').style.display = 'flex';
+                const adminSection = document.getElementById('admin-section');
+                if (adminSection) adminSection.style.display = 'block';
+                const adminNav = document.getElementById('admin-nav');
+                if (adminNav) adminNav.style.display = 'flex';
             }
         } else {
-            window.location.href = 'login.html';
+            if (!window.location.href.includes('login.html')) {
+                window.location.href = 'login.html';
+            }
         }
     }
 });

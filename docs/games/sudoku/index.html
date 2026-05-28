@@ -19,28 +19,27 @@
         </header>
 
         <main class="game-area">
-            <div class="game-controls">
-                <select id="difficulty">
-                    <option value="easy">Fácil</option>
-                    <option value="medium">Medio</option>
-                    <option value="hard">Difícil</option>
-                </select>
-                <button id="new-game">Nuevo</button>
+            <!-- Level Selector Splash -->
+            <div id="level-selector" class="splash-screen">
+                <h2>Elige tu desafío</h2>
+                <div class="level-grid">
+                    <button class="lvl-btn" data-mode="classic" data-diff="easy">Clásico - Fácil</button>
+                    <button class="lvl-btn" data-mode="classic" data-diff="medium">Clásico - Medio</button>
+                    <button class="lvl-btn" data-mode="classic" data-diff="hard">Clásico - Difícil</button>
+                    <button class="lvl-btn mega" data-mode="mega" data-diff="medium">Mega Sudoku (16x16)</button>
+                </div>
             </div>
 
-            <div class="sudoku-board" id="sudoku-board"></div>
+            <!-- Game Board (hidden initially) -->
+            <div id="game-board" style="display: none; width: 100%; flex-direction: column; align-items: center;">
+                <div class="game-controls">
+                    <div class="info-box" id="mode-display">Clásico</div>
+                    <button id="new-game">Nuevo</button>
+                </div>
 
-            <div class="number-pad">
-                <button class="numpad-btn" data-num="1">1</button>
-                <button class="numpad-btn" data-num="2">2</button>
-                <button class="numpad-btn" data-num="3">3</button>
-                <button class="numpad-btn" data-num="4">4</button>
-                <button class="numpad-btn" data-num="5">5</button>
-                <button class="numpad-btn" data-num="6">6</button>
-                <button class="numpad-btn" data-num="7">7</button>
-                <button class="numpad-btn" data-num="8">8</button>
-                <button class="numpad-btn" data-num="9">9</button>
-                <button class="numpad-btn" data-num="erase"><span class="material-icons">backspace</span></button>
+                <div class="sudoku-board" id="sudoku-board"></div>
+
+                <div class="number-pad" id="numpad"></div>
             </div>
         </main>
     </div>
@@ -48,6 +47,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../../js/config.js"></script>
     <script src="../../js/auth.js"></script>
+    <script src="../../js/ui-manager.js"></script>
     <script src="../../js/game-manager.js"></script>
     <script src="script.js"></script>
 </body>
