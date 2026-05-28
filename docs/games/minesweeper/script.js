@@ -13,21 +13,21 @@ function initGame() {
     // Level scaling (1-50)
     const level = GameManager.currentLevel;
     size = 8 + Math.floor(level / 10); // 8x8 to 13x13
-    mines = 10 + level; // 10 to 60 mines
+    mines = 10 + Math.floor(level * 1.5);
 
-    document.documentElement.style.setProperty('--cols', size);
-    document.documentElement.style.setProperty('--rows', size);
+    // Fix grid styles
+    boardElement.style.display = 'grid';
+    boardElement.style.gridTemplateColumns = `repeat(${size}, 30px)`;
+    boardElement.style.gridTemplateRows = `repeat(${size}, 30px)`;
+    boardElement.style.width = `${size * 30}px`;
+    boardElement.style.height = `${size * 30}px`;
+    boardElement.style.margin = '20px auto';
+    boardElement.style.border = '2px solid #999';
 
     board = [];
     gameOver = false;
     boardElement.innerHTML = '';
     mineCountElement.innerText = mines;
-
-    // First time?
-    if (localStorage.getItem('ms_first') !== 'true') {
-        GameManager.showInstructions('Cómo jugar', 'Revela celdas sin tocar las minas. El número indica cuántas minas hay alrededor. Usa clic derecho o mantén presionado para poner una bandera.');
-        localStorage.setItem('ms_first', 'true');
-    }
 
     for (let i = 0; i < size * size; i++) {
         board.push({ isMine: false, revealed: false, flagged: false, neighborCount: 0 });
@@ -73,12 +73,29 @@ function renderBoard() {
         div.classList.add('cell');
         div.style.width = '30px';
         div.style.height = '30px';
+        div.style.boxSizing = 'border-box';
+        div.style.border = '1px solid #ccc';
+        div.style.backgroundColor = '#ddd';
+        div.style.display = 'flex';
+        div.style.alignItems = 'center';
+        div.style.justifyContent = 'center';
+        div.style.fontSize = '14px';
+        div.style.fontWeight = 'bold';
+        div.style.cursor = 'pointer';
+
         div.addEventListener('click', () => revealCell(i));
         div.addEventListener('contextmenu', (e) => { e.preventDefault(); toggleFlag(i); });
 
         let timer;
-        div.addEventListener('touchstart', () => timer = setTimeout(() => toggleFlag(i), 500));
-        div.addEventListener('touchend', () => clearTimeout(timer));
+        div.addEventListener('touchstart', (e) => {
+            timer = setTimeout(() => {
+                toggleFlag(i);
+                timer = null;
+            }, 500);
+        });
+        div.addEventListener('touchend', () => {
+            if (timer) clearTimeout(timer);
+        });
 
         boardElement.appendChild(div);
     });
@@ -90,15 +107,24 @@ function revealCell(idx) {
     board[idx].revealed = true;
     const el = boardElement.children[idx];
     el.classList.add('revealed');
+    el.style.backgroundColor = '#eee';
 
     if (board[idx].isMine) {
         el.classList.add('mine');
+        el.style.backgroundColor = '#f44336';
         el.innerText = '💣';
-        endGame(false);
+        if (GameManager.loseLife()) {
+            endGame(false);
+        } else {
+            // Keep playing but this cell is revealed as mine
+            checkWin();
+        }
     } else {
         if (board[idx].neighborCount > 0) {
             el.innerText = board[idx].neighborCount;
             el.classList.add(`n${board[idx].neighborCount}`);
+            const colors = ['', 'blue', 'green', 'red', 'darkblue', 'brown', 'cyan', 'black', 'grey'];
+            el.style.color = colors[board[idx].neighborCount];
         } else {
             getNeighbors(idx).forEach(nIdx => revealCell(nIdx));
         }
@@ -109,7 +135,13 @@ function revealCell(idx) {
 function toggleFlag(idx) {
     if (gameOver || board[idx].revealed) return;
     board[idx].flagged = !board[idx].flagged;
-    boardElement.children[idx].classList.toggle('flagged');
+    const el = boardElement.children[idx];
+    if (board[idx].flagged) {
+        el.innerText = '🚩';
+        el.style.color = 'red';
+    } else {
+        el.innerText = '';
+    }
 }
 
 function checkWin() {
@@ -119,12 +151,14 @@ function checkWin() {
 
 function endGame(won) {
     gameOver = true;
-    if (won) GameManager.showResult('win');
-    else {
+    if (won) {
+        GameManager.showResult('win');
+    } else {
         board.forEach((cell, i) => {
             if (cell.isMine) {
-                boardElement.children[i].classList.add('revealed', 'mine');
-                boardElement.children[i].innerText = '💣';
+                const el = boardElement.children[i];
+                el.style.backgroundColor = '#f44336';
+                el.innerText = '💣';
             }
         });
         GameManager.showResult('loss');

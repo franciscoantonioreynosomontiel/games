@@ -3,39 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simon - GameHub</title>
-    <link rel="stylesheet" href="../../css/style.css">
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <title>Simon Dice - GameHub</title>
+    <link rel="stylesheet" href="../../style.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .simon-board {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            width: 280px;
+            height: 280px;
+            margin: 20px 0;
+            background: #333;
+            padding: 20px;
+            border-radius: 50%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .color-btn {
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.1s;
+            opacity: 0.6;
+        }
+        .color-btn.active {
+            opacity: 1;
+            transform: scale(0.95);
+            box-shadow: 0 0 20px currentColor;
+        }
+        #red { background: #f44336; color: #ff8a80; border-top-left-radius: 100%; }
+        #blue { background: #2196f3; color: #82b1ff; border-top-right-radius: 100%; }
+        #green { background: #4caf50; color: #b9f6ca; border-bottom-left-radius: 100%; }
+        #yellow { background: #ffeb3b; color: #ffff8d; border-bottom-right-radius: 100%; }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+        }
+        #status-display {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            min-height: 1.5em;
+        }
+    </style>
 </head>
 <body>
-    <div class="app-container">
-        <header class="app-header">
-            <div class="header-top">
-                <a href="../../index.html" class="material-icons back-icon">arrow_back</a>
-                <h1 class="app-title">Simon</h1>
-            </div>
-        </header>
+    <header>
+        <a href="../../index.html" class="back-btn"><span class="material-icons">arrow_back</span></a>
+        <h1>Simon Dice</h1>
+    </header>
 
-        <main class="game-area">
-            <div class="game-info">
-                <div class="info-box">Nivel: <span id="level">0</span></div>
-                <button id="start-btn">Comenzar</button>
-            </div>
+    <main class="game-container">
+        <div id="status-display">Presiona comenzar</div>
 
-            <div class="simon-board">
-                <div class="pad green" id="green" data-id="0"></div>
-                <div class="pad red" id="red" data-id="1"></div>
-                <div class="pad yellow" id="yellow" data-id="2"></div>
-                <div class="pad blue" id="blue" data-id="3"></div>
-            </div>
-        </main>
-    </div>
+        <div class="simon-board" id="game-board">
+            <button id="red" class="color-btn"></button>
+            <button id="blue" class="color-btn"></button>
+            <button id="green" class="color-btn"></button>
+            <button id="yellow" class="color-btn"></button>
+        </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        <div class="controls">
+            <button id="start-btn" class="btn-primary">COMENZAR JUEGO</button>
+        </div>
+    </main>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="../../js/config.js"></script>
     <script src="../../js/auth.js"></script>
+    <script src="../../js/ui-manager.js"></script>
     <script src="../../js/game-manager.js"></script>
     <script src="script.js"></script>
 </body>

@@ -1,18 +1,15 @@
 const boardElement = document.getElementById('board');
 const scoreDisplay = document.getElementById('score');
-const levelDisplay = document.getElementById('level-display');
-const goalDisplay = document.getElementById('goal-display');
+const resetBtn = document.getElementById('reset-btn');
 
 let score = 0;
 let size = 4;
-let goal = 2048;
 let board = [];
-let level = 1;
+let goal = 2048;
 
 function initGame() {
-    const gameState = GameManager.setGame('2048');
-    level = gameState.level;
-    levelDisplay.innerText = level;
+    const state = GameManager.setGame('2048');
+    const level = state.level;
 
     // Level Scaling
     if (level <= 10) {
@@ -20,22 +17,17 @@ function initGame() {
         goal = 2048;
     } else if (level <= 20) {
         size = 5;
-        goal = 4096;
+        goal = 2048;
     } else if (level <= 30) {
-        size = 6;
-        goal = 4096;
-    } else if (level <= 40) {
-        size = 3;
-        goal = 1024;
-    } else {
         size = 4;
+        goal = 4096;
+    } else {
+        size = 5;
         goal = 4096;
     }
 
-    goalDisplay.innerText = goal;
     boardElement.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
-    boardElement.style.width = `${Math.min(size * 80, 320)}px`;
-    boardElement.style.height = `${Math.min(size * 80, 320)}px`;
+    boardElement.style.gridTemplateRows = `repeat(${size}, 1fr)`;
 
     score = 0;
     scoreDisplay.innerText = score;
@@ -43,6 +35,9 @@ function initGame() {
     addRandomTile();
     addRandomTile();
     renderBoard();
+
+    const instr = document.querySelector('.instructions');
+    if (instr) instr.innerText = `Nivel ${level}: ¡Llega al ${goal}! Desliza para combinar.`;
 }
 
 function addRandomTile() {
@@ -61,10 +56,21 @@ function renderBoard() {
         if (val > 0) {
             tile.innerText = val;
             tile.dataset.value = val;
-            if (val > 2048) tile.dataset.value = "super";
+            tile.style.backgroundColor = getTileColor(val);
+            if (val > 4) tile.style.color = '#f9f6f2';
+            else tile.style.color = '#776e65';
         }
         boardElement.appendChild(tile);
     });
+}
+
+function getTileColor(val) {
+    const colors = {
+        2: '#eee4da', 4: '#ede0c8', 8: '#f2b179', 16: '#f59563',
+        32: '#f67c5f', 64: '#f65e3b', 128: '#edcf72', 256: '#edcc61',
+        512: '#edc850', 1024: '#edc53f', 2048: '#edc22e', 4096: '#3c3a32'
+    };
+    return colors[val] || '#3c3a32';
 }
 
 function slide(row) {
@@ -108,35 +114,25 @@ function move(direction) {
         addRandomTile();
         renderBoard();
         scoreDisplay.innerText = score;
-        checkGameStatus();
+        checkWin();
     }
 }
 
-function checkGameStatus() {
+function checkWin() {
     if (board.includes(goal)) {
-        GameManager.showResult('win');
-        return;
-    }
-
-    // Check if any moves left
-    let canMove = false;
-    if (board.includes(0)) canMove = true;
-    else {
+        GameManager.showResult('win', score);
+    } else if (!board.includes(0)) {
+        let canMove = false;
         for (let i = 0; i < size; i++) {
             for (let j = 0; j < size; j++) {
-                let current = board[i * size + j];
-                if (j < size - 1 && current === board[i * size + j + 1]) canMove = true;
-                if (i < size - 1 && current === board[(i + 1) * size + j]) canMove = true;
+                if (j < size - 1 && board[i * size + j] === board[i * size + j + 1]) canMove = true;
+                if (i < size - 1 && board[i * size + j] === board[(i + 1) * size + j]) canMove = true;
             }
         }
-    }
-
-    if (!canMove) {
-        GameManager.showResult('loss');
+        if (!canMove) GameManager.showResult('loss', score);
     }
 }
 
-// Controls
 document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft') move('left');
     if (e.key === 'ArrowRight') move('right');
@@ -144,22 +140,21 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowDown') move('down');
 });
 
-// Touch controls
-let touchStartX, touchStartY;
+let startX, startY;
 boardElement.addEventListener('touchstart', e => {
-    touchStartX = e.touches[0].clientX;
-    touchStartY = e.touches[0].clientY;
-}, false);
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+}, {passive: false});
 
 boardElement.addEventListener('touchend', e => {
-    const dx = e.changedTouches[0].clientX - touchStartX;
-    const dy = e.changedTouches[0].clientY - touchStartY;
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
     if (Math.abs(dx) > Math.abs(dy)) {
-        if (dx > 30) move('right'); else if (dx < -30) move('left');
+        if (Math.abs(dx) > 30) move(dx > 0 ? 'right' : 'left');
     } else {
-        if (dy > 30) move('down'); else if (dy < -30) move('up');
+        if (Math.abs(dy) > 30) move(dy > 0 ? 'down' : 'up');
     }
-}, false);
+}, {passive: false});
 
-document.getElementById('reset-btn').onclick = initGame;
+resetBtn.onclick = initGame;
 initGame();

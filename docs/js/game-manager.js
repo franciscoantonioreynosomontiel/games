@@ -3,6 +3,7 @@ const GameManager = {
     currentGame: '',
     currentDifficulty: 'medium',
     currentLevel: 1,
+    maxLevel: 50,
 
     init() {
         this.addPopupStyles();
@@ -21,10 +22,90 @@ const GameManager = {
         this.currentDifficulty = difficulty;
         this.lives = 3;
         this.loadLevel();
+        this.renderLives();
+        this.renderLevelInfo();
+        return { level: this.currentLevel, lives: this.lives };
+    },
+
+    renderLives() {
+        let container = document.getElementById('lives-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'lives-container';
+            container.className = 'lives-display';
+            const mainHeader = document.querySelector('header') || document.body;
+            mainHeader.appendChild(container);
+        }
+
+        container.innerHTML = '';
+        for (let i = 0; i < 3; i++) {
+            const heart = document.createElement('span');
+            heart.className = 'material-icons heart';
+            heart.innerText = i < this.lives ? 'favorite' : 'favorite_border';
+            heart.style.color = i < this.lives ? '#f44336' : '#999';
+            container.appendChild(heart);
+        }
+    },
+
+    renderLevelInfo() {
+        let info = document.getElementById('game-info-bar');
+        if (!info) {
+            info = document.createElement('div');
+            info.id = 'game-info-bar';
+            info.className = 'game-info-bar';
+            const mainHeader = document.querySelector('header') || document.body;
+            mainHeader.appendChild(info);
+        }
+        info.innerHTML = `
+            <span class="level-badge">Nivel ${this.currentLevel}</span>
+            <button class="btn-lvl-select" onclick="GameManager.showLevelSelector()">Cambiar Nivel</button>
+        `;
+    },
+
+    showLevelSelector() {
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.style.display = 'flex';
+        overlay.style.zIndex = '2000';
+
+        let levelsHtml = '';
+        const unlocked = this.getUnlockedLevel();
+        for (let i = 1; i <= this.maxLevel; i++) {
+            const isLocked = i > unlocked;
+            levelsHtml += `
+                <button class="lvl-btn ${isLocked ? 'locked' : ''}"
+                        ${isLocked ? 'disabled' : `onclick="GameManager.goToLevel(${i})"`}>
+                    ${i}
+                    ${isLocked ? '<span class="material-icons">lock</span>' : ''}
+                </button>
+            `;
+        }
+
+        overlay.innerHTML = `
+            <div class="modal-content level-selector-modal">
+                <h3>Seleccionar Nivel</h3>
+                <div class="levels-grid">${levelsHtml}</div>
+                <button class="btn-primary" onclick="this.parentElement.parentElement.remove()">Cerrar</button>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+    },
+
+    getUnlockedLevel() {
+        if (!Auth.isLoggedIn()) return 1;
+        const saved = localStorage.getItem(`max_unlocked_${Auth.currentUser.username}_${this.currentGame}`);
+        return saved ? parseInt(saved) : 1;
+    },
+
+    goToLevel(lvl) {
+        this.currentLevel = lvl;
+        localStorage.setItem(`level_${Auth.currentUser.username}_${this.currentGame}`, lvl);
+        location.reload();
     },
 
     loseLife() {
         this.lives--;
+        this.renderLives();
         if (this.lives <= 0) {
             this.showResult('loss');
             return true; // Game over
@@ -35,27 +116,27 @@ const GameManager = {
     async saveResult(result, score = 0) {
         if (!window.Auth.isLoggedIn()) return;
 
-        const { error } = await window.appConfig.supabase
-            .from('game_stats')
+        // Save to Supabase
+        await window.appConfig.supabase
+            .from('game_scores')
             .insert([{
-                username: window.Auth.currentUser.username,
-                game_type: this.currentGame,
+                user_id: window.Auth.currentUser.id,
+                game_id: this.currentGame,
                 score: score,
-                difficulty: this.currentDifficulty,
-                result: result,
-                lives_remaining: this.lives
+                level: this.currentLevel,
+                difficulty: this.currentDifficulty
             }]);
 
-        if (error) console.error('Error saving score:', error);
-
-        if (result === 'win' && this.currentLevel < 50) {
-            this.currentLevel++;
-            localStorage.setItem(`level_${Auth.currentUser.username}_${this.currentGame}`, this.currentLevel);
+        if (result === 'win') {
+            const unlocked = this.getUnlockedLevel();
+            if (this.currentLevel >= unlocked && this.currentLevel < this.maxLevel) {
+                localStorage.setItem(`max_unlocked_${Auth.currentUser.username}_${this.currentGame}`, this.currentLevel + 1);
+            }
+            if (this.currentLevel < this.maxLevel) {
+                this.currentLevel++;
+                localStorage.setItem(`level_${Auth.currentUser.username}_${this.currentGame}`, this.currentLevel);
+            }
         }
-    },
-
-    showInstructions(title, text) {
-        return UIManager.alert(title, text, 'info');
     },
 
     showResult(type, score = 0) {
@@ -90,6 +171,17 @@ const GameManager = {
         const style = document.createElement('style');
         style.id = 'gm-styles';
         style.innerHTML = `
+            .lives-display { display: flex; gap: 5px; justify-content: center; padding: 10px; }
+            .heart { font-size: 30px; transition: all 0.3s; }
+            .game-info-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: #f8f9fa; border-bottom: 1px solid #ddd; }
+            .level-badge { background: var(--primary-color); color: white; padding: 4px 12px; border-radius: 15px; font-weight: bold; }
+            .btn-lvl-select { background: none; border: 1px solid var(--primary-color); color: var(--primary-color); padding: 4px 10px; border-radius: 5px; cursor: pointer; }
+
+            .levels-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 20px 0; max-height: 300px; overflow-y: auto; padding: 10px; }
+            .lvl-btn { padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: white; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
+            .lvl-btn.locked { background: #eee; color: #999; cursor: not-allowed; }
+            .level-selector-modal { max-width: 400px !important; }
+
             .game-over-overlay {
                 position: fixed; top: 0; left: 0; width: 100%; height: 100%;
                 background: rgba(0,0,0,0.8); display: flex; align-items: center;

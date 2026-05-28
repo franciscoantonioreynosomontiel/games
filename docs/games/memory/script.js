@@ -1,87 +1,75 @@
-const gridElement = document.getElementById('grid');
-const pairsElement = document.getElementById('pairs');
+const boardElement = document.getElementById('board');
 const resetBtn = document.getElementById('reset-btn');
 
-const icons = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼'];
-let cards = [...icons, ...icons];
+let cards = [];
 let flippedCards = [];
-let matchedPairs = 0;
-let lockBoard = false;
+let matchedCount = 0;
+let pairs = 8;
+let canFlip = true;
 
 function initGame() {
-    GameManager.setGame('memory');
-    const level = GameManager.currentLevel;
+    const gameState = GameManager.setGame('memory');
+    pairs = 8 + Math.floor(gameState.level / 5);
 
-    gridElement.innerHTML = '';
-    matchedPairs = 0;
-    pairsElement.innerText = '0';
+    cards = [];
     flippedCards = [];
-    lockBoard = false;
+    matchedCount = 0;
+    canFlip = true;
+    boardElement.innerHTML = '';
 
-    // Scaling: levels 1-50 can increase number of pairs or use same grid
-    // For simplicity, we keep 8 pairs but can track time or level
-    cards = shuffle([...icons, ...icons]);
+    const icons = ['star', 'favorite', 'home', 'face', 'anchor', 'pets', 'sunny', 'cloud', 'rocket', 'build', 'lightbulb', 'eco', 'extension', 'palette', 'camera', 'music_note'];
+    const selectedIcons = icons.slice(0, Math.min(pairs, icons.length));
+    const gameIcons = [...selectedIcons, ...selectedIcons].sort(() => Math.random() - 0.5);
 
-    cards.forEach((icon, i) => {
+    gameIcons.forEach((icon, index) => {
         const card = document.createElement('div');
-        card.classList.add('card');
+        card.className = 'card';
         card.dataset.icon = icon;
+        card.dataset.index = index;
         card.innerHTML = `
-            <div class="front">${icon}</div>
-            <div class="back">?</div>
+            <div class="card-inner">
+                <div class="card-front"><span class="material-icons">help_outline</span></div>
+                <div class="card-back"><span class="material-icons">${icon}</span></div>
+            </div>
         `;
-        card.addEventListener('click', () => flipCard(card));
-        gridElement.appendChild(card);
+        card.onclick = () => flipCard(card);
+        boardElement.appendChild(card);
     });
 }
 
-function shuffle(array) {
-    return array.sort(() => Math.random() - 0.5);
-}
-
 function flipCard(card) {
-    if (lockBoard || flippedCards.includes(card) || card.classList.contains('matched')) return;
+    if (!canFlip || flippedCards.includes(card) || card.classList.contains('matched') || card.classList.contains('flipped')) return;
 
     card.classList.add('flipped');
     flippedCards.push(card);
 
     if (flippedCards.length === 2) {
+        canFlip = false;
         checkMatch();
     }
 }
 
 function checkMatch() {
-    lockBoard = true;
     const [card1, card2] = flippedCards;
-
     if (card1.dataset.icon === card2.dataset.icon) {
-        setTimeout(() => {
-            card1.classList.add('matched');
-            card2.classList.add('matched');
-            matchedPairs++;
-            pairsElement.innerText = matchedPairs;
-            resetTurn();
-            if (matchedPairs === icons.length) {
-                GameManager.showResult('win');
-            }
-        }, 500);
+        card1.classList.add('matched');
+        card2.classList.add('matched');
+        matchedCount++;
+        flippedCards = [];
+        canFlip = true;
+        if (matchedCount === pairs) {
+            GameManager.showResult('win');
+        }
     } else {
         setTimeout(() => {
             card1.classList.remove('flipped');
             card2.classList.remove('flipped');
-            if (GameManager.loseLife()) {
-                // Game over
-            }
-            resetTurn();
+            flippedCards = [];
+            canFlip = true;
+            GameManager.loseLife();
         }, 1000);
     }
 }
 
-function resetTurn() {
-    flippedCards = [];
-    lockBoard = false;
-}
-
-GameManager.setGame('memory');
-resetBtn.addEventListener('click', initGame);
+resetBtn.onclick = initGame;
 initGame();

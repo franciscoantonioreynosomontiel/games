@@ -1,52 +1,46 @@
 const boardElement = document.getElementById('board');
-const movesElement = document.getElementById('moves');
+const moveCountElement = document.getElementById('move-count');
 const resetBtn = document.getElementById('reset-btn');
 
-let tiles = [];
+let size = 3;
+let board = [];
 let moves = 0;
-let size = 4;
 
 function initGame() {
     GameManager.setGame('sliding');
     const level = GameManager.currentLevel;
 
-    // Level-based grid sizing
-    if (level < 11) size = 3;
-    else if (level < 21) size = 4;
-    else if (level < 31) size = 5;
-    else if (level < 41) size = 6;
+    // Scale grid size with levels
+    if (level <= 10) size = 3;
+    else if (level <= 20) size = 4;
+    else if (level <= 30) size = 5;
+    else if (level <= 40) size = 6;
     else size = 7;
 
-    document.documentElement.style.setProperty('--size', size);
+    boardElement.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+    boardElement.style.width = '300px';
+    boardElement.style.height = '300px';
 
+    board = Array.from({length: size * size}, (_, i) => i);
+    shuffleBoard();
     moves = 0;
-    movesElement.innerText = moves;
-
-    const tileCount = size * size - 1;
-    tiles = Array.from({length: tileCount}, (_, i) => i + 1);
-    tiles.push(null); // Empty space
-
-    shuffle();
+    moveCountElement.innerText = moves;
     renderBoard();
 }
 
-function shuffle() {
-    const level = GameManager.currentLevel;
-    const moves_count = 50 + (level * 5);
-    let emptyIdx = tiles.indexOf(null);
-
-    for (let i = 0; i < moves_count; i++) {
+function shuffleBoard() {
+    for (let i = 0; i < size * size * 20; i++) {
+        const emptyIdx = board.indexOf(size * size - 1);
         const neighbors = getNeighbors(emptyIdx);
-        const moveIdx = neighbors[Math.floor(Math.random() * neighbors.length)];
-        [tiles[emptyIdx], tiles[moveIdx]] = [tiles[moveIdx], tiles[emptyIdx]];
-        emptyIdx = moveIdx;
+        const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
+        [board[emptyIdx], board[randomNeighbor]] = [board[randomNeighbor], board[emptyIdx]];
     }
 }
 
 function getNeighbors(idx) {
+    const neighbors = [];
     const row = Math.floor(idx / size);
     const col = idx % size;
-    const neighbors = [];
     if (row > 0) neighbors.push(idx - size);
     if (row < size - 1) neighbors.push(idx + size);
     if (col > 0) neighbors.push(idx - 1);
@@ -56,44 +50,49 @@ function getNeighbors(idx) {
 
 function renderBoard() {
     boardElement.innerHTML = '';
-    tiles.forEach((num, i) => {
-        const div = document.createElement('div');
-        div.classList.add('tile');
-        if (num === null) {
-            div.classList.add('empty');
+    board.forEach((val, i) => {
+        const tile = document.createElement('div');
+        tile.className = 'tile';
+        tile.style.border = '1px solid #ccc';
+        tile.style.display = 'flex';
+        tile.style.alignItems = 'center';
+        tile.style.justifyContent = 'center';
+        tile.style.fontSize = '20px';
+        tile.style.fontWeight = 'bold';
+        tile.style.cursor = 'pointer';
+        tile.style.backgroundColor = '#6200ee';
+        tile.style.color = 'white';
+
+        if (val === size * size - 1) {
+            tile.classList.add('empty');
+            tile.style.backgroundColor = '#eee';
+            tile.style.cursor = 'default';
+            tile.innerText = '';
         } else {
-            div.innerText = num;
-            div.addEventListener('click', () => moveTile(i));
+            tile.innerText = val + 1;
+            tile.onclick = () => moveTile(i);
         }
-        boardElement.appendChild(div);
+        boardElement.appendChild(tile);
     });
 }
 
 function moveTile(idx) {
-    const emptyIdx = tiles.indexOf(null);
-    const row = Math.floor(idx / size);
-    const col = idx % size;
-    const emptyRow = Math.floor(emptyIdx / size);
-    const emptyCol = emptyIdx % size;
-
-    const isAdjacent = Math.abs(row - emptyRow) + Math.abs(col - emptyCol) === 1;
-
-    if (isAdjacent) {
-        [tiles[emptyIdx], tiles[idx]] = [tiles[idx], tiles[emptyIdx]];
+    const emptyIdx = board.indexOf(size * size - 1);
+    const neighbors = getNeighbors(emptyIdx);
+    if (neighbors.includes(idx)) {
+        [board[emptyIdx], board[idx]] = [board[idx], board[emptyIdx]];
         moves++;
-        movesElement.innerText = moves;
+        moveCountElement.innerText = moves;
         renderBoard();
         checkWin();
     }
 }
 
 function checkWin() {
-    const tileCount = size * size - 1;
-    const isWin = tiles.slice(0, tileCount).every((num, i) => num === i + 1);
-    if (isWin) {
-        GameManager.showResult('win', moves);
+    if (board.every((val, i) => val === i)) {
+        GameManager.showResult('win');
     }
 }
 
-resetBtn.addEventListener('click', initGame);
+resetBtn.onclick = initGame;
 initGame();
