@@ -5,9 +5,9 @@ let moves = 0;
 let diskCount = 3;
 let selectedPole = null;
 
-function initGameWithDisks(d) {
-    diskCount = d;
-    GameManager.setGame('hanoi');
+function initHanoi(lvl) {
+    diskCount = 2 + Math.ceil(lvl / 7);
+    GameManager.setGame('hanoi', true);
     resetHanoi();
 }
 
@@ -16,39 +16,33 @@ function resetHanoi() {
     movesDisplay.innerText = moves;
     selectedPole = null;
 
-    const poleHeight = diskCount * 25 + 30;
+    const poleHeight = Math.max(180, diskCount * 35 + 20);
     poles.forEach(p => {
         p.style.height = `${poleHeight}px`;
         p.innerHTML = '';
         p.classList.remove('selected');
 
-        // Touch Drag Events
-        p.addEventListener('touchstart', handleTouchStart, {passive: false});
-        p.addEventListener('touchmove', handleTouchMove, {passive: false});
-        p.addEventListener('touchend', handleTouchEnd, {passive: false});
-
-        // Click fallback
+        p.ontouchstart = handleTouchStart;
+        p.ontouchmove = handleTouchMove;
+        p.ontouchend = handleTouchEnd;
         p.onclick = () => handlePoleClick(p);
     });
 
-    document.querySelector('.hanoi-board').style.minHeight = `${poleHeight + 30}px`;
+    document.getElementById('board-container').style.minHeight = `${poleHeight + 30}px`;
 
     for (let i = diskCount; i > 0; i--) {
         const disk = document.createElement('div');
         disk.className = 'disk';
-        // Rounded pill width relative to disk size
-        const w = 30 + (i * (70 / diskCount));
-        disk.style.width = `${w}%`;
-        disk.style.borderRadius = '15px';
         disk.dataset.size = i;
+        // visual width scaling
+        disk.style.width = `${25 + (i * (75 / (diskCount + 1)))}%`;
         poles[0].appendChild(disk);
     }
     updateDiskPositions();
 }
 
-// DRAG AND DROP LOGIC (Touch based)
 let draggedDisk = null;
-let startPole = null;
+let sourcePole = null;
 
 function handleTouchStart(e) {
     const pole = e.currentTarget;
@@ -56,7 +50,7 @@ function handleTouchStart(e) {
     if (!topDisk) return;
 
     draggedDisk = topDisk;
-    startPole = pole;
+    sourcePole = pole;
     draggedDisk.style.transition = 'none';
     draggedDisk.style.zIndex = '1000';
     pole.classList.add('selected');
@@ -64,7 +58,6 @@ function handleTouchStart(e) {
 
 function handleTouchMove(e) {
     if (!draggedDisk) return;
-    e.preventDefault();
     const touch = e.touches[0];
     draggedDisk.style.position = 'fixed';
     draggedDisk.style.left = (touch.clientX - (draggedDisk.offsetWidth / 2)) + 'px';
@@ -75,12 +68,12 @@ function handleTouchEnd(e) {
     if (!draggedDisk) return;
 
     const touch = e.changedTouches[0];
-    const targetElement = document.elementFromPoint(touch.clientX, touch.clientY);
-    const targetPole = targetElement ? targetElement.closest('.pole') : null;
+    const targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
+    const targetPole = targetEl ? targetEl.closest('.pole') : null;
 
-    if (targetPole && targetPole !== startPole) {
-        const topDisk = getTopDisk(targetPole);
-        if (!topDisk || parseInt(draggedDisk.dataset.size) < parseInt(topDisk.dataset.size)) {
+    if (targetPole && targetPole !== sourcePole) {
+        const targetTop = getTopDisk(targetPole);
+        if (!targetTop || parseInt(draggedDisk.dataset.size) < parseInt(targetTop.dataset.size)) {
             targetPole.appendChild(draggedDisk);
             moves++;
             movesDisplay.innerText = moves;
@@ -91,18 +84,16 @@ function handleTouchEnd(e) {
     draggedDisk.style.position = 'absolute';
     draggedDisk.style.transition = 'all 0.3s';
     draggedDisk.style.zIndex = '1';
-    startPole.classList.remove('selected');
+    sourcePole.classList.remove('selected');
 
     draggedDisk = null;
-    startPole = null;
+    sourcePole = null;
     updateDiskPositions();
 }
 
-// Click Fallback
 function handlePoleClick(pole) {
     if (selectedPole === null) {
-        const topDisk = getTopDisk(pole);
-        if (topDisk) {
+        if (getTopDisk(pole)) {
             selectedPole = pole;
             pole.classList.add('selected');
         }
@@ -111,16 +102,14 @@ function handlePoleClick(pole) {
             selectedPole.classList.remove('selected');
             selectedPole = null;
         } else {
-            const diskToMove = getTopDisk(selectedPole);
-            const targetTopDisk = getTopDisk(pole);
-
-            if (!targetTopDisk || parseInt(diskToMove.dataset.size) < parseInt(targetTopDisk.dataset.size)) {
-                pole.appendChild(diskToMove);
+            const disk = getTopDisk(selectedPole);
+            const targetTop = getTopDisk(pole);
+            if (!targetTop || parseInt(disk.dataset.size) < parseInt(targetTop.dataset.size)) {
+                pole.appendChild(disk);
                 moves++;
                 movesDisplay.innerText = moves;
                 checkWin();
             }
-
             selectedPole.classList.remove('selected');
             selectedPole = null;
             updateDiskPositions();
@@ -128,27 +117,24 @@ function handlePoleClick(pole) {
     }
 }
 
-function getTopDisk(pole) {
-    const disksOnPole = pole.querySelectorAll('.disk');
-    if (disksOnPole.length === 0) return null;
-    return disksOnPole[disksOnPole.length - 1];
+function getTopDisk(p) {
+    const disks = p.querySelectorAll('.disk');
+    return disks.length > 0 ? disks[disks.length - 1] : null;
 }
 
 function updateDiskPositions() {
-    poles.forEach(pole => {
-        const disksOnPole = pole.querySelectorAll('.disk');
-        disksOnPole.forEach((disk, index) => {
-            disk.style.bottom = `${index * 25}px`;
-            disk.style.left = '50%';
-            disk.style.transform = 'translateX(-50%)';
-            disk.style.position = 'absolute';
+    poles.forEach(p => {
+        const disks = p.querySelectorAll('.disk');
+        disks.forEach((d, i) => {
+            d.style.bottom = `${i * 32}px`;
+            d.style.left = '50%';
+            d.style.transform = 'translateX(-50%)';
         });
     });
 }
 
 function checkWin() {
-    const disksOnLastPole = poles[2].querySelectorAll('.disk');
-    if (disksOnLastPole.length === diskCount) {
+    if (poles[2].querySelectorAll('.disk').length === diskCount) {
         setTimeout(() => GameManager.showResult('win', `¡Hanoi resuelto en ${moves} movimientos!`), 500);
     }
 }

@@ -25,21 +25,29 @@ const wordLibrary = [
 
 function initGame() {
     if (gameMode === 'p1') {
-        GameManager.setGame('hangman');
+        GameManager.setGame('hangman', true);
         const level = GameManager.currentLevel;
         selectedWord = wordLibrary[(level - 1) % wordLibrary.length];
 
-        // Helper letters: 20% of letters are pre-revealed
-        guessedLetters = [' ']; // Always reveal spaces
-        const uniqueLetters = [...new Set(selectedWord.replace(/ /g, '').split(''))];
-        const helpCount = Math.floor(uniqueLetters.length * 0.2) || 1;
+        guessedLetters = [' ', '-', '.', ','];
+        const uniqueLetters = [...new Set(selectedWord.replace(/[^A-ZÑ]/g, '').split(''))];
+
+        // Helper letters logic
+        let helpCount = 0;
+        if (level < 10) helpCount = Math.floor(uniqueLetters.length * 0.25);
+        else if (level < 30) helpCount = Math.floor(uniqueLetters.length * 0.15);
+        else helpCount = 1;
+
+        if (helpCount < 1) helpCount = 1;
+
         for(let i=0; i<helpCount; i++) {
             const idx = Math.floor(Math.random() * uniqueLetters.length);
             guessedLetters.push(uniqueLetters[idx]);
             uniqueLetters.splice(idx, 1);
         }
     } else {
-        guessedLetters = [' '];
+        GameManager.setGame('hangman', false, 'PVP');
+        guessedLetters = [' ', '-', '.', ','];
     }
 
     mistakes = 0;
@@ -48,10 +56,11 @@ function initGame() {
 }
 
 function renderGame() {
-    wordElement.innerHTML = selectedWord.split('').map(letter => {
-        if (letter === ' ') return '&nbsp;&nbsp;';
-        return `<span class="letter">${guessedLetters.includes(letter) ? letter : '_'}</span>`;
-    }).join(' ');
+    wordElement.innerHTML = selectedWord.split(' ').map(word => {
+        return `<div style="display: flex; gap: 5px;">` + word.split('').map(letter => {
+            return `<span class="letter">${guessedLetters.includes(letter) ? letter : '_'}</span>`;
+        }).join('') + `</div>`;
+    }).join('&nbsp;&nbsp;');
 
     hintElement.innerText = `Longitud: ${selectedWord.length} caracteres`;
 
@@ -92,22 +101,16 @@ function drawHangman() {
     ctx.lineWidth = 4;
     ctx.strokeStyle = '#333';
 
-    // Base
-    if (mistakes > 0) { ctx.beginPath(); ctx.moveTo(10, 180); ctx.lineTo(190, 180); ctx.stroke(); }
-    // Post
-    if (mistakes > 1) { ctx.beginPath(); ctx.moveTo(50, 180); ctx.lineTo(50, 20); ctx.lineTo(120, 20); ctx.lineTo(120, 40); ctx.stroke(); }
-    // Head
-    if (mistakes > 2) { ctx.beginPath(); ctx.arc(120, 60, 20, 0, Math.PI * 2); ctx.stroke(); }
-    // Body
-    if (mistakes > 3) { ctx.beginPath(); ctx.moveTo(120, 80); ctx.lineTo(120, 130); ctx.stroke(); }
-    // Arms
+    if (mistakes > 0) { ctx.beginPath(); ctx.moveTo(10, 170); ctx.lineTo(170, 170); ctx.stroke(); }
+    if (mistakes > 1) { ctx.beginPath(); ctx.moveTo(40, 170); ctx.lineTo(40, 20); ctx.lineTo(110, 20); ctx.lineTo(110, 40); ctx.stroke(); }
+    if (mistakes > 2) { ctx.beginPath(); ctx.arc(110, 60, 20, 0, Math.PI * 2); ctx.stroke(); }
+    if (mistakes > 3) { ctx.beginPath(); ctx.moveTo(110, 80); ctx.lineTo(110, 120); ctx.stroke(); }
     if (mistakes > 4) {
-        ctx.beginPath(); ctx.moveTo(120, 90); ctx.lineTo(90, 110); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(120, 90); ctx.lineTo(150, 110); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(110, 90); ctx.lineTo(80, 110); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(110, 90); ctx.lineTo(140, 110); ctx.stroke();
     }
-    // Legs
     if (mistakes > 5) {
-        ctx.beginPath(); ctx.moveTo(120, 130); ctx.lineTo(90, 160); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(120, 130); ctx.lineTo(150, 160); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(110, 120); ctx.lineTo(80, 150); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(110, 120); ctx.lineTo(140, 150); ctx.stroke();
     }
 }

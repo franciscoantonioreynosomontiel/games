@@ -7,13 +7,13 @@ let board = [];
 let goal = 2048;
 
 function initGame() {
-    const state = GameManager.setGame('2048');
-    const level = state.level;
+    GameManager.setGame('2048', true);
+    const level = GameManager.currentLevel;
 
     // Level scaling logic
     if (level <= 10) { size = 4; goal = 2048; }
-    else if (level <= 20) { size = 5; goal = 2048; }
-    else if (level <= 30) { size = 4; goal = 4096; }
+    else if (level <= 25) { size = 5; goal = 2048; }
+    else if (level <= 40) { size = 4; goal = 4096; }
     else { size = 5; goal = 4096; }
 
     boardElement.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
@@ -37,7 +37,7 @@ function addRandomTile() {
 
 function renderBoard() {
     boardElement.innerHTML = '';
-    const containerWidth = boardElement.offsetWidth || 300;
+    const containerWidth = boardElement.offsetWidth || 320;
     const gap = 10;
     const tileSize = Math.floor((containerWidth - (size + 1) * gap) / size);
 
@@ -47,7 +47,7 @@ function renderBoard() {
         tile.style.width = `${tileSize}px`;
         tile.style.height = `${tileSize}px`;
         tile.style.lineHeight = `${tileSize}px`;
-        tile.style.fontSize = val > 100 ? (val > 1000 ? '16px' : '20px') : '24px';
+        tile.style.fontSize = val > 100 ? (val > 1000 ? '1.1rem' : '1.4rem') : '1.8rem';
 
         if (val > 0) {
             tile.innerText = val;
@@ -137,12 +137,13 @@ document.addEventListener('keydown', (e) => {
 });
 
 let startX, startY;
-boardElement.addEventListener('touchstart', e => {
+document.addEventListener('touchstart', e => {
     startX = e.touches[0].clientX;
     startY = e.touches[0].clientY;
 }, {passive: false});
 
-boardElement.addEventListener('touchend', e => {
+document.addEventListener('touchend', e => {
+    if (!startX || !startY) return;
     const dx = e.changedTouches[0].clientX - startX;
     const dy = e.changedTouches[0].clientY - startY;
     if (Math.abs(dx) > Math.abs(dy)) {
@@ -150,4 +151,5 @@ boardElement.addEventListener('touchend', e => {
     } else {
         if (Math.abs(dy) > 30) move(dy > 0 ? 'down' : 'up');
     }
+    startX = null; startY = null;
 }, {passive: false});
