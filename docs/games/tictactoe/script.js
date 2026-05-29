@@ -1,14 +1,10 @@
-const boardElement = document.getElementById('board');
 const cells = document.querySelectorAll('.cell');
 const statusElement = document.getElementById('status');
-const resetBtn = document.getElementById('reset-btn');
-const modeSelect = document.getElementById('game-mode');
-const difficultySelect = document.getElementById('difficulty');
 
 let board = ['', '', '', '', '', '', '', '', ''];
 let currentPlayer = 'X';
 let isGameActive = true;
-let gameMode = 'pvp';
+let gameMode = 'pva';
 let difficulty = 'easy';
 
 const winningConditions = [
@@ -61,10 +57,10 @@ function checkForWinner() {
         if (gameMode === 'pva') {
             if (currentPlayer === 'X') {
                 statusElement.innerText = '¡Has Ganado!';
-                setTimeout(() => GameManager.showResult('win'), 1000);
+                setTimeout(() => GameManager.showResult('win'), 800);
             } else {
                 statusElement.innerText = '¡La IA ha ganado!';
-                setTimeout(() => GameManager.showResult('loss'), 1000);
+                setTimeout(() => GameManager.showResult('loss'), 800);
             }
         } else {
             statusElement.innerText = `¡Jugador ${currentPlayer} ha ganado!`;
@@ -88,8 +84,6 @@ function makeAIMove() {
     let move;
     if (difficulty === 'easy') {
         move = getRandomMove();
-    } else if (difficulty === 'medium') {
-        move = getMediumMove();
     } else {
         move = getBestMove();
     }
@@ -104,26 +98,6 @@ function makeAIMove() {
 function getRandomMove() {
     const availableMoves = board.map((val, index) => val === '' ? index : null).filter(val => val !== null);
     return availableMoves[Math.floor(Math.random() * availableMoves.length)];
-}
-
-function getMediumMove() {
-    const move = findWinningOrBlockingMove('O') || findWinningOrBlockingMove('X');
-    return move !== null ? move : getRandomMove();
-}
-
-function findWinningOrBlockingMove(player) {
-    for (let i = 0; i < winningConditions.length; i++) {
-        const [a, b, c] = winningConditions[i];
-        const vals = [board[a], board[b], board[c]];
-        const playerCount = vals.filter(v => v === player).length;
-        const emptyCount = vals.filter(v => v === '').length;
-        if (playerCount === 2 && emptyCount === 1) {
-            if (board[a] === '') return a;
-            if (board[b] === '') return b;
-            if (board[c] === '') return c;
-        }
-    }
-    return null;
 }
 
 function getBestMove() {
@@ -196,20 +170,5 @@ function resetGame() {
     });
 }
 
-modeSelect.addEventListener('change', (e) => {
-    gameMode = e.target.value;
-    difficultySelect.style.display = gameMode === 'pva' ? 'block' : 'none';
-    resetGame();
-});
-
-difficultySelect.addEventListener('change', (e) => {
-    difficulty = e.target.value;
-    GameManager.setGame('tictactoe', difficulty);
-    resetGame();
-});
-
 cells.forEach(cell => cell.addEventListener('click', handleCellClick));
-resetBtn.addEventListener('click', resetGame);
-
-// Initial set
-GameManager.setGame('tictactoe', difficulty);
+GameManager.setGame('tictactoe');

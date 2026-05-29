@@ -1,9 +1,6 @@
 const boardElement = document.getElementById('sudoku-board');
 const newGameBtn = document.getElementById('new-game');
 const numpad = document.getElementById('numpad');
-const splash = document.getElementById('level-selector');
-const gameBoard = document.getElementById('game-board');
-const modeDisplay = document.getElementById('mode-display');
 
 let selectedCell = null;
 let board = [];
@@ -27,28 +24,6 @@ function initNumpad() {
     erase.onclick = () => handleInput('erase');
     numpad.appendChild(erase);
 }
-
-document.querySelectorAll('.lvl-btn').forEach(btn => {
-    btn.onclick = () => {
-        const mode = btn.dataset.mode;
-        difficulty = btn.dataset.diff;
-        if (mode === 'mega') {
-            size = 16;
-            symbols = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', '0'];
-            modeDisplay.innerText = 'Mega 16x16';
-        } else {
-            size = 9;
-            symbols = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
-            modeDisplay.innerText = 'Clásico 9x9';
-        }
-        document.documentElement.style.setProperty('--size', size);
-        boardElement.className = `sudoku-board size-${size}`;
-        splash.style.display = 'none';
-        gameBoard.style.display = 'flex';
-        initNumpad();
-        initGame();
-    };
-});
 
 function initGame() {
     GameManager.setGame('sudoku', difficulty);

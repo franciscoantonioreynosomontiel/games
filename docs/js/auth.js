@@ -19,13 +19,10 @@ const Auth = {
     },
 
     async register(username, password, role = 'user') {
-        if (this.currentUser?.role !== 'admin') {
-            throw new Error('Solo el administrador puede crear usuarios');
-        }
-
+        const email = `${username.toLowerCase()}@gamehub.com`;
         const { data, error } = await window.appConfig.supabase
             .from('app_users')
-            .insert([{ username, password, role }])
+            .insert([{ username, password, email, role }])
             .select();
 
         if (error) throw error;
@@ -39,7 +36,8 @@ const Auth = {
     },
 
     isAdmin() {
-        return this.currentUser?.role === 'admin';
+        // Hardcoded admin check for 'Antonio' or check role field
+        return this.currentUser?.username === 'Antonio' || this.currentUser?.role === 'admin';
     },
 
     isLoggedIn() {

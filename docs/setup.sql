@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS app_users (
     username TEXT UNIQUE NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
-    avatar_url TEXT,
+    role TEXT DEFAULT 'user',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -29,8 +29,8 @@ ALTER TABLE game_scores ENABLE ROW LEVEL SECURITY;
 -- POLICIES for app_users
 DO $$
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public read' AND tablename = 'app_users') THEN
-        CREATE POLICY "Allow public read" ON app_users FOR SELECT USING (true);
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public select' AND tablename = 'app_users') THEN
+        CREATE POLICY "Allow public select" ON app_users FOR SELECT USING (true);
     END IF;
     IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public insert' AND tablename = 'app_users') THEN
         CREATE POLICY "Allow public insert" ON app_users FOR INSERT WITH CHECK (true);
@@ -44,17 +44,16 @@ $$;
 -- POLICIES for game_scores
 DO $$
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public score select' AND tablename = 'game_scores') THEN
-        CREATE POLICY "Allow public score select" ON game_scores FOR SELECT USING (true);
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow score select' AND tablename = 'game_scores') THEN
+        CREATE POLICY "Allow score select" ON game_scores FOR SELECT USING (true);
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public score insert' AND tablename = 'game_scores') THEN
-        CREATE POLICY "Allow public score insert" ON game_scores FOR INSERT WITH CHECK (true);
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow score insert' AND tablename = 'game_scores') THEN
+        CREATE POLICY "Allow score insert" ON game_scores FOR INSERT WITH CHECK (true);
     END IF;
 END
 $$;
 
 -- Insert a default admin if not exists (Password: Asd123)
--- In a real app, use Supabase Auth for encryption.
-INSERT INTO app_users (username, email, password)
-SELECT 'Antonio', 'antonio@gamehub.com', 'Asd123'
+INSERT INTO app_users (username, email, password, role)
+SELECT 'Antonio', 'antonio@gamehub.com', 'Asd123', 'admin'
 WHERE NOT EXISTS (SELECT 1 FROM app_users WHERE username = 'Antonio');
