@@ -50,6 +50,7 @@ const GameManager = {
                 <button onclick="GameManager.showLevelSelector()" class="btn-premium" style="padding: 4px 10px; font-size: 11px;">MENU</button>
             `;
         } else {
+            // Hide level info for games like Chess/Sudoku that don't use 50-level progression
             infoDiv.innerHTML = `
                 <span style="color: #666; font-size: 11px; text-transform: uppercase; background: #eee; padding: 4px 8px; border-radius: 10px;">${this.currentDifficulty}</span>
             `;
@@ -78,7 +79,7 @@ const GameManager = {
     },
 
     showLevelSelector() {
-        location.reload(); // Just reload to show the splash
+        location.reload();
     },
 
     getUnlockedLevel() {
@@ -90,7 +91,6 @@ const GameManager = {
     goToLevel(lvl) {
         this.currentLevel = lvl;
         localStorage.setItem(`level_${Auth.currentUser.username}_${this.currentGame}`, lvl);
-        // Set auto-start flag
         sessionStorage.setItem(`autostart_${this.currentGame}`, 'true');
         location.reload();
     },
@@ -109,6 +109,7 @@ const GameManager = {
         if (!window.Auth.isLoggedIn()) return;
 
         try {
+            // Save attempt to Supabase
             await window.appConfig.supabase
                 .from('game_scores')
                 .insert([{
@@ -121,16 +122,20 @@ const GameManager = {
 
             if (result === 'win') {
                 if (this.hasLevels) {
+                    // 1. Mark this specific level as completed
                     const completed = JSON.parse(localStorage.getItem(`completed_${Auth.currentUser.username}_${this.currentGame}`) || '[]');
                     if (!completed.includes(this.currentLevel)) {
                         completed.push(this.currentLevel);
                         localStorage.setItem(`completed_${Auth.currentUser.username}_${this.currentGame}`, JSON.stringify(completed));
                     }
+
+                    // 2. Unlock the next level
                     const unlocked = this.getUnlockedLevel();
                     if (this.currentLevel >= unlocked && this.currentLevel < this.maxLevel) {
                         localStorage.setItem(`max_unlocked_${Auth.currentUser.username}_${this.currentGame}`, this.currentLevel + 1);
                     }
                 } else {
+                    // Mark difficulty as completed
                     const completed = JSON.parse(localStorage.getItem(`completed_${Auth.currentUser.username}_${this.currentGame}`) || '[]');
                     const diffKey = this.currentDifficulty.toLowerCase();
                     if (!completed.includes(diffKey)) {
@@ -188,8 +193,9 @@ const GameManager = {
 
         document.getElementById('btn-next').onclick = () => {
             if (showNext) {
-                this.currentLevel++;
-                localStorage.setItem(`level_${Auth.currentUser.username}_${this.currentGame}`, this.currentLevel);
+                // IMPORTANT: Prepare next level before reload
+                const nextLevel = this.currentLevel + 1;
+                localStorage.setItem(`level_${Auth.currentUser.username}_${this.currentGame}`, nextLevel);
                 sessionStorage.setItem(`autostart_${this.currentGame}`, 'true');
             }
             location.reload();
@@ -201,7 +207,7 @@ const GameManager = {
     isCompleted(diff) {
         if (!Auth.isLoggedIn()) return false;
         const completed = JSON.parse(localStorage.getItem(`completed_${Auth.currentUser.username}_${this.currentGame}`) || '[]');
-        return completed.includes(diff.toLowerCase());
+        return completed.includes(diff.toLowerCase()) || completed.includes(parseInt(diff));
     }
 };
 

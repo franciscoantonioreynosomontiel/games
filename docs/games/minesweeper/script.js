@@ -7,6 +7,7 @@ let size = 8;
 let mines = 10;
 
 function initGame() {
+    GameManager.setGame('minesweeper', false, size + 'x' + size);
     // Standardized grid sizing for mobile
     const containerWidth = Math.min(window.innerWidth * 0.95, 360);
     const cellSize = Math.floor((containerWidth - 10) / size);

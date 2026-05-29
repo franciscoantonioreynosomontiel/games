@@ -56,28 +56,34 @@
                     let data;
                     if (type === 'global') {
                         const res = await window.appConfig.supabase
-                            .from('game_stats')
-                            .select('*')
+                            .from('game_scores')
+                            .select(`
+                                *,
+                                app_users (username)
+                            `)
                             .order('score', { ascending: false })
                             .limit(20);
                         data = res.data;
                     } else {
                         const res = await window.appConfig.supabase
-                            .from('game_stats')
-                            .select('*')
-                            .eq('username', Auth.currentUser.username)
-                            .order('played_at', { ascending: false })
+                            .from('game_scores')
+                            .select(`
+                                *,
+                                app_users (username)
+                            `)
+                            .eq('user_id', Auth.currentUser.id)
+                            .order('created_at', { ascending: false })
                             .limit(20);
                         data = res.data;
                     }
 
-                    renderScores(data, type);
+                    renderScores(data);
                 } catch (e) {
                     content.innerHTML = '<p class="error">Error al cargar datos</p>';
                 }
             }
 
-            function renderScores(scores, type) {
+            function renderScores(scores) {
                 if (!scores || scores.length === 0) {
                     content.innerHTML = '<p class="empty-msg">No hay registros aún</p>';
                     return;
@@ -86,13 +92,13 @@
                 content.innerHTML = scores.map(s => `
                     <div class="score-item">
                         <div class="score-info">
-                            <span class="game-tag">${s.game_type}</span>
-                            <span class="user-name">${s.username}</span>
-                            <span class="date">${new Date(s.played_at).toLocaleDateString()}</span>
+                            <span class="game-tag">${s.game_id.toUpperCase()}</span>
+                            <span class="user-name">${s.app_users?.username || 'Anónimo'}</span>
+                            <span class="date">${new Date(s.created_at).toLocaleDateString()}</span>
                         </div>
                         <div class="score-value">
-                            <span class="res ${s.result}">${s.result}</span>
-                            <strong>${s.score}</strong>
+                            <span class="res" style="font-size: 11px; opacity: 0.8; margin-right: 5px;">LVL ${s.level}</span>
+                            <strong>${s.score} pts</strong>
                         </div>
                     </div>
                 `).join('');

@@ -5,35 +5,48 @@ let matchedCount = 0;
 let pairs = 8;
 let canFlip = true;
 
-const icons = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐔'];
+const icons = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐔', '🦄', '🐝', '🐙', '🦋', '🐢', '🦖', '🐧', '🦀'];
 
 function initGame() {
+    // GameManager.setGame handles headers and state
     GameManager.setGame('memory', true);
     const level = GameManager.currentLevel;
-    pairs = Math.min(4 + Math.floor(level / 3), icons.length);
+
+    // Increase pairs with level: 1-2->4, 3-4->5, 5-6->6, etc.
+    pairs = Math.min(4 + Math.floor((level - 1) / 2), 20);
 
     flippedCards = [];
     matchedCount = 0;
     canFlip = true;
     boardElement.innerHTML = '';
 
-    const cols = pairs <= 6 ? 3 : (pairs <= 10 ? 4 : 5);
-    boardElement.style.gridTemplateColumns = `repeat(${cols}, 70px)`;
+    // Responsive grid calculation
+    let cols = 3;
+    if (pairs > 12) cols = 6;
+    else if (pairs > 8) cols = 5;
+    else if (pairs > 6) cols = 4;
 
-    const selectedIcons = icons.slice(0, pairs);
+    const cardSize = pairs > 12 ? 55 : (pairs > 8 ? 65 : 75);
+
+    boardElement.style.gridTemplateColumns = `repeat(${cols}, ${cardSize}px)`;
+
+    // Select random icons but deterministic per level
+    const shuffledIcons = deterministicShuffle([...icons], level + 100);
+    const selectedIcons = shuffledIcons.slice(0, pairs);
+
     let gameIcons = [...selectedIcons, ...selectedIcons];
     gameIcons = deterministicShuffle(gameIcons, level);
 
     gameIcons.forEach((icon, index) => {
         const card = document.createElement('div');
         card.className = 'card';
-        card.style.width = '70px';
-        card.style.height = '70px';
+        card.style.width = `${cardSize}px`;
+        card.style.height = `${cardSize}px`;
         card.dataset.icon = icon;
         card.innerHTML = `
             <div class="card-inner">
-                <div class="card-front"><span class="material-icons" style="font-size: 1.5rem;">help</span></div>
-                <div class="card-back" style="font-size: 2rem;">${icon}</div>
+                <div class="card-front"><span class="material-icons" style="font-size: ${cardSize/2.5}px;">help</span></div>
+                <div class="card-back" style="font-size: ${cardSize/2}px;">${icon}</div>
             </div>
         `;
         card.onclick = () => flipCard(card);
@@ -43,8 +56,11 @@ function initGame() {
 
 function deterministicShuffle(array, seed) {
     let m = array.length, t, i;
+    let s = seed;
     while (m) {
-        i = Math.floor(Math.abs(Math.sin(seed++)) * m--);
+        s = (s * 9301 + 49297) % 233280;
+        let rnd = s / 233280;
+        i = Math.floor(rnd * m--);
         t = array[m];
         array[m] = array[i];
         array[i] = t;
