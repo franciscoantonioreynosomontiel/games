@@ -8,9 +8,14 @@ let moves = 0;
 function initGame() {
     GameManager.setGame('sliding');
 
-    // Scale container based on size
-    const containerSize = Math.min(window.innerWidth * 0.9, 350);
-    const tileSize = Math.floor((containerSize - (size * 6)) / size);
+    // Size logic
+    const lvl = GameManager.currentLevel;
+    if (lvl <= 10) size = 3;
+    else if (lvl <= 30) size = 4;
+    else size = 5;
+
+    const containerSize = Math.min(window.innerWidth * 0.9, 360);
+    const tileSize = Math.floor((containerSize - (size * 8)) / size);
 
     boardElement.style.gridTemplateColumns = `repeat(${size}, ${tileSize}px)`;
     boardElement.style.gridTemplateRows = `repeat(${size}, ${tileSize}px)`;
@@ -23,8 +28,9 @@ function initGame() {
 }
 
 function shuffleBoard() {
-    // Start from solved state and do random valid moves
-    for (let i = 0; i < size * size * 30; i++) {
+    // Deterministic shuffle per level? Or just random valid moves?
+    // Let's use random valid moves to ensure solvability
+    for (let i = 0; i < size * size * 40; i++) {
         const emptyIdx = board.indexOf(size * size - 1);
         const neighbors = getNeighbors(emptyIdx);
         const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
@@ -50,7 +56,7 @@ function renderBoard(tileSize) {
         tile.className = 'tile';
         tile.style.width = `${tileSize}px`;
         tile.style.height = `${tileSize}px`;
-        tile.style.fontSize = size > 4 ? '1.1rem' : '1.4rem';
+        tile.style.fontSize = size > 4 ? '1.2rem' : '1.5rem';
 
         if (val === size * size - 1) {
             tile.classList.add('empty');
@@ -77,6 +83,8 @@ function moveTile(idx) {
 
 function checkWin() {
     if (board.every((val, i) => val === i)) {
-        setTimeout(() => GameManager.showResult('win'), 200);
+        setTimeout(() => {
+            GameManager.showResult('win', `¡Puzzle resuelto en ${moves} movimientos!`);
+        }, 300);
     }
 }

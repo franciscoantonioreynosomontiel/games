@@ -5,16 +5,18 @@ const colors = ['red', 'blue', 'green', 'yellow'];
 let sequence = [];
 let userSequence = [];
 let isPlaying = false;
-let speed = 600;
+let speed = 700;
 
 function initGame() {
     GameManager.setGame('simon');
     sequence = [];
     userSequence = [];
     isPlaying = false;
-    statusDisplay.innerText = 'Listo';
+    statusDisplay.innerText = 'Listo para el nivel ' + GameManager.currentLevel;
     statusDisplay.className = 'status-badge';
-    speed = Math.max(250, 700 - (GameManager.currentLevel * 15));
+
+    // Level scaling
+    speed = Math.max(250, 750 - (GameManager.currentLevel * 10));
 }
 
 async function startRound() {
@@ -25,16 +27,23 @@ async function startRound() {
     statusDisplay.innerText = 'Observa...';
     statusDisplay.className = 'status-badge watching';
 
-    // Add 1 random color per round
-    sequence.push(colors[Math.floor(Math.random() * colors.length)]);
+    // Sequence length grows with level
+    const targetLength = 3 + Math.floor(GameManager.currentLevel / 2);
+
+    // Generate full sequence for this round if it's the start
+    if (sequence.length === 0) {
+        for (let i = 0; i < targetLength; i++) {
+            sequence.push(colors[Math.floor(Math.random() * colors.length)]);
+        }
+    }
 
     for (const color of sequence) {
         await flashColor(color);
-        await new Promise(r => setTimeout(r, speed / 2));
+        await new Promise(r => setTimeout(r, speed / 3));
     }
 
     isPlaying = true;
-    statusDisplay.innerText = 'Tu turno';
+    statusDisplay.innerText = 'Tu turno (' + sequence.length + ' colores)';
     statusDisplay.className = 'status-badge playing';
 }
 
@@ -59,27 +68,19 @@ function handleColorClick(color) {
     if (userSequence[currentIdx] !== sequence[currentIdx]) {
         isPlaying = false;
         if (GameManager.loseLife()) {
-            // Game Over
         } else {
-            statusDisplay.innerText = '¡Error!';
+            statusDisplay.innerText = '¡Error! Repitiendo...';
             statusDisplay.className = 'status-badge watching';
-            setTimeout(() => {
-                userSequence = [];
-                startRound();
-            }, 1000);
+            setTimeout(startRound, 1200);
         }
         return;
     }
 
     if (userSequence.length === sequence.length) {
         isPlaying = false;
-        // Level up every 3 rounds or based on sequence length
-        if (sequence.length >= 4 + Math.floor(GameManager.currentLevel / 3)) {
-            GameManager.showResult('win');
-        } else {
-            statusDisplay.innerText = '¡Bien!';
-            setTimeout(startRound, 1000);
-        }
+        setTimeout(() => {
+            GameManager.showResult('win', `¡Excelente! Secuencia de ${sequence.length} completada.`);
+        }, 500);
     }
 }
 

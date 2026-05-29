@@ -3,8 +3,6 @@ const hintElement = document.getElementById('hint-display');
 const keyboard = document.getElementById('keyboard');
 const canvas = document.getElementById('hangman-canvas');
 const ctx = canvas.getContext('2d');
-const modeSelect = document.getElementById('game-mode');
-const p2Input = document.getElementById('p2-custom-word');
 
 let selectedWord = '';
 let guessedLetters = [];
@@ -12,33 +10,50 @@ let mistakes = 0;
 const maxMistakes = 6;
 let gameMode = 'p1';
 
-const p1Words = [
-    'AJEDREZ', 'SUDOKU', 'PUZZLE', 'CASCADA', 'GALAXY',
-    'DINOSAURIO', 'ELECTRICIDAD', 'PROGRAMACION', 'AVENTURA', 'MONTANA',
-    'OCEANO', 'TECLADO', 'PANTALLA', 'CELULAR', 'GUITARRA',
-    'PIANO', 'BATERIA', 'ESTRELLA', 'COMETA', 'PLANETA'
+const wordLibrary = [
+    'EL RATON DE LOS DIENTES', 'SUDOKU', 'AJEDREZ', 'PROGRAMACION', 'CASCADA',
+    'AVENTURA', 'DINOSAURIO', 'ELECTRICIDAD', 'PANTALLA', 'CELULAR',
+    'GUITARRA', 'OCEANO', 'PLANETA', 'ESTRELLA', 'PIANO',
+    'BATERIA', 'TECLADO', 'MONTANA', 'COMETA', 'CINE',
+    'CHOCOLATE', 'ESCUELA', 'VACACIONES', 'VIAJE', 'BOSQUE',
+    'JARDIN', 'RELOJ', 'VENTANA', 'PUERTA', 'SOPA',
+    'DESAYUNO', 'ALMUERZO', 'COMIDA', 'CENA', 'PAN',
+    'FRUTA', 'VERDURA', 'CARNE', 'PESCADO', 'AGUA',
+    'JUGO', 'LECHE', 'DULCE', 'CARAMELO', 'HELADO',
+    'PASTEL', 'FIESTA', 'CUMPLEANOS', 'REGALO', 'AMIGO'
 ];
 
 function initGame() {
-    // Only call setGame in P1 mode to track levels
     if (gameMode === 'p1') {
         GameManager.setGame('hangman');
         const level = GameManager.currentLevel;
-        selectedWord = p1Words[(level - 1) % p1Words.length];
+        selectedWord = wordLibrary[(level - 1) % wordLibrary.length];
+
+        // Helper letters: 20% of letters are pre-revealed
+        guessedLetters = [' ']; // Always reveal spaces
+        const uniqueLetters = [...new Set(selectedWord.replace(/ /g, '').split(''))];
+        const helpCount = Math.floor(uniqueLetters.length * 0.2) || 1;
+        for(let i=0; i<helpCount; i++) {
+            const idx = Math.floor(Math.random() * uniqueLetters.length);
+            guessedLetters.push(uniqueLetters[idx]);
+            uniqueLetters.splice(idx, 1);
+        }
+    } else {
+        guessedLetters = [' '];
     }
 
-    guessedLetters = [];
     mistakes = 0;
     renderGame();
     drawHangman();
 }
 
 function renderGame() {
-    wordElement.innerHTML = selectedWord.split('').map(letter =>
-        `<span class="letter">${guessedLetters.includes(letter) ? letter : '_'}</span>`
-    ).join(' ');
+    wordElement.innerHTML = selectedWord.split('').map(letter => {
+        if (letter === ' ') return '&nbsp;&nbsp;';
+        return `<span class="letter">${guessedLetters.includes(letter) ? letter : '_'}</span>`;
+    }).join(' ');
 
-    hintElement.innerText = `Longitud: ${selectedWord.length} letras`;
+    hintElement.innerText = `Longitud: ${selectedWord.length} caracteres`;
 
     keyboard.innerHTML = 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'.split('').map(l =>
         `<button onclick="guess('${l}')" ${guessedLetters.includes(l) ? 'disabled' : ''}>${l}</button>`
@@ -53,22 +68,20 @@ function guess(letter) {
         mistakes++;
         drawHangman();
         if (mistakes >= maxMistakes) {
-            setTimeout(() => endGame(false), 300);
+            setTimeout(() => endGame(false), 500);
         }
     } else {
-        if (selectedWord.split('').every(l => guessedLetters.includes(l))) {
-            setTimeout(() => endGame(true), 300);
-        }
+        const isWin = selectedWord.split('').every(l => guessedLetters.includes(l));
+        if (isWin) setTimeout(() => endGame(true), 500);
     }
     renderGame();
 }
 
 function endGame(won) {
     if (gameMode === 'p1') {
-        GameManager.showResult(won ? 'win' : 'loss');
+        GameManager.showResult(won ? 'win' : 'loss', won ? '¡Palabra completada!' : `La palabra era: ${selectedWord}`);
     } else {
         UIManager.alert(won ? '¡Ganaste!' : 'Perdiste', `La palabra era: ${selectedWord}`, won ? 'success' : 'error').then(() => {
-            // Reset to splash for 2P mode
             location.reload();
         });
     }
