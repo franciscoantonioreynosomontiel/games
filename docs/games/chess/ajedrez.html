@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         .game-area { padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        #myBoard { width: 320px; max-width: 90vw; margin: 20px 0; }
+        #board { width: 320px; max-width: 90vw; margin: 20px 0; }
         .controls { width: 100%; max-width: 350px; display: flex; flex-direction: column; gap: 10px; }
         .status-box { background: #eee; padding: 10px; border-radius: 8px; font-weight: 500; text-align: center; }
     </style>
@@ -37,7 +37,7 @@
 
         <main class="game-area" id="main-game" style="display: none;">
             <div id="status" class="status-box">Turno: Blancas</div>
-            <div id="myBoard"></div>
+            <div id="board"></div>
             <div class="controls">
                 <button class="btn-premium" onclick="location.reload()">REINICIAR</button>
             </div>
@@ -56,6 +56,7 @@
     <script>
         function startMode(m) {
             gameMode = m;
+            difficulty = m;
             document.getElementById('splash').style.display = 'none';
             document.getElementById('main-game').style.display = 'flex';
             initGame();

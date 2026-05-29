@@ -1,6 +1,5 @@
 const boardElement = document.getElementById('board');
 const mineCountElement = document.getElementById('mine-count');
-const resetBtn = document.getElementById('reset-btn');
 
 let board = [];
 let gameOver = false;
@@ -10,12 +9,6 @@ let mines = 10;
 function initGame() {
     GameManager.setGame('minesweeper');
 
-    // Level scaling (1-50)
-    const level = GameManager.currentLevel;
-    size = 8 + Math.floor(level / 10); // 8x8 to 13x13
-    mines = 10 + Math.floor(level * 1.5);
-
-    // Fix grid styles
     boardElement.style.display = 'grid';
     boardElement.style.gridTemplateColumns = `repeat(${size}, 30px)`;
     boardElement.style.gridTemplateRows = `repeat(${size}, 30px)`;
@@ -106,23 +99,17 @@ function revealCell(idx) {
 
     board[idx].revealed = true;
     const el = boardElement.children[idx];
-    el.classList.add('revealed');
     el.style.backgroundColor = '#eee';
 
     if (board[idx].isMine) {
-        el.classList.add('mine');
         el.style.backgroundColor = '#f44336';
         el.innerText = '💣';
         if (GameManager.loseLife()) {
             endGame(false);
-        } else {
-            // Keep playing but this cell is revealed as mine
-            checkWin();
         }
     } else {
         if (board[idx].neighborCount > 0) {
             el.innerText = board[idx].neighborCount;
-            el.classList.add(`n${board[idx].neighborCount}`);
             const colors = ['', 'blue', 'green', 'red', 'darkblue', 'brown', 'cyan', 'black', 'grey'];
             el.style.color = colors[board[idx].neighborCount];
         } else {
@@ -164,6 +151,3 @@ function endGame(won) {
         GameManager.showResult('loss');
     }
 }
-
-resetBtn.addEventListener('click', initGame);
-initGame();

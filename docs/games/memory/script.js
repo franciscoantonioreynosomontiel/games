@@ -1,5 +1,4 @@
 const boardElement = document.getElementById('board');
-const resetBtn = document.getElementById('reset-btn');
 
 let cards = [];
 let flippedCards = [];
@@ -8,8 +7,7 @@ let pairs = 8;
 let canFlip = true;
 
 function initGame() {
-    const gameState = GameManager.setGame('memory');
-    pairs = 8 + Math.floor(gameState.level / 5);
+    GameManager.setGame('memory');
 
     cards = [];
     flippedCards = [];
@@ -25,7 +23,6 @@ function initGame() {
         const card = document.createElement('div');
         card.className = 'card';
         card.dataset.icon = icon;
-        card.dataset.index = index;
         card.innerHTML = `
             <div class="card-inner">
                 <div class="card-front"><span class="material-icons">help_outline</span></div>
@@ -58,7 +55,7 @@ function checkMatch() {
         flippedCards = [];
         canFlip = true;
         if (matchedCount === pairs) {
-            GameManager.showResult('win');
+            setTimeout(() => GameManager.showResult('win'), 500);
         }
     } else {
         setTimeout(() => {
@@ -70,6 +67,3 @@ function checkMatch() {
         }, 1000);
     }
 }
-
-resetBtn.onclick = initGame;
-initGame();

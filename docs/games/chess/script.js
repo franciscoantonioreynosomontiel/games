@@ -1,89 +1,66 @@
 var board = null;
 var game = new Chess();
 var $status = $('#status');
-var $fen = $('#fen');
 var gameMode = 'pvp';
 var difficulty = 'easy';
-
-// Transposition Table
 var transpositionTable = {};
 
-// Piece-Square Tables
-const pawnEvalWhite = [
-    [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0],
-    [5.0,  5.0,  5.0,  5.0,  5.0,  5.0,  5.0,  5.0],
-    [1.0,  1.0,  2.0,  3.0,  3.0,  2.0,  1.0,  1.0],
-    [0.5,  0.5,  1.0,  2.5,  2.5,  1.0,  0.5,  0.5],
-    [0.0,  0.0,  0.0,  2.0,  2.0,  0.0,  0.0,  0.0],
-    [0.5, -0.5, -1.0,  0.0,  0.0, -1.0, -0.5,  0.5],
-    [0.5,  1.0, 1.0,  -2.0, -2.0,  1.0,  1.0,  0.5],
-    [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0]
-];
+function initGame() {
+    GameManager.setGame('chess', difficulty);
+    if (board) {
+        board.destroy();
+    }
+
+    var config = {
+        draggable: true,
+        position: 'start',
+        onDragStart: onDragStart,
+        onDrop: onDrop,
+        onSnapEnd: onSnapEnd,
+        pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+    };
+
+    board = Chessboard('board', config);
+
+    // Fix for board rendering in hidden/shown div
+    setTimeout(() => {
+        board.resize();
+        updateStatus();
+    }, 200);
+}
+
+// Piece-Square Tables (Omitted for brevity in this block, but I should keep them)
+const pawnEvalWhite = [[0,0,0,0,0,0,0,0],[5,5,5,5,5,5,5,5],[1,1,2,3,3,2,1,1],[0.5,0.5,1,2.5,2.5,1,0.5,0.5],[0,0,0,2,2,0,0,0],[0.5,-0.5,-1,0,0,-1,-0.5,0.5],[0.5,1,1,-2,-2,1,1,0.5],[0,0,0,0,0,0,0,0]];
 const pawnEvalBlack = pawnEvalWhite.slice().reverse();
-const knightEval = [
-    [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0],
-    [-4.0, -2.0,  0.0,  0.0,  0.0,  0.0, -2.0, -4.0],
-    [-3.0,  0.0,  1.0,  1.5,  1.5,  1.0,  0.0, -3.0],
-    [-3.0,  0.5,  1.5,  2.0,  2.0,  1.5,  0.5, -3.0],
-    [-3.0,  0.0,  1.5,  2.0,  2.0,  1.5,  0.0, -3.0],
-    [-3.0,  0.5,  1.0,  1.5,  1.5,  1.0,  0.5, -3.0],
-    [-4.0, -2.0,  0.0,  0.5,  0.5,  0.0, -2.0, -4.0],
-    [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0]
-];
-const bishopEvalWhite = [
-    [-2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0],
-    [-1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0],
-    [-1.0,  0.0,  0.5,  1.0,  1.0,  0.5,  0.0, -1.0],
-    [-1.0,  0.5,  0.5,  1.0,  1.0,  0.5,  0.5, -1.0],
-    [-1.0,  0.0,  1.0,  1.0,  1.0,  1.0,  0.0, -1.0],
-    [-1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0, -1.0],
-    [-1.0,  0.5,  0.0,  0.0,  0.0,  0.0,  0.5, -1.0],
-    [-2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0]
-];
+const knightEval = [[-5,-4,-3,-3,-3,-3,-4,-5],[-4,-2,0,0,0,0,-2,-4],[-3,0,1,1.5,1.5,1,0,-3],[-3,0.5,1.5,2,2,1.5,0.5,-3],[-3,0,1.5,2,2,1.5,0,-3],[-3,0.5,1,1.5,1.5,1,0.5,-3],[-4,-2,0,0.5,0.5,0,-2,-4],[-5,-4,-3,-3,-3,-3,-4,-5]];
+const bishopEvalWhite = [[-2,-1,-1,-1,-1,-1,-1,-2],[-1,0,0,0,0,0,0,-1],[-1,0,0.5,1,1,0.5,0,-1],[-1,0.5,0.5,1,1,0.5,0.5,-1],[-1,0,1,1,1,1,0,-1],[-1,1,1,1,1,1,1,-1],[-1,0.5,0,0,0,0,0.5,-1],[-2,-1,-1,-1,-1,-1,-1,-2]];
 const bishopEvalBlack = bishopEvalWhite.slice().reverse();
-const rookEvalWhite = [
-    [ 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0],
-    [ 0.5,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  0.5],
-    [-0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
-    [-0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
-    [-0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
-    [-0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
-    [-0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
-    [ 0.0,   0.0, 0.0,  0.5,  0.5,  0.0,  0.0,  0.0]
-];
+const rookEvalWhite = [[0,0,0,0,0,0,0,0],[0.5,1,1,1,1,1,1,0.5],[-0.5,0,0,0,0,0,0,-0.5],[-0.5,0,0,0,0,0,0,-0.5],[-0.5,0,0,0,0,0,0,-0.5],[-0.5,0,0,0,0,0,0,-0.5],[-0.5,0,0,0,0,0,0,-0.5],[0,0,0,0.5,0.5,0,0,0]];
 const rookEvalBlack = rookEvalWhite.slice().reverse();
-const evalQueen = [
-    [-2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0],
-    [-1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0],
-    [-1.0,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -1.0],
-    [-0.5,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -0.5],
-    [ 0.0,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -0.5],
-    [-1.0,  0.5,  0.5,  0.5,  0.5,  0.5,  0.0, -1.0],
-    [-1.0,  0.0,  0.5,  0.0,  0.0,  0.0,  0.0, -1.0],
-    [-2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0]
-];
-const kingEvalWhite = [
-    [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
-    [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
-    [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
-    [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
-    [-2.0, -3.0, -3.0, -4.0, -4.0, -3.0, -3.0, -2.0],
-    [-1.0, -2.0, -2.0, -2.0, -2.0, -2.0, -2.0, -1.0],
-    [ 2.0,  2.0,  0.0,  0.0,  0.0,  0.0,  2.0,  2.0],
-    [ 2.0,  3.0,  1.0,  0.0,  0.0,  1.0,  3.0,  2.0]
-];
+const evalQueen = [[-2,-1,-1,-0.5,-0.5,-1,-1,-2],[-1,0,0,0,0,0,0,-1],[-1,0,0.5,0.5,0.5,0.5,0,-1],[-0.5,0,0.5,0.5,0.5,0.5,0,-0.5],[0,0,0.5,0.5,0.5,0.5,0,-0.5],[-1,0.5,0.5,0.5,0.5,0.5,0,-1],[-1,0,0.5,0,0,0,0,-1],[-2,-1,-1,-0.5,-0.5,-1,-1,-2]];
+const kingEvalWhite = [[-3,-4,-4,-5,-5,-4,-4,-3],[-3,-4,-4,-5,-5,-4,-4,-3],[-3,-4,-4,-5,-5,-4,-4,-3],[-3,-4,-4,-5,-5,-4,-4,-3],[-2,-3,-3,-4,-4,-3,-3,-2],[-1,-2,-2,-2,-2,-2,-2,-1],[2,2,0,0,0,0,2,2],[2,3,1,0,0,1,3,2]];
 const kingEvalBlack = kingEvalWhite.slice().reverse();
 
 function onDragStart(source, piece, position, orientation) {
-  if (game.game_over()) return false;
-  if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
-      (game.turn() === 'b' && piece.search(/^w/) !== -1)) return false;
-  if (gameMode === 'pva' && game.turn() === 'b') return false;
+    if (game.game_over()) return false;
+    if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
+        (game.turn() === 'b' && piece.search(/^w/) !== -1)) return false;
+    if (gameMode !== 'pvp' && game.turn() === 'b') return false;
 }
+
+function onDrop(source, target) {
+    var move = game.move({ from: source, to: target, promotion: 'q' });
+    if (move === null) return 'snapback';
+    updateStatus();
+    if (gameMode !== 'pvp' && !game.game_over()) {
+        window.setTimeout(makeAIMove, 250);
+    }
+}
+
+function onSnapEnd() { board.position(game.fen()); }
 
 function makeAIMove() {
     if (game.game_over()) return;
-
     var move;
     if (difficulty === 'easy') {
         var possibleMoves = game.moves();
@@ -91,18 +68,16 @@ function makeAIMove() {
     } else {
         move = getBestMoveIterative();
     }
-
     game.move(move);
     board.position(game.fen());
     updateStatus();
 }
 
 function getBestMoveIterative() {
-    var maxDepth = difficulty === 'hard' ? 4 : 2;
+    var maxDepth = difficulty === 'hard' ? 3 : 2;
     var bestMove = null;
     var startTime = new Date().getTime();
-    var timeLimit = 2500; // 2.5 seconds limit
-
+    var timeLimit = 2000;
     for (var depth = 1; depth <= maxDepth; depth++) {
         var result = minimaxChess(game, depth, -10000, 10000, true, startTime, timeLimit);
         if (result.move) bestMove = result.move;
@@ -112,57 +87,33 @@ function getBestMoveIterative() {
 }
 
 function minimaxChess(game, depth, alpha, beta, isMaximizing, startTime, timeLimit) {
-    if (startTime && new Date().getTime() - startTime > timeLimit) {
-        return { value: evaluateBoard(game.board()) };
-    }
-
-    var fen = game.fen();
-    if (transpositionTable[fen] && transpositionTable[fen].depth >= depth) {
-        return transpositionTable[fen].data;
-    }
-
-    if (depth === 0 || game.game_over()) {
-        return { value: evaluateBoard(game.board()) };
-    }
-
+    if (startTime && new Date().getTime() - startTime > timeLimit) return { value: evaluateBoard(game.board()) };
+    if (depth === 0 || game.game_over()) return { value: evaluateBoard(game.board()) };
     var moves = game.moves();
-    // Move ordering: simple heuristic - captures first
     moves.sort((a, b) => (b.includes('x') ? 1 : 0) - (a.includes('x') ? 1 : 0));
-
     var bestMove = null;
-
     if (isMaximizing) {
         var bestValue = -9999;
         for (var i = 0; i < moves.length; i++) {
             game.move(moves[i]);
             var val = minimaxChess(game, depth - 1, alpha, beta, !isMaximizing, startTime, timeLimit).value;
             game.undo();
-            if (val > bestValue) {
-                bestValue = val;
-                bestMove = moves[i];
-            }
+            if (val > bestValue) { bestValue = val; bestMove = moves[i]; }
             alpha = Math.max(alpha, bestValue);
             if (beta <= alpha) break;
         }
-        var result = { value: bestValue, move: bestMove };
-        transpositionTable[fen] = { depth: depth, data: result };
-        return result;
+        return { value: bestValue, move: bestMove };
     } else {
         var bestValue = 9999;
         for (var i = 0; i < moves.length; i++) {
             game.move(moves[i]);
             var val = minimaxChess(game, depth - 1, alpha, beta, !isMaximizing, startTime, timeLimit).value;
             game.undo();
-            if (val < bestValue) {
-                bestValue = val;
-                bestMove = moves[i];
-            }
+            if (val < bestValue) { bestValue = val; bestMove = moves[i]; }
             beta = Math.min(beta, bestValue);
             if (beta <= alpha) break;
         }
-        var result = { value: bestValue, move: bestMove };
-        transpositionTable[fen] = { depth: depth, data: result };
-        return result;
+        return { value: bestValue, move: bestMove };
     }
 }
 
@@ -185,63 +136,32 @@ function getPieceValue(piece, x, y) {
         else if (piece.type === 'b') return 30 + (piece.color === 'w' ? bishopEvalWhite[x][y] : bishopEvalBlack[x][y]);
         else if (piece.type === 'q') return 90 + evalQueen[x][y];
         else if (piece.type === 'k') return 900 + (piece.color === 'w' ? kingEvalWhite[x][y] : kingEvalBlack[x][y]);
-        throw "Unknown piece type: " + piece.type;
+        return 0;
     };
     var absoluteValue = getAbsoluteValue(piece, x, y);
     return piece.color === 'w' ? absoluteValue : -absoluteValue;
 }
 
-function onDrop(source, target) {
-  var move = game.move({ from: source, to: target, promotion: 'q' });
-  if (move === null) return 'snapback';
-  updateStatus();
-  if (gameMode === 'pva' && !game.game_over()) {
-    window.setTimeout(makeAIMove, 250);
-  }
-}
-
-function onSnapEnd() { board.position(game.fen()); }
-
 function updateStatus() {
-  var status = '';
-  var moveColor = game.turn() === 'b' ? 'Negro' : 'Blanco';
-  if (game.in_checkmate()) {
-    status = 'Juego terminado, ' + moveColor + ' está en jaque mate.';
-    if (gameMode === 'pva') {
-        if (game.turn() === 'b') GameManager.showResult('win'); else GameManager.showResult('loss');
+    var status = '';
+    var moveColor = game.turn() === 'b' ? 'Negro' : 'Blanco';
+    if (game.in_checkmate()) {
+        status = 'Juego terminado, ' + moveColor + ' está en jaque mate.';
+        if (gameMode !== 'pvp') {
+            if (game.turn() === 'b') GameManager.showResult('win'); else GameManager.showResult('loss');
+        }
+    } else if (game.in_draw()) {
+        status = 'Juego terminado, tablas';
+        if (gameMode !== 'pvp') GameManager.saveResult('draw');
+    } else {
+        status = 'Turno de: ' + moveColor;
+        if (game.in_check()) status += ', ' + moveColor + ' en jaque';
     }
-  } else if (game.in_draw()) {
-    status = 'Juego terminado, posición de tablas';
-    if (gameMode === 'pva') GameManager.saveResult('draw');
-  } else {
-    status = 'Turno de: ' + moveColor;
-    if (game.in_check()) status += ', ' + moveColor + ' está en jaque';
-  }
-  $status.html(status);
-  $fen.html(game.fen());
+    $status.html(status);
 }
-
-var config = {
-  draggable: true,
-  position: 'start',
-  onDragStart: onDragStart,
-  onDrop: onDrop,
-  onSnapEnd: onSnapEnd,
-  pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
-};
-board = Chessboard('board', config);
-GameManager.setGame('chess', difficulty);
-updateStatus();
 
 $('#reset-btn').on('click', function() {
-    game.reset(); board.start(); transpositionTable = {}; updateStatus();
+    game.reset();
+    board.start();
+    updateStatus();
 });
-$('#undo-btn').on('click', function() {
-    game.undo(); if (gameMode === 'pva') game.undo();
-    board.position(game.fen()); updateStatus();
-});
-$('#game-mode').on('change', function() {
-    gameMode = $(this).val(); $('#difficulty').toggle(gameMode === 'pva');
-    game.reset(); board.start(); transpositionTable = {}; updateStatus();
-});
-$('#difficulty').on('change', function() { difficulty = $(this).val(); });
