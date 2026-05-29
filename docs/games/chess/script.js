@@ -3,7 +3,6 @@ var game = new Chess();
 var $status = $('#status');
 var gameMode = 'pvp';
 var difficulty = 'easy';
-var transpositionTable = {};
 
 function initGame() {
     GameManager.setGame('chess', difficulty);
@@ -22,24 +21,11 @@ function initGame() {
 
     board = Chessboard('board', config);
 
-    // Fix for board rendering in hidden/shown div
     setTimeout(() => {
         board.resize();
         updateStatus();
-    }, 200);
+    }, 300);
 }
-
-// Piece-Square Tables (Omitted for brevity in this block, but I should keep them)
-const pawnEvalWhite = [[0,0,0,0,0,0,0,0],[5,5,5,5,5,5,5,5],[1,1,2,3,3,2,1,1],[0.5,0.5,1,2.5,2.5,1,0.5,0.5],[0,0,0,2,2,0,0,0],[0.5,-0.5,-1,0,0,-1,-0.5,0.5],[0.5,1,1,-2,-2,1,1,0.5],[0,0,0,0,0,0,0,0]];
-const pawnEvalBlack = pawnEvalWhite.slice().reverse();
-const knightEval = [[-5,-4,-3,-3,-3,-3,-4,-5],[-4,-2,0,0,0,0,-2,-4],[-3,0,1,1.5,1.5,1,0,-3],[-3,0.5,1.5,2,2,1.5,0.5,-3],[-3,0,1.5,2,2,1.5,0,-3],[-3,0.5,1,1.5,1.5,1,0.5,-3],[-4,-2,0,0.5,0.5,0,-2,-4],[-5,-4,-3,-3,-3,-3,-4,-5]];
-const bishopEvalWhite = [[-2,-1,-1,-1,-1,-1,-1,-2],[-1,0,0,0,0,0,0,-1],[-1,0,0.5,1,1,0.5,0,-1],[-1,0.5,0.5,1,1,0.5,0.5,-1],[-1,0,1,1,1,1,0,-1],[-1,1,1,1,1,1,1,-1],[-1,0.5,0,0,0,0,0.5,-1],[-2,-1,-1,-1,-1,-1,-1,-2]];
-const bishopEvalBlack = bishopEvalWhite.slice().reverse();
-const rookEvalWhite = [[0,0,0,0,0,0,0,0],[0.5,1,1,1,1,1,1,0.5],[-0.5,0,0,0,0,0,0,-0.5],[-0.5,0,0,0,0,0,0,-0.5],[-0.5,0,0,0,0,0,0,-0.5],[-0.5,0,0,0,0,0,0,-0.5],[-0.5,0,0,0,0,0,0,-0.5],[0,0,0,0.5,0.5,0,0,0]];
-const rookEvalBlack = rookEvalWhite.slice().reverse();
-const evalQueen = [[-2,-1,-1,-0.5,-0.5,-1,-1,-2],[-1,0,0,0,0,0,0,-1],[-1,0,0.5,0.5,0.5,0.5,0,-1],[-0.5,0,0.5,0.5,0.5,0.5,0,-0.5],[0,0,0.5,0.5,0.5,0.5,0,-0.5],[-1,0.5,0.5,0.5,0.5,0.5,0,-1],[-1,0,0.5,0,0,0,0,-1],[-2,-1,-1,-0.5,-0.5,-1,-1,-2]];
-const kingEvalWhite = [[-3,-4,-4,-5,-5,-4,-4,-3],[-3,-4,-4,-5,-5,-4,-4,-3],[-3,-4,-4,-5,-5,-4,-4,-3],[-3,-4,-4,-5,-5,-4,-4,-3],[-2,-3,-3,-4,-4,-3,-3,-2],[-1,-2,-2,-2,-2,-2,-2,-1],[2,2,0,0,0,0,2,2],[2,3,1,0,0,1,3,2]];
-const kingEvalBlack = kingEvalWhite.slice().reverse();
 
 function onDragStart(source, piece, position, orientation) {
     if (game.game_over()) return false;
@@ -53,7 +39,7 @@ function onDrop(source, target) {
     if (move === null) return 'snapback';
     updateStatus();
     if (gameMode !== 'pvp' && !game.game_over()) {
-        window.setTimeout(makeAIMove, 250);
+        window.setTimeout(makeAIMove, 500);
     }
 }
 
@@ -127,6 +113,17 @@ function evaluateBoard(board) {
     return totalEvaluation;
 }
 
+const pawnEvalWhite = [[0,0,0,0,0,0,0,0],[5,5,5,5,5,5,5,5],[1,1,2,3,3,2,1,1],[0.5,0.5,1,2.5,2.5,1,0.5,0.5],[0,0,0,2,2,0,0,0],[0.5,-0.5,-1,0,0,-1,-0.5,0.5],[0.5,1,1,-2,-2,1,1,0.5],[0,0,0,0,0,0,0,0]];
+const pawnEvalBlack = pawnEvalWhite.slice().reverse();
+const knightEval = [[-5,-4,-3,-3,-3,-3,-4,-5],[-4,-2,0,0,0,0,-2,-4],[-3,0,1,1.5,1.5,1,0,-3],[-3,0.5,1.5,2,2,1.5,0.5,-3],[-3,0,1.5,2,2,1.5,0,-3],[-3,0.5,1,1.5,1.5,1,0.5,-3],[-4,-2,0,0.5,0.5,0,-2,-4],[-5,-4,-3,-3,-3,-3,-4,-5]];
+const bishopEvalWhite = [[-2,-1,-1,-1,-1,-1,-1,-2],[-1,0,0,0,0,0,0,-1],[-1,0,0.5,1,1,0.5,0,-1],[-1,0.5,0.5,1,1,0.5,0.5,-1],[-1,0,1,1,1,1,0,-1],[-1,1,1,1,1,1,1,-1],[-1,0.5,0,0,0,0,0.5,-1],[-2,-1,-1,-1,-1,-1,-1,-2]];
+const bishopEvalBlack = bishopEvalWhite.slice().reverse();
+const rookEvalWhite = [[0,0,0,0,0,0,0,0],[0.5,1,1,1,1,1,1,0.5],[-0.5,0,0,0,0,0,0,-0.5],[-0.5,0,0,0,0,0,0,-0.5],[-0.5,0,0,0,0,0,0,-0.5],[-0.5,0,0,0,0,0,0,-0.5],[-0.5,0,0,0,0,0,0,-0.5],[0,0,0,0.5,0.5,0,0,0]];
+const rookEvalBlack = rookEvalWhite.slice().reverse();
+const evalQueen = [[-2,-1,-1,-0.5,-0.5,-1,-1,-2],[-1,0,0,0,0,0,0,-1],[-1,0,0.5,0.5,0.5,0.5,0,-1],[-0.5,0,0.5,0.5,0.5,0.5,0,-0.5],[0,0,0.5,0.5,0.5,0.5,0,-0.5],[-1,0.5,0.5,0.5,0.5,0.5,0,-1],[-1,0,0.5,0,0,0,0,-1],[-2,-1,-1,-0.5,-0.5,-1,-1,-2]];
+const kingEvalWhite = [[-3,-4,-4,-5,-5,-4,-4,-3],[-3,-4,-4,-5,-5,-4,-4,-3],[-3,-4,-4,-5,-5,-4,-4,-3],[-3,-4,-4,-5,-5,-4,-4,-3],[-2,-3,-3,-4,-4,-3,-3,-2],[-1,-2,-2,-2,-2,-2,-2,-1],[2,2,0,0,0,0,2,2],[2,3,1,0,0,1,3,2]];
+const kingEvalBlack = kingEvalWhite.slice().reverse();
+
 function getPieceValue(piece, x, y) {
     if (piece === null) return 0;
     var getAbsoluteValue = function (piece, x, y) {
@@ -145,23 +142,46 @@ function getPieceValue(piece, x, y) {
 function updateStatus() {
     var status = '';
     var moveColor = game.turn() === 'b' ? 'Negro' : 'Blanco';
-    if (game.in_checkmate()) {
-        status = 'Juego terminado, ' + moveColor + ' está en jaque mate.';
-        if (gameMode !== 'pvp') {
-            if (game.turn() === 'b') GameManager.showResult('win'); else GameManager.showResult('loss');
+
+    $('.square-55d63').removeClass('highlight-check');
+
+    if (game.in_check()) {
+        const boardState = game.board();
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                const p = boardState[r][c];
+                if (p && p.type === 'k' && p.color === game.turn()) {
+                    const square = String.fromCharCode(97 + c) + (8 - r);
+                    $(`.square-${square}`).addClass('highlight-check');
+                }
+            }
         }
+    }
+
+    if (game.in_checkmate()) {
+        status = '¡JAQUEMATE! El equipo ' + (game.turn() === 'w' ? 'Negro' : 'Blanco') + ' gana.';
+        $status.html(status);
+        setTimeout(() => {
+            if (gameMode !== 'pvp') {
+                if (game.turn() === 'b') GameManager.showResult('win', '¡Has hecho Jaquemate!');
+                else GameManager.showResult('loss', 'La IA te ha hecho Jaquemate.');
+            } else {
+                UIManager.alert('Fin del Juego', status, 'success');
+            }
+        }, 1000);
     } else if (game.in_draw()) {
-        status = 'Juego terminado, tablas';
-        if (gameMode !== 'pvp') GameManager.saveResult('draw');
+        status = 'JUEGO TERMINADO: Tablas';
+        $status.html(status);
+        setTimeout(() => {
+            if (gameMode !== 'pvp') GameManager.showResult('draw');
+            else UIManager.alert('Fin del Juego', status, 'warning');
+        }, 1000);
     } else {
         status = 'Turno de: ' + moveColor;
-        if (game.in_check()) status += ', ' + moveColor + ' en jaque';
+        if (game.in_check()) status += ' (¡EN JAQUE!)';
+        $status.html(status);
     }
-    $status.html(status);
 }
 
-$('#reset-btn').on('click', function() {
-    game.reset();
-    board.start();
-    updateStatus();
-});
+$('#reset-btn').on('click', function() { game.reset(); board.start(); updateStatus(); });
+$('#undo-btn').on('click', function() { game.undo(); if (gameMode !== 'pvp') game.undo(); board.position(game.fen()); updateStatus(); });

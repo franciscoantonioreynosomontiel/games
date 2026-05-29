@@ -10,7 +10,7 @@ function initGame() {
     const state = GameManager.setGame('2048');
     const level = state.level;
 
-    // Hardcoded level logic as example
+    // Level scaling logic
     if (level <= 10) { size = 4; goal = 2048; }
     else if (level <= 20) { size = 5; goal = 2048; }
     else if (level <= 30) { size = 4; goal = 4096; }
@@ -37,18 +37,25 @@ function addRandomTile() {
 
 function renderBoard() {
     boardElement.innerHTML = '';
-    const tileSize = Math.floor(280 / size);
+    const containerWidth = boardElement.offsetWidth || 300;
+    const gap = 10;
+    const tileSize = Math.floor((containerWidth - (size + 1) * gap) / size);
+
     board.forEach(val => {
         const tile = document.createElement('div');
         tile.className = 'tile';
         tile.style.width = `${tileSize}px`;
         tile.style.height = `${tileSize}px`;
+        tile.style.lineHeight = `${tileSize}px`;
+        tile.style.fontSize = val > 100 ? (val > 1000 ? '16px' : '20px') : '24px';
+
         if (val > 0) {
             tile.innerText = val;
             tile.dataset.value = val;
             tile.style.backgroundColor = getTileColor(val);
-            if (val > 4) tile.style.color = '#f9f6f2';
-            else tile.style.color = '#776e65';
+            tile.style.color = val > 4 ? '#f9f6f2' : '#776e65';
+        } else {
+            tile.style.backgroundColor = 'rgba(238, 228, 218, 0.35)';
         }
         boardElement.appendChild(tile);
     });
@@ -78,7 +85,6 @@ function slide(row) {
 }
 
 function move(direction) {
-    let hasChanged = false;
     const oldBoard = [...board];
 
     if (direction === 'left' || direction === 'right') {
@@ -110,7 +116,7 @@ function move(direction) {
 
 function checkWin() {
     if (board.includes(goal)) {
-        GameManager.showResult('win', score);
+        setTimeout(() => GameManager.showResult('win', `¡Has llegado al ${goal}! Puntos: ${score}`), 500);
     } else if (!board.includes(0)) {
         let canMove = false;
         for (let i = 0; i < size; i++) {
@@ -119,7 +125,7 @@ function checkWin() {
                 if (i < size - 1 && board[i * size + j] === board[(i + 1) * size + j]) canMove = true;
             }
         }
-        if (!canMove) GameManager.showResult('loss', score);
+        if (!canMove) setTimeout(() => GameManager.showResult('loss'), 500);
     }
 }
 

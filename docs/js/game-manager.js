@@ -7,7 +7,6 @@ const GameManager = {
 
     init() {
         this.addPopupStyles();
-        // Skip loadLevel here, games call setGame
     },
 
     loadLevel() {
@@ -27,7 +26,6 @@ const GameManager = {
     },
 
     renderHeaderUI() {
-        // Clean existing GM elements
         const oldBar = document.getElementById('gm-header-bar');
         if (oldBar) oldBar.remove();
 
@@ -35,32 +33,27 @@ const GameManager = {
         bar.id = 'gm-header-bar';
         bar.style.cssText = `
             display: flex; justify-content: space-between; align-items: center;
-            padding: 8px 16px; background: #eee; border-bottom: 1px solid #ccc;
+            padding: 8px 16px; background: #fdfdfd; border-bottom: 2px solid #eee;
             font-size: 14px; font-weight: 500;
         `;
 
-        // Lives
         const livesDiv = document.createElement('div');
         livesDiv.id = 'gm-lives';
         livesDiv.style.display = 'flex';
         this.updateLivesUI(livesDiv);
 
-        // Level Info
         const infoDiv = document.createElement('div');
         infoDiv.innerHTML = `
-            <span style="background: var(--primary-color); color: white; padding: 2px 8px; border-radius: 10px; margin-right: 8px;">NIVEL ${this.currentLevel}</span>
-            <button onclick="GameManager.showLevelSelector()" style="background: none; border: 1px solid var(--primary-color); color: var(--primary-color); border-radius: 4px; padding: 2px 6px; cursor: pointer; font-size: 12px;">CAMBIAR</button>
+            <span style="background: var(--primary-color); color: white; padding: 3px 10px; border-radius: 12px; margin-right: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">NIVEL ${this.currentLevel}</span>
+            <button onclick="GameManager.showLevelSelector()" class="btn-premium" style="padding: 4px 10px; font-size: 11px;">NIVELES</button>
         `;
 
         bar.appendChild(livesDiv);
         bar.appendChild(infoDiv);
 
         const header = document.querySelector('.app-header');
-        if (header) {
-            header.after(bar);
-        } else {
-            document.body.prepend(bar);
-        }
+        if (header) header.after(bar);
+        else document.body.prepend(bar);
     },
 
     updateLivesUI(container) {
@@ -70,10 +63,10 @@ const GameManager = {
         for (let i = 0; i < 3; i++) {
             const heart = document.createElement('span');
             heart.className = 'material-icons';
-            heart.style.fontSize = '20px';
-            heart.style.marginRight = '2px';
+            heart.style.cssText = `font-size: 22px; margin-right: 4px; transition: transform 0.3s;`;
             heart.innerText = i < this.lives ? 'favorite' : 'favorite_border';
-            heart.style.color = i < this.lives ? '#f44336' : '#999';
+            heart.style.color = i < this.lives ? '#f44336' : '#bbb';
+            if (i >= this.lives) heart.style.transform = 'scale(0.8)';
             target.appendChild(heart);
         }
     },
@@ -85,25 +78,29 @@ const GameManager = {
 
         let levelsHtml = '';
         const unlocked = this.getUnlockedLevel();
+        const completedLevels = JSON.parse(localStorage.getItem(`completed_${Auth.currentUser?.username}_${this.currentGame}`) || '[]');
+
         for (let i = 1; i <= this.maxLevel; i++) {
             const isLocked = i > unlocked;
+            const isCompleted = completedLevels.includes(i);
             levelsHtml += `
                 <button class="lvl-btn-mini ${isLocked ? 'locked' : ''}"
                         ${isLocked ? 'disabled' : `onclick="GameManager.goToLevel(${i})"`}
-                        style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; background: ${isLocked ? '#eee' : 'white'}; cursor: ${isLocked ? 'default' : 'pointer'}; position: relative;">
+                        style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: ${isLocked ? '#f5f5f5' : (isCompleted ? '#e8f5e9' : 'white')}; cursor: ${isLocked ? 'default' : 'pointer'}; position: relative; font-weight: bold;">
                     ${i}
-                    ${isLocked ? '<span class="material-icons" style="font-size: 12px; position: absolute; top: 2px; right: 2px;">lock</span>' : ''}
+                    ${isLocked ? '<span class="material-icons" style="font-size: 14px; position: absolute; top: 2px; right: 2px; color: #999;">lock</span>' : ''}
+                    ${isCompleted ? '<span class="material-icons" style="font-size: 14px; position: absolute; bottom: 2px; right: 2px; color: #4caf50;">star</span>' : ''}
                 </button>
             `;
         }
 
         overlay.innerHTML = `
-            <div class="modal-content" style="max-width: 350px;">
-                <h3 style="margin-bottom: 15px; text-align: center;">Seleccionar Nivel</h3>
-                <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; max-height: 300px; overflow-y: auto; padding: 5px;">
+            <div class="modal-content" style="max-width: 380px;">
+                <h3 style="margin-bottom: 20px; text-align: center; color: var(--primary-color);">Seleccionar Nivel</h3>
+                <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; max-height: 350px; overflow-y: auto; padding: 5px; scrollbar-width: thin;">
                     ${levelsHtml}
                 </div>
-                <button class="btn-premium" style="margin-top: 20px; width: 100%;" onclick="this.parentElement.parentElement.remove()">Cerrar</button>
+                <button class="btn-premium" style="margin-top: 20px; width: 100%;" onclick="this.parentElement.parentElement.remove()">CERRAR</button>
             </div>
         `;
         document.body.appendChild(overlay);
@@ -125,7 +122,7 @@ const GameManager = {
         this.lives--;
         this.updateLivesUI();
         if (this.lives <= 0) {
-            this.showResult('loss');
+            setTimeout(() => this.showResult('loss'), 500);
             return true;
         }
         return false;
@@ -146,52 +143,66 @@ const GameManager = {
                 }]);
 
             if (result === 'win') {
+                // Mark level as completed
+                const completed = JSON.parse(localStorage.getItem(`completed_${Auth.currentUser.username}_${this.currentGame}`) || '[]');
+                if (!completed.includes(this.currentLevel)) {
+                    completed.push(this.currentLevel);
+                    localStorage.setItem(`completed_${Auth.currentUser.username}_${this.currentGame}`, JSON.stringify(completed));
+                }
+
                 const unlocked = this.getUnlockedLevel();
                 if (this.currentLevel >= unlocked && this.currentLevel < this.maxLevel) {
                     localStorage.setItem(`max_unlocked_${Auth.currentUser.username}_${this.currentGame}`, this.currentLevel + 1);
                 }
-                if (this.currentLevel < this.maxLevel) {
-                    localStorage.setItem(`level_${Auth.currentUser.username}_${this.currentGame}`, this.currentLevel + 1);
-                }
             }
-        } catch (e) {
-            console.error("Error saving score", e);
-        }
+        } catch (e) { console.error(e); }
     },
 
-    showResult(type, score = 0) {
+    showResult(type, details = "") {
         const overlay = document.createElement('div');
         overlay.className = 'modal-overlay';
         overlay.style.display = 'flex';
+        overlay.style.zIndex = '3000';
 
         const content = document.createElement('div');
         content.className = `modal-content animated ${type === 'win' ? 'bounceIn' : 'fadeInUp'}`;
         content.style.textAlign = 'center';
 
-        const title = type === 'win' ? '¡FELICIDADES!' : (type === 'draw' ? 'EMPATE' : 'NIVEL FALLIDO');
-        const msg = type === 'win' ? `Has superado el nivel ${this.currentLevel}.` : `Has fallado el nivel ${this.currentLevel}.`;
-        const icon = type === 'win' ? 'emoji_events' : 'sentiment_very_dissatisfied';
-        const color = type === 'win' ? '#4CAF50' : '#F44336';
+        let title, msg, icon, color;
+        if (type === 'win') {
+            title = '¡EXCELENTE!';
+            msg = details || `Nivel ${this.currentLevel} completado con éxito.`;
+            icon = 'stars';
+            color = '#4CAF50';
+        } else if (type === 'draw') {
+            title = 'TABLAS';
+            msg = 'La partida ha terminado en empate.';
+            icon = 'equalizer';
+            color = '#FF9800';
+        } else {
+            title = 'NIVEL FALLIDO';
+            msg = details || `Has agotado tus intentos en el nivel ${this.currentLevel}.`;
+            icon = 'sentiment_very_dissatisfied';
+            color = '#F44336';
+        }
 
         content.innerHTML = `
             <span class="material-icons" style="font-size: 80px; color: ${color}; margin-bottom: 20px;">${icon}</span>
-            <h2 style="margin-bottom: 10px;">${title}</h2>
-            <p style="color: #666; margin-bottom: 25px;">${msg}</p>
-            <div style="display: flex; gap: 10px;">
-                <button onclick="location.reload()" class="btn-premium" style="flex: 1;">${type === 'win' ? 'Siguiente' : 'Reintentar'}</button>
-                <button onclick="location.href='../../index.html'" class="btn-premium" style="flex: 1; background: #eee; color: #333;">Menú</button>
+            <h2 style="margin-bottom: 10px; color: ${color};">${title}</h2>
+            <p style="color: #555; margin-bottom: 25px; line-height: 1.5;">${msg}</p>
+            <div style="display: flex; gap: 12px;">
+                <button onclick="location.reload()" class="btn-premium" style="flex: 1;">${type === 'win' ? 'SIGUIENTE' : 'REINTENTAR'}</button>
+                <button onclick="location.href='../../index.html'" class="btn-premium" style="flex: 1; background: #eee; color: #333;">MENÚ</button>
             </div>
         `;
 
         overlay.appendChild(content);
         document.body.appendChild(overlay);
 
-        this.saveResult(type, score);
+        this.saveResult(type);
     },
 
-    addPopupStyles() {
-        // We use modal-overlay from style.css now
-    }
+    addPopupStyles() {}
 };
 
 window.GameManager = GameManager;
