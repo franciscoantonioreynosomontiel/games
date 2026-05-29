@@ -26,7 +26,7 @@ function initNumpad() {
 }
 
 function initGame() {
-    GameManager.setGame('sudoku', difficulty);
+    GameManager.setGame('sudoku', false, difficulty);
     generateSudoku();
     renderBoard();
 }

@@ -5,7 +5,7 @@ var gameMode = 'pvp';
 var difficulty = 'easy';
 
 function initGame() {
-    GameManager.setGame('chess', difficulty);
+    GameManager.setGame('chess', false, difficulty.toUpperCase());
     if (board) {
         board.destroy();
     }

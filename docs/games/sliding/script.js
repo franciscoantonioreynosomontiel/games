@@ -6,6 +6,7 @@ let board = [];
 let moves = 0;
 
 function initGame() {
+    GameManager.setGame('sliding', false, size + 'x' + size);
     const containerSize = Math.min(window.innerWidth * 0.9, 360);
     const tileSize = Math.floor((containerSize - (size * 8)) / size);
 

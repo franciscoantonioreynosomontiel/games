@@ -137,12 +137,12 @@ document.addEventListener('keydown', (e) => {
 });
 
 let startX, startY;
-document.addEventListener('touchstart', e => {
+window.addEventListener('touchstart', e => {
     startX = e.touches[0].clientX;
     startY = e.touches[0].clientY;
 }, {passive: false});
 
-document.addEventListener('touchend', e => {
+window.addEventListener('touchend', e => {
     if (!startX || !startY) return;
     const dx = e.changedTouches[0].clientX - startX;
     const dy = e.changedTouches[0].clientY - startY;

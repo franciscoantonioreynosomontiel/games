@@ -8,7 +8,7 @@ let gameMode = 'pva';
 let difficulty = 'hard'; // Use minimax for better experience
 
 function initGame() {
-    GameManager.setGame('connect4');
+    GameManager.setGame('connect4', false, difficulty.toUpperCase());
     board = Array(6).fill().map(() => Array(7).fill(0));
     currentPlayer = 1;
     gameOver = false;

@@ -160,6 +160,7 @@ function checkWinnerForMinimax() {
 }
 
 function resetGame() {
+    GameManager.setGame('tictactoe', false, difficulty.toUpperCase());
     board = ['', '', '', '', '', '', '', '', ''];
     currentPlayer = 'X';
     isGameActive = true;
@@ -171,4 +172,3 @@ function resetGame() {
 }
 
 cells.forEach(cell => cell.addEventListener('click', handleCellClick));
-GameManager.setGame('tictactoe');
