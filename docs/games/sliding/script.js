@@ -6,14 +6,6 @@ let board = [];
 let moves = 0;
 
 function initGame() {
-    GameManager.setGame('sliding');
-
-    // Size logic
-    const lvl = GameManager.currentLevel;
-    if (lvl <= 10) size = 3;
-    else if (lvl <= 30) size = 4;
-    else size = 5;
-
     const containerSize = Math.min(window.innerWidth * 0.9, 360);
     const tileSize = Math.floor((containerSize - (size * 8)) / size);
 
@@ -28,8 +20,6 @@ function initGame() {
 }
 
 function shuffleBoard() {
-    // Deterministic shuffle per level? Or just random valid moves?
-    // Let's use random valid moves to ensure solvability
     for (let i = 0; i < size * size * 40; i++) {
         const emptyIdx = board.indexOf(size * size - 1);
         const neighbors = getNeighbors(emptyIdx);
@@ -85,6 +75,6 @@ function checkWin() {
     if (board.every((val, i) => val === i)) {
         setTimeout(() => {
             GameManager.showResult('win', `¡Puzzle resuelto en ${moves} movimientos!`);
-        }, 300);
+        }, 400);
     }
 }

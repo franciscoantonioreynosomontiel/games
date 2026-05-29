@@ -7,15 +7,13 @@ let size = 8;
 let mines = 10;
 
 function initGame() {
-    GameManager.setGame('minesweeper');
+    // Standardized grid sizing for mobile
+    const containerWidth = Math.min(window.innerWidth * 0.95, 360);
+    const cellSize = Math.floor((containerWidth - 10) / size);
 
-    boardElement.style.display = 'grid';
-    boardElement.style.gridTemplateColumns = `repeat(${size}, 30px)`;
-    boardElement.style.gridTemplateRows = `repeat(${size}, 30px)`;
-    boardElement.style.width = `${size * 30}px`;
-    boardElement.style.height = `${size * 30}px`;
-    boardElement.style.margin = '20px auto';
-    boardElement.style.border = '2px solid #999';
+    boardElement.style.gridTemplateColumns = `repeat(${size}, ${cellSize}px)`;
+    boardElement.style.gridTemplateRows = `repeat(${size}, ${cellSize}px)`;
+    boardElement.style.width = `${size * cellSize + 8}px`;
 
     board = [];
     gameOver = false;
@@ -41,7 +39,7 @@ function initGame() {
         }
     }
 
-    renderBoard();
+    renderBoard(cellSize);
 }
 
 function getNeighbors(idx) {
@@ -51,44 +49,28 @@ function getNeighbors(idx) {
     for (let i = -1; i <= 1; i++) {
         for (let j = -1; j <= 1; j++) {
             if (i === 0 && j === 0) continue;
-            const r = row + i;
-            const c = col + j;
+            const r = row + i, c = col + j;
             if (r >= 0 && r < size && c >= 0 && c < size) neighbors.push(r * size + c);
         }
     }
     return neighbors;
 }
 
-function renderBoard() {
+function renderBoard(cellSize) {
     boardElement.innerHTML = '';
     board.forEach((cell, i) => {
         const div = document.createElement('div');
-        div.classList.add('cell');
-        div.style.width = '30px';
-        div.style.height = '30px';
-        div.style.boxSizing = 'border-box';
-        div.style.border = '1px solid #ccc';
-        div.style.backgroundColor = '#ddd';
-        div.style.display = 'flex';
-        div.style.alignItems = 'center';
-        div.style.justifyContent = 'center';
-        div.style.fontSize = '14px';
-        div.style.fontWeight = 'bold';
-        div.style.cursor = 'pointer';
+        div.className = 'cell';
+        div.style.width = `${cellSize}px`;
+        div.style.height = `${cellSize}px`;
 
-        div.addEventListener('click', () => revealCell(i));
-        div.addEventListener('contextmenu', (e) => { e.preventDefault(); toggleFlag(i); });
+        div.onclick = () => revealCell(i);
+        div.oncontextmenu = (e) => { e.preventDefault(); toggleFlag(i); };
 
+        // Mobile long press for flag
         let timer;
-        div.addEventListener('touchstart', (e) => {
-            timer = setTimeout(() => {
-                toggleFlag(i);
-                timer = null;
-            }, 500);
-        });
-        div.addEventListener('touchend', () => {
-            if (timer) clearTimeout(timer);
-        });
+        div.ontouchstart = () => timer = setTimeout(() => toggleFlag(i), 500);
+        div.ontouchend = () => clearTimeout(timer);
 
         boardElement.appendChild(div);
     });
@@ -99,19 +81,16 @@ function revealCell(idx) {
 
     board[idx].revealed = true;
     const el = boardElement.children[idx];
-    el.style.backgroundColor = '#eee';
+    el.classList.add('revealed');
 
     if (board[idx].isMine) {
-        el.style.backgroundColor = '#f44336';
+        el.classList.add('mine');
         el.innerText = '💣';
-        if (GameManager.loseLife()) {
-            endGame(false);
-        }
+        if (GameManager.loseLife()) endGame(false);
     } else {
         if (board[idx].neighborCount > 0) {
             el.innerText = board[idx].neighborCount;
-            const colors = ['', 'blue', 'green', 'red', 'darkblue', 'brown', 'cyan', 'black', 'grey'];
-            el.style.color = colors[board[idx].neighborCount];
+            el.classList.add(`n${board[idx].neighborCount}`);
         } else {
             getNeighbors(idx).forEach(nIdx => revealCell(nIdx));
         }
@@ -122,13 +101,7 @@ function revealCell(idx) {
 function toggleFlag(idx) {
     if (gameOver || board[idx].revealed) return;
     board[idx].flagged = !board[idx].flagged;
-    const el = boardElement.children[idx];
-    if (board[idx].flagged) {
-        el.innerText = '🚩';
-        el.style.color = 'red';
-    } else {
-        el.innerText = '';
-    }
+    boardElement.children[idx].innerText = board[idx].flagged ? '🚩' : '';
 }
 
 function checkWin() {
@@ -138,14 +111,12 @@ function checkWin() {
 
 function endGame(won) {
     gameOver = true;
-    if (won) {
-        GameManager.showResult('win');
-    } else {
+    if (won) GameManager.showResult('win');
+    else {
         board.forEach((cell, i) => {
             if (cell.isMine) {
-                const el = boardElement.children[i];
-                el.style.backgroundColor = '#f44336';
-                el.innerText = '💣';
+                boardElement.children[i].classList.add('revealed', 'mine');
+                boardElement.children[i].innerText = '💣';
             }
         });
         GameManager.showResult('loss');

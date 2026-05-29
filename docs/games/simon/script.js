@@ -6,17 +6,25 @@ let sequence = [];
 let userSequence = [];
 let isPlaying = false;
 let speed = 700;
+let roundsToComplete = 3;
+let currentRound = 0;
 
 function initGame() {
-    GameManager.setGame('simon');
+    GameManager.setGame('simon', true);
+    const lvl = GameManager.currentLevel;
     sequence = [];
     userSequence = [];
     isPlaying = false;
-    statusDisplay.innerText = 'Listo para el nivel ' + GameManager.currentLevel;
-    statusDisplay.className = 'status-badge';
+    currentRound = 0;
 
-    // Level scaling
-    speed = Math.max(250, 750 - (GameManager.currentLevel * 10));
+    // Difficulty scaling
+    roundsToComplete = 2 + Math.floor(lvl / 10); // 2 to 7 rounds
+    speed = Math.max(250, 750 - (lvl * 10));
+
+    statusDisplay.innerText = `Ronda 1 de ${roundsToComplete}`;
+    statusDisplay.className = 'status-badge';
+    startBtn.disabled = false;
+    startBtn.style.opacity = '1';
 }
 
 async function startRound() {
@@ -24,18 +32,13 @@ async function startRound() {
     startBtn.style.opacity = '0.5';
     userSequence = [];
     isPlaying = false;
-    statusDisplay.innerText = 'Observa...';
+    currentRound++;
+    statusDisplay.innerText = `Observa... (${currentRound}/${roundsToComplete})`;
     statusDisplay.className = 'status-badge watching';
 
-    // Sequence length grows with level
-    const targetLength = 3 + Math.floor(GameManager.currentLevel / 2);
-
-    // Generate full sequence for this round if it's the start
-    if (sequence.length === 0) {
-        for (let i = 0; i < targetLength; i++) {
-            sequence.push(colors[Math.floor(Math.random() * colors.length)]);
-        }
-    }
+    // Add 1 color to existing sequence or create new sequence
+    // To make it a "series of sequences", we add to it
+    sequence.push(colors[Math.floor(Math.random() * colors.length)]);
 
     for (const color of sequence) {
         await flashColor(color);
@@ -43,7 +46,7 @@ async function startRound() {
     }
 
     isPlaying = true;
-    statusDisplay.innerText = 'Tu turno (' + sequence.length + ' colores)';
+    statusDisplay.innerText = 'Tu turno';
     statusDisplay.className = 'status-badge playing';
 }
 
@@ -71,16 +74,25 @@ function handleColorClick(color) {
         } else {
             statusDisplay.innerText = '¡Error! Repitiendo...';
             statusDisplay.className = 'status-badge watching';
-            setTimeout(startRound, 1200);
+            // Backtrack 1 step in sequence to help player or just repeat
+            setTimeout(() => {
+                currentRound--; // Reset round count for this attempt
+                startRound();
+            }, 1200);
         }
         return;
     }
 
     if (userSequence.length === sequence.length) {
         isPlaying = false;
-        setTimeout(() => {
-            GameManager.showResult('win', `¡Excelente! Secuencia de ${sequence.length} completada.`);
-        }, 500);
+        if (currentRound >= roundsToComplete) {
+            setTimeout(() => {
+                GameManager.showResult('win', `¡Excelente! Nivel superado.`);
+            }, 500);
+        } else {
+            statusDisplay.innerText = '¡Bien!';
+            setTimeout(startRound, 1000);
+        }
     }
 }
 

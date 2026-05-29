@@ -9,62 +9,26 @@
     <style>
         .game-area { padding: 10px; display: flex; flex-direction: column; align-items: center; }
         .sudoku-board {
-            display: grid;
-            gap: 1px;
-            background: #aaa;
-            border: 3px solid #333;
-            margin: 15px 0;
-            padding: 1px;
+            display: grid; gap: 1px; background: #aaa; border: 3px solid #333;
+            margin: 15px 0; padding: 1px;
         }
         .sudoku-board.size-9 { grid-template-columns: repeat(9, 1fr); width: 340px; }
         .sudoku-board.size-16 { grid-template-columns: repeat(16, 1fr); width: 360px; }
-
         .sudoku-cell {
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            aspect-ratio: 1;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 16px;
-            border: 0.1px solid #eee;
+            background: white; display: flex; align-items: center; justify-content: center;
+            aspect-ratio: 1; font-weight: bold; cursor: pointer; font-size: 16px; border: 0.1px solid #eee;
         }
-
-        /* 3x9 or 9x3 grid guides for 9x9 */
         .size-9 .sudoku-cell:nth-child(3n) { border-right: 2px solid #333; }
         .size-9 .sudoku-cell:nth-child(9n) { border-right: none; }
         .size-9 .sudoku-cell:nth-child(n+19):nth-child(-n+27),
         .size-9 .sudoku-cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 2px solid #333; }
 
-        /* guides for 16x16 */
-        .size-16 .sudoku-cell:nth-child(4n) { border-right: 2px solid #333; }
-        .size-16 .sudoku-cell:nth-child(16n) { border-right: none; }
-        .size-16 .sudoku-cell:nth-child(n+49):nth-child(-n+64),
-        .size-16 .sudoku-cell:nth-child(n+113):nth-child(-n+128),
-        .size-16 .sudoku-cell:nth-child(n+177):nth-child(-n+192) { border-bottom: 2px solid #333; }
-
         .sudoku-cell.fixed { background: #f0f0f0; color: #555; cursor: default; }
         .sudoku-cell.selected { background: #bbdefb; }
         .sudoku-cell.wrong { color: #f44336; background: #ffebee; }
 
-        .numpad {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 8px;
-            width: 100%;
-            max-width: 360px;
-        }
-        .numpad-btn {
-            padding: 12px 2px;
-            background: white;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        .numpad-btn:active { background: #eee; }
+        .numpad { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; width: 100%; max-width: 360px; }
+        .numpad-btn { padding: 12px 2px; background: white; border: 1px solid #ccc; border-radius: 8px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -78,17 +42,14 @@
 
         <div id="splash" class="splash-screen">
             <span class="material-icons" style="font-size: 80px; color: var(--primary-color); margin-bottom: 20px;">grid_4x4</span>
-            <h2>Sudoku</h2>
-            <div class="level-grid">
-                <button class="btn-premium" onclick="startGame('classic', 'easy')">9x9 Fácil</button>
-                <button class="btn-premium" onclick="startGame('classic', 'medium')">9x9 Medio</button>
-                <button class="btn-premium" onclick="startGame('classic', 'hard')">9x9 Difícil</button>
-                <button class="btn-premium" style="background: #03dac6; color: black;" onclick="startGame('mega', 'medium')">16x16 Mega</button>
+            <h2>Dificultad</h2>
+            <div class="level-grid" id="diff-grid">
+                <!-- Injected -->
             </div>
         </div>
 
         <main class="game-area" id="main-game" style="display: none;">
-            <div id="mode-display" style="font-weight: bold; margin-bottom: 5px; color: #444;">Clásico 9x9</div>
+            <div id="mode-display" style="font-weight: bold; margin-bottom: 5px; color: #444;"></div>
             <div class="sudoku-board" id="sudoku-board"></div>
             <div class="numpad" id="numpad"></div>
             <button class="btn-premium" id="new-game" style="margin-top: 15px; width: auto; padding: 10px 30px;">REINICIAR</button>
@@ -102,17 +63,28 @@
     <script src="../../js/game-manager.js"></script>
     <script src="script.js"></script>
     <script>
+        const modes = [
+            { id: 'easy', name: '9x9 Fácil' },
+            { id: 'medium', name: '9x9 Medio' },
+            { id: 'hard', name: '9x9 Difícil' },
+            { id: 'mega', name: '16x16 Mega' }
+        ];
+        const grid = document.getElementById('diff-grid');
+        modes.forEach(m => {
+            const isDone = GameManager.isCompleted(m.id);
+            const btn = document.createElement('button');
+            btn.className = 'btn-premium';
+            if (m.id === 'mega') btn.style.cssText = "background: #03dac6; color: black;";
+            btn.innerHTML = `${m.name}${isDone ? ' <span class="material-icons" style="font-size: 16px; vertical-align: middle;">star</span>' : ''}`;
+            btn.onclick = () => startGame(m.id === 'mega' ? 'mega' : 'classic', m.id);
+            grid.appendChild(btn);
+        });
+
         function startGame(m, d) {
             difficulty = d;
-            if (m === 'mega') {
-                size = 16;
-                symbols = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', '0'];
-                document.getElementById('mode-display').innerText = 'Mega 16x16';
-            } else {
-                size = 9;
-                symbols = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
-                document.getElementById('mode-display').innerText = 'Clásico 9x9';
-            }
+            size = (m === 'mega') ? 16 : 9;
+            symbols = (m === 'mega') ? ['1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','0'] : ['1','2','3','4','5','6','7','8','9'];
+            document.getElementById('mode-display').innerText = modes.find(x => x.id === d).name;
             document.getElementById('splash').style.display = 'none';
             document.getElementById('main-game').style.display = 'flex';
             document.getElementById('sudoku-board').className = `sudoku-board size-${size}`;

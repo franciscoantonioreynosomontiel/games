@@ -7,63 +7,15 @@
     <link rel="stylesheet" href="../../css/style.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        .game-area {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-        .board-wrapper {
-            background: #3f51b5;
-            padding: 10px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            margin: 20px 0;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(7, 42px);
-            grid-template-rows: repeat(6, 42px);
-            gap: 6px;
-        }
-        .cell {
-            width: 42px;
-            height: 42px;
-            background: white;
-            border-radius: 50%;
-            cursor: pointer;
-            position: relative;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
-        }
-        .cell::after {
-            content: '';
-            position: absolute;
-            top: 2px; left: 2px; right: 2px; bottom: 2px;
-            border-radius: 50%;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            transform: scale(0);
-        }
+        .game-area { display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .board-wrapper { background: #3f51b5; padding: 10px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); margin: 20px 0; }
+        .grid { display: grid; grid-template-columns: repeat(7, 42px); grid-template-rows: repeat(6, 42px); gap: 6px; }
+        .cell { width: 42px; height: 42px; background: white; border-radius: 50%; cursor: pointer; position: relative; box-shadow: inset 0 2px 5px rgba(0,0,0,0.2); }
+        .cell::after { content: ''; position: absolute; top: 2px; left: 2px; right: 2px; bottom: 2px; border-radius: 50%; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform: scale(0); }
         .cell.player1::after { background: #f44336; transform: scale(1); }
         .cell.player2::after { background: #ffeb3b; transform: scale(1); }
-
-        .status-text {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        @media (min-width: 600px) {
-            .grid {
-                grid-template-columns: repeat(7, 60px);
-                grid-template-rows: repeat(6, 60px);
-                gap: 10px;
-            }
-            .cell {
-                width: 60px;
-                height: 60px;
-            }
-        }
+        .status-text { font-size: 1.2rem; font-weight: bold; color: #333; margin-bottom: 10px; }
+        @media (min-width: 600px) { .grid { grid-template-columns: repeat(7, 60px); grid-template-rows: repeat(6, 60px); gap: 10px; } .cell { width: 60px; height: 60px; } }
     </style>
 </head>
 <body>
@@ -75,24 +27,19 @@
             </div>
         </header>
 
-        <!-- Mode Splash -->
         <div id="splash" class="splash-screen">
             <span class="material-icons" style="font-size: 80px; color: var(--primary-color); margin-bottom: 20px;">blur_on</span>
-            <h2>Conecta 4</h2>
+            <h2>Dificultad</h2>
             <div class="level-grid">
-                <button class="btn-premium" onclick="startMode('pva')">Contra IA</button>
-                <button class="btn-premium" style="background: #03dac6; color: black;" onclick="startMode('pvp')">2 Jugadores</button>
+                <button class="btn-premium" id="btn-ia">CONTRA IA</button>
+                <button class="btn-premium" style="background: #03dac6; color: black;" onclick="startMode('pvp')">2 JUGADORES</button>
             </div>
         </div>
 
         <main class="game-area" id="main-game" style="display: none;">
             <div class="status-text" id="status">Turno: Jugador 1</div>
-
-            <div class="board-wrapper">
-                <div class="grid" id="grid"></div>
-            </div>
-
-            <button id="reset-btn" class="btn-premium" onclick="initGame()">REINICIAR</button>
+            <div class="board-wrapper"><div class="grid" id="grid"></div></div>
+            <button id="reset-btn" class="btn-premium" onclick="initGame()" style="padding: 10px 40px;">REINICIAR</button>
         </main>
     </div>
 
@@ -103,10 +50,16 @@
     <script src="../../js/game-manager.js"></script>
     <script src="script.js"></script>
     <script>
+        const isDone = GameManager.isCompleted('hard');
+        const btnIA = document.getElementById('btn-ia');
+        btnIA.innerHTML = `CONTRA IA ${isDone ? '<span class="material-icons" style="font-size: 16px; vertical-align: middle;">star</span>' : ''}`;
+        btnIA.onclick = () => startMode('pva');
+
         function startMode(m) {
             gameMode = m;
             document.getElementById('splash').style.display = 'none';
             document.getElementById('main-game').style.display = 'flex';
+            GameManager.setGame('connect4', false, 'DIFÍCIL');
             initGame();
         }
     </script>

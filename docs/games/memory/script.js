@@ -5,39 +5,35 @@ let matchedCount = 0;
 let pairs = 8;
 let canFlip = true;
 
-// Animals SVGs / Emojis as requested
 const icons = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐔'];
 
 function initGame() {
-    GameManager.setGame('memory');
+    GameManager.setGame('memory', true);
     const level = GameManager.currentLevel;
-    pairs = 4 + (level * 2); // Scales with level
-    if (pairs > icons.length) pairs = icons.length;
+    pairs = Math.min(4 + Math.floor(level / 3), icons.length);
 
     flippedCards = [];
     matchedCount = 0;
     canFlip = true;
     boardElement.innerHTML = '';
 
-    // Grid columns based on pairs
-    const cols = pairs <= 6 ? 3 : 4;
-    boardElement.style.gridTemplateColumns = `repeat(${cols}, 80px)`;
+    const cols = pairs <= 6 ? 3 : (pairs <= 10 ? 4 : 5);
+    boardElement.style.gridTemplateColumns = `repeat(${cols}, 70px)`;
 
     const selectedIcons = icons.slice(0, pairs);
     let gameIcons = [...selectedIcons, ...selectedIcons];
-
-    // Fixed layout per level as requested
-    // Seeded shuffle or just deterministic sort for levels
     gameIcons = deterministicShuffle(gameIcons, level);
 
     gameIcons.forEach((icon, index) => {
         const card = document.createElement('div');
         card.className = 'card';
+        card.style.width = '70px';
+        card.style.height = '70px';
         card.dataset.icon = icon;
         card.innerHTML = `
             <div class="card-inner">
-                <div class="card-front"><span class="material-icons" style="font-size: 2rem;">help</span></div>
-                <div class="card-back" style="font-size: 2.5rem;">${icon}</div>
+                <div class="card-front"><span class="material-icons" style="font-size: 1.5rem;">help</span></div>
+                <div class="card-back" style="font-size: 2rem;">${icon}</div>
             </div>
         `;
         card.onclick = () => flipCard(card);

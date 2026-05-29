@@ -7,51 +7,19 @@
     <link rel="stylesheet" href="../../css/style.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        .game-area {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
+        .game-area { display: flex; flex-direction: column; align-items: center; padding: 20px; }
         .simon-board {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            width: 280px;
-            height: 280px;
-            margin: 20px 0;
-            background: #333;
-            padding: 20px;
-            border-radius: 50%;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-            border: 8px solid #222;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+            width: 280px; height: 280px; margin: 20px 0; background: #333;
+            padding: 20px; border-radius: 50%; box-shadow: 0 10px 40px rgba(0,0,0,0.4); border: 8px solid #222;
         }
-        .color-btn {
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.1s;
-            opacity: 0.4;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.3);
-        }
-        .color-btn.active {
-            opacity: 1;
-            transform: scale(0.96);
-            box-shadow: 0 0 30px currentColor;
-        }
+        .color-btn { border: none; border-radius: 20px; cursor: pointer; transition: all 0.1s; opacity: 0.4; box-shadow: inset 0 0 20px rgba(0,0,0,0.3); }
+        .color-btn.active { opacity: 1; transform: scale(0.96); box-shadow: 0 0 30px currentColor; }
         #red { background: #f44336; border-top-left-radius: 100%; }
         #blue { background: #2196f3; border-top-right-radius: 100%; }
         #green { background: #4caf50; border-bottom-left-radius: 100%; }
         #yellow { background: #ffeb3b; border-bottom-right-radius: 100%; }
-
-        .status-badge {
-            padding: 8px 24px;
-            border-radius: 20px;
-            background: #eee;
-            font-weight: bold;
-            margin-bottom: 10px;
-            transition: all 0.3s;
-        }
+        .status-badge { padding: 8px 24px; border-radius: 20px; background: #eee; font-weight: bold; margin-bottom: 10px; }
         .status-badge.watching { background: #ffebee; color: #f44336; }
         .status-badge.playing { background: #e8f5e9; color: #4caf50; }
     </style>
@@ -65,24 +33,20 @@
             </div>
         </header>
 
-        <!-- Splash -->
         <div id="splash" class="splash-screen">
-            <span class="material-icons" style="font-size: 80px; color: var(--primary-color); margin-bottom: 20px;">graphic_eq</span>
-            <h2>Simon Dice</h2>
-            <p style="color: #666; margin-bottom: 30px;">Memoriza la secuencia de colores y repítela.<br>¡Cuidado! Cada ronda es más rápida.</p>
-            <button class="btn-premium" onclick="startSimon()">COMENZAR JUEGO</button>
+            <span class="material-icons" style="font-size: 60px; color: var(--primary-color); margin-bottom: 15px;">graphic_eq</span>
+            <h2>Niveles</h2>
+            <div id="levels-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; max-height: 300px; overflow-y: auto; padding: 5px; width: 100%; max-width: 350px;"></div>
         </div>
 
         <main class="game-area" id="main-game" style="display: none;">
-            <div id="status-display" class="status-badge">Presiona comenzar</div>
-
+            <div id="status-display" class="status-badge">Listo</div>
             <div class="simon-board" id="game-board">
                 <button id="red" class="color-btn"></button>
                 <button id="blue" class="color-btn"></button>
                 <button id="green" class="color-btn"></button>
                 <button id="yellow" class="color-btn"></button>
             </div>
-
             <button id="start-btn" class="btn-premium" style="width: auto; padding: 12px 40px;">INICIAR RONDA</button>
         </main>
     </div>
@@ -94,7 +58,28 @@
     <script src="../../js/game-manager.js"></script>
     <script src="script.js"></script>
     <script>
-        function startSimon() {
+        const grid = document.getElementById('levels-grid');
+        const unlocked = GameManager.getUnlockedLevel();
+        const completed = JSON.parse(localStorage.getItem(`completed_${Auth.currentUser?.username}_simon`) || '[]');
+        for (let i = 1; i <= 50; i++) {
+            const isLocked = i > unlocked;
+            const isDone = completed.includes(i);
+            const btn = document.createElement('button');
+            btn.className = 'lvl-btn-mini';
+            btn.style.cssText = `padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: ${isLocked ? '#f5f5f5' : (isDone ? '#e8f5e9' : 'white')}; cursor: ${isLocked ? 'default' : 'pointer'}; position: relative; font-weight: bold; color: ${isLocked ? '#999' : '#333'}`;
+            btn.innerHTML = `${i}${isLocked ? '<span class="material-icons" style="font-size: 12px; position: absolute; top: 2px; right: 2px;">lock</span>' : ''}${isDone ? '<span class="material-icons" style="font-size: 12px; position: absolute; bottom: 2px; right: 2px; color: #4caf50;">star</span>' : ''}`;
+            if (!isLocked) btn.onclick = () => startGame(i);
+            grid.appendChild(btn);
+        }
+
+        if (sessionStorage.getItem('autostart_simon') === 'true') {
+            sessionStorage.removeItem('autostart_simon');
+            startGame(GameManager.currentLevel);
+        }
+
+        function startGame(lvl) {
+            GameManager.currentLevel = lvl;
+            localStorage.setItem(`level_${Auth.currentUser.username}_simon`, lvl);
             document.getElementById('splash').style.display = 'none';
             document.getElementById('main-game').style.display = 'flex';
             initGame();
