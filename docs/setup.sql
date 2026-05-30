@@ -1,8 +1,11 @@
 -- Robust Setup for GameHub
 -- This script ensures consistent types to avoid "uuid vs bigint" errors.
 
+DROP TABLE IF EXISTS game_scores CASCADE;
+DROP TABLE IF EXISTS app_users CASCADE;
+
 -- 1. Create app_users with UUID
-CREATE TABLE IF NOT EXISTS app_users (
+CREATE TABLE app_users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     username TEXT UNIQUE NOT NULL,
     email TEXT UNIQUE NOT NULL,
@@ -12,7 +15,7 @@ CREATE TABLE IF NOT EXISTS app_users (
 );
 
 -- 2. Create game_scores with matching user_id type (UUID)
-CREATE TABLE IF NOT EXISTS game_scores (
+CREATE TABLE game_scores (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL,
     game_id TEXT NOT NULL,
