@@ -54,7 +54,8 @@
         ];
         const grid = document.getElementById('diff-grid');
         modes.forEach(m => {
-            const isDone = GameManager.isCompleted(m.id);
+            // Check completed by difficulty key
+            const isDone = GameManager.isCompleted(m.id + 'x' + m.id);
             const btn = document.createElement('button');
             btn.className = 'btn-premium';
             btn.innerHTML = `${m.name}${isDone ? ' <span class="material-icons" style="font-size: 16px; vertical-align: middle;">star</span>' : ''}`;
@@ -66,7 +67,6 @@
             size = s;
             document.getElementById('splash').style.display = 'none';
             document.getElementById('main-game').style.display = 'flex';
-            GameManager.setGame('sliding', false, s + 'x' + s);
             initGame();
         }
     </script>

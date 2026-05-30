@@ -8,12 +8,30 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         .game-area { padding: 10px; display: flex; flex-direction: column; align-items: center; min-height: 80vh; justify-content: center; }
-        .hanoi-container { display: flex; justify-content: space-around; width: 100%; max-width: 400px; height: 300px; align-items: flex-end; position: relative; padding-bottom: 20px; }
-        .tower { width: 30%; height: 100%; display: flex; flex-direction: column-reverse; align-items: center; position: relative; cursor: pointer; }
-        .pole { position: absolute; bottom: 0; width: 10px; height: 150px; background: #8d6e63; border-radius: 5px 5px 0 0; z-index: 1; }
-        .base { position: absolute; bottom: -10px; width: 100%; height: 10px; background: #5d4037; border-radius: 5px; }
-        .disk { height: 20px; background: var(--primary-color); border-radius: 10px; z-index: 2; margin-bottom: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.3); transition: transform 0.2s; }
-        .disk.dragging { opacity: 0.5; transform: scale(1.1); }
+        .hanoi-container {
+            display: flex; justify-content: space-around; width: 100%; max-width: 400px;
+            height: 250px; align-items: flex-end; position: relative;
+            background: #fdfdfd; border-radius: 15px; padding: 20px 10px;
+        }
+        .tower {
+            width: 30%; height: 100%; display: flex; flex-direction: column-reverse;
+            align-items: center; position: relative; cursor: pointer;
+        }
+        .pole {
+            position: absolute; bottom: 0; width: 12px; height: 180px;
+            background: #8d6e63; border-radius: 6px 6px 0 0; z-index: 1;
+            box-shadow: inset -2px 0 5px rgba(0,0,0,0.2);
+        }
+        .base {
+            position: absolute; bottom: -10px; width: 90%; height: 12px;
+            background: #5d4037; border-radius: 6px; z-index: 1;
+        }
+        .disk {
+            height: 22px; border-radius: 11px; z-index: 2; margin-bottom: 2px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.4);
+            transition: transform 0.2s, top 0.3s, left 0.3s;
+        }
+        .disk.dragging { opacity: 0.7; transform: scale(1.1); z-index: 100; }
     </style>
 </head>
 <body>
@@ -27,9 +45,9 @@
 
         <div id="splash" class="splash-screen">
             <span class="material-icons" style="font-size: 80px; color: var(--primary-color); margin-bottom: 20px;">format_list_numbered</span>
-            <h2>Niveles</h2>
-            <div id="levels-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 25px; padding: 10px; width: 100%; max-width: 350px;"></div>
-            <p style="font-size: 13px; color: #666;">Mueve todos los discos a la derecha.<br>Un disco grande no puede ir sobre uno pequeño.</p>
+            <h2>Dificultad</h2>
+            <div id="diff-grid" style="display: grid; grid-template-columns: 1fr; gap: 12px; width: 100%; max-width: 300px;"></div>
+            <p style="font-size: 13px; color: #666; margin-top: 20px;">Mueve todos los discos al tercer palo.<br>Un disco grande no puede ir sobre uno pequeño.</p>
         </div>
 
         <main class="game-area" id="main-game" style="display: none;">
@@ -50,38 +68,21 @@
     <script src="script.js"></script>
     <script>
         GameManager.currentGame = 'hanoi';
-        GameManager.maxLevel = 7;
-        const grid = document.getElementById('levels-grid');
-        const unlocked = GameManager.getUnlockedLevel();
+        const grid = document.getElementById('diff-grid');
         const user = Auth.currentUser?.username || 'anon';
-        const completed = JSON.parse(localStorage.getItem(`completed_${user}_hanoi`) || '[]');
 
         for (let i = 1; i <= 7; i++) {
-            const isLocked = i > unlocked;
-            const isDone = completed.includes(i);
+            const isDone = GameManager.isCompleted(i);
             const btn = document.createElement('button');
-            btn.className = 'lvl-btn-mini';
-            btn.style.cssText = `
-                padding: 15px; border: none; border-radius: 12px; font-weight: bold;
-                background: ${isLocked ? '#e0e0e0' : (isDone ? '#c8e6c9' : 'white')};
-                color: ${isLocked ? '#9e9e9e' : (isDone ? '#2e7d32' : '#333')};
-                cursor: ${isLocked ? 'default' : 'pointer'};
-                position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            `;
-            btn.innerHTML = `${i}${isLocked ? '<span class="material-icons" style="font-size: 12px; position: absolute; top: 2px; right: 2px;">lock</span>' : ''}${isDone ? '<span class="material-icons" style="font-size: 12px; position: absolute; bottom: 2px; right: 2px;">star</span>' : ''}`;
-            if (!isLocked) btn.onclick = () => startGame(i);
+            btn.className = 'btn-premium';
+            btn.style.cssText = `display: flex; align-items: center; justify-content: center; gap: 10px;`;
+            btn.innerHTML = `Dificultad ${i} (${i+2} Discos)${isDone ? '<span class="material-icons">star</span>' : ''}`;
+            btn.onclick = () => startGame(i);
             grid.appendChild(btn);
         }
 
-        if (sessionStorage.getItem('autostart_hanoi') === 'true') {
-            sessionStorage.removeItem('autostart_hanoi');
-            const savedLevel = parseInt(localStorage.getItem(`level_${user}_hanoi`)) || 1;
-            startGame(savedLevel);
-        }
-
-        function startGame(l) {
-            GameManager.currentLevel = l;
-            localStorage.setItem(`level_${user}_hanoi`, l);
+        function startGame(d) {
+            GameManager.currentLevel = d;
             document.getElementById('splash').style.display = 'none';
             document.getElementById('main-game').style.display = 'flex';
             initGame();

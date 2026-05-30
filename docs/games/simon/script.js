@@ -1,103 +1,83 @@
-const startBtn = document.getElementById('start-btn');
-const statusDisplay = document.getElementById('status-display');
+const colorButtons = [
+    document.getElementById('green'),
+    document.getElementById('red'),
+    document.getElementById('yellow'),
+    document.getElementById('blue')
+];
 
-const colors = ['red', 'blue', 'green', 'yellow'];
 let sequence = [];
 let userSequence = [];
-let isPlaying = false;
-let speed = 700;
-let roundsToComplete = 3;
-let currentRound = 0;
+let isPlayingSequence = false;
+let roundCount = 0;
+const roundsPerLevel = 3;
 
 function initGame() {
     GameManager.setGame('simon', true);
-    const lvl = GameManager.currentLevel;
     sequence = [];
     userSequence = [];
-    isPlaying = false;
-    currentRound = 0;
-
-    // Difficulty scaling
-    roundsToComplete = 2 + Math.floor(lvl / 10); // 2 to 7 rounds
-    speed = Math.max(250, 750 - (lvl * 10));
-
-    statusDisplay.innerText = `Ronda 1 de ${roundsToComplete}`;
-    statusDisplay.className = 'status-badge';
-    startBtn.disabled = false;
-    startBtn.style.opacity = '1';
+    roundCount = 0;
+    startRound();
 }
 
-async function startRound() {
-    startBtn.disabled = true;
-    startBtn.style.opacity = '0.5';
+function startRound() {
     userSequence = [];
-    isPlaying = false;
-    currentRound++;
-    statusDisplay.innerText = `Observa... (${currentRound}/${roundsToComplete})`;
-    statusDisplay.className = 'status-badge watching';
+    // Levels affect playback speed
+    const speed = Math.max(800 - (GameManager.currentLevel * 40), 200);
 
-    // Add 1 color to existing sequence or create new sequence
-    // To make it a "series of sequences", we add to it
-    sequence.push(colors[Math.floor(Math.random() * colors.length)]);
+    // Add one new step to the sequence
+    sequence.push(Math.floor(Math.random() * 4));
 
-    for (const color of sequence) {
-        await flashColor(color);
-        await new Promise(r => setTimeout(r, speed / 3));
-    }
-
-    isPlaying = true;
-    statusDisplay.innerText = 'Tu turno';
-    statusDisplay.className = 'status-badge playing';
+    playSequence(speed);
 }
 
-function flashColor(color) {
-    return new Promise(resolve => {
-        const btn = document.getElementById(color);
-        btn.classList.add('active');
-        setTimeout(() => {
-            btn.classList.remove('active');
-            resolve();
-        }, speed);
-    });
+function playSequence(speed) {
+    isPlayingSequence = true;
+    let i = 0;
+    const interval = setInterval(() => {
+        flashButton(sequence[i]);
+        i++;
+        if (i >= sequence.length) {
+            clearInterval(interval);
+            isPlayingSequence = false;
+        }
+    }, speed);
 }
 
-function handleColorClick(color) {
-    if (!isPlaying) return;
+function flashButton(index) {
+    const btn = colorButtons[index];
+    btn.classList.add('active');
+    // Simple audio feedback simulation
+    setTimeout(() => btn.classList.remove('active'), 300);
+}
 
-    flashColor(color);
-    userSequence.push(color);
+function handleInput(index) {
+    if (isPlayingSequence) return;
 
-    const currentIdx = userSequence.length - 1;
-    if (userSequence[currentIdx] !== sequence[currentIdx]) {
-        isPlaying = false;
+    flashButton(index);
+    userSequence.push(index);
+
+    const lastIdx = userSequence.length - 1;
+    if (userSequence[lastIdx] !== sequence[lastIdx]) {
         if (GameManager.loseLife()) {
+            // End game handled by GM
         } else {
-            statusDisplay.innerText = '¡Error! Repitiendo...';
-            statusDisplay.className = 'status-badge watching';
-            // Backtrack 1 step in sequence to help player or just repeat
-            setTimeout(() => {
-                currentRound--; // Reset round count for this attempt
-                startRound();
-            }, 1200);
+            // Restart current round
+            userSequence = [];
+            setTimeout(() => playSequence(800 - (GameManager.currentLevel * 40)), 1000);
         }
         return;
     }
 
     if (userSequence.length === sequence.length) {
-        isPlaying = false;
-        if (currentRound >= roundsToComplete) {
+        roundCount++;
+        if (roundCount >= roundsPerLevel) {
             setTimeout(() => {
-                GameManager.showResult('win', `¡Excelente! Nivel superado.`);
+                GameManager.showResult('win', `¡Nivel ${GameManager.currentLevel} superado!`);
             }, 500);
         } else {
-            statusDisplay.innerText = '¡Bien!';
             setTimeout(startRound, 1000);
         }
     }
 }
 
-startBtn.onclick = startRound;
-
-colors.forEach(color => {
-    document.getElementById(color).onclick = () => handleColorClick(color);
-});
+colorButtons.forEach((btn, i) => btn.onclick = () => handleInput(i));
