@@ -50,7 +50,7 @@
     <script src="../../js/game-manager.js"></script>
     <script src="script.js"></script>
     <script>
-        const grid = document.getElementById('levels-grid');
+        GameManager.setGame('memory', true); const grid = document.getElementById('levels-grid');
         GameManager.currentGame = 'memory';
         const unlocked = GameManager.getUnlockedLevel();
         const user = Auth.currentUser?.username || 'anon';
