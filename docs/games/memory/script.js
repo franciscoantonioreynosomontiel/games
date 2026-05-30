@@ -90,7 +90,7 @@ function checkMatch() {
             flippedCards = [];
             canFlip = true;
             if (matchedCount === pairs) {
-                setTimeout(() => GameManager.showResult('win'), 500);
+                setTimeout(() => GameManager.showResult('win', '¡Nivel ' + GameManager.currentLevel + ' superado!'), 500);
             }
         }, 600);
     } else {

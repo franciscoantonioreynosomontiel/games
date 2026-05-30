@@ -23,10 +23,13 @@ function initGame() {
 }
 
 function updateStatus() {
-    statusDisplay.innerText = `Ronda ${roundCount + 1}/${roundsPerLevel}`;
+    if (statusDisplay) {
+        statusDisplay.innerText = `Ronda ${roundCount + 1}/${roundsPerLevel}`;
+    }
 }
 
 function startRound() {
+    if (isPlayingSequence) return;
     startBtn.style.display = 'none';
     userSequence = [];
     updateStatus();
@@ -39,8 +42,10 @@ function startRound() {
 
 function playSequence(speed) {
     isPlayingSequence = true;
-    statusDisplay.innerText = "¡Observa!";
-    statusDisplay.className = "status-badge watching";
+    if (statusDisplay) {
+        statusDisplay.innerText = "¡Observa!";
+        statusDisplay.className = "status-badge watching";
+    }
 
     let i = 0;
     const interval = setInterval(() => {
@@ -50,8 +55,10 @@ function playSequence(speed) {
             clearInterval(interval);
             setTimeout(() => {
                 isPlayingSequence = false;
-                statusDisplay.innerText = "¡Tu turno!";
-                statusDisplay.className = "status-badge playing";
+                if (statusDisplay) {
+                    statusDisplay.innerText = "¡Tu turno!";
+                    statusDisplay.className = "status-badge playing";
+                }
             }, 500);
         }
     }, speed);
@@ -59,8 +66,10 @@ function playSequence(speed) {
 
 function flashButton(index) {
     const btn = colorButtons[index];
-    btn.classList.add('active');
-    setTimeout(() => btn.classList.remove('active'), 300);
+    if (btn) {
+        btn.classList.add('active');
+        setTimeout(() => btn.classList.remove('active'), 300);
+    }
 }
 
 function handleInput(index) {
@@ -72,7 +81,7 @@ function handleInput(index) {
     const lastIdx = userSequence.length - 1;
     if (userSequence[lastIdx] !== sequence[lastIdx]) {
         if (GameManager.loseLife()) {
-            // GM handles loss
+            // End game handled by GM
         } else {
             // Restart sequence
             userSequence = [];
@@ -85,15 +94,19 @@ function handleInput(index) {
         roundCount++;
         if (roundCount >= roundsPerLevel) {
             setTimeout(() => {
+                // EXPLICIT POPUP CALL
                 GameManager.showResult('win', `¡Nivel ${GameManager.currentLevel} superado!`);
-            }, 500);
+            }, 600);
         } else {
             setTimeout(() => {
                 updateStatus();
                 startBtn.style.display = 'block';
+                startBtn.innerText = "SIGUIENTE RONDA";
             }, 1000);
         }
     }
 }
 
-colorButtons.forEach((btn, i) => btn.onclick = () => handleInput(i));
+colorButtons.forEach((btn, i) => {
+    if (btn) btn.onclick = () => handleInput(i);
+});

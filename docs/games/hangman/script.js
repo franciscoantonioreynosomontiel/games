@@ -54,7 +54,8 @@ const wordList = [
 const wordDisplay = document.getElementById('word-display');
 const hintDisplay = document.getElementById('hint-display');
 const keyboard = document.getElementById('keyboard');
-const hangmanParts = document.querySelectorAll('.part');
+const canvas = document.getElementById('hangman-canvas');
+const ctx = canvas ? canvas.getContext('2d') : null;
 
 let selectedWord = "";
 let guessedLetters = [];
@@ -67,32 +68,36 @@ function initGame() {
         const levelData = wordList[(GameManager.currentLevel - 1) % wordList.length];
         selectedWord = levelData.word.toUpperCase();
         hintDisplay.innerText = "Pista: " + levelData.hint;
-
-        // Helper letters: always the same for the same level
         guessedLetters = getHelperLetters(selectedWord, GameManager.currentLevel);
     } else {
         GameManager.setGame('hangman', false, 'PVP');
-        // Selected via prompt or similar in PVP
+        // selectedWord should be set by startP2 in HTML
     }
 
     mistakes = 0;
-    hangmanParts.forEach(p => p.style.display = 'none');
+    // Set 6 lives for Hangman
+    GameManager.lives = 6;
+    GameManager.updateLivesUI();
+
+    if (ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawBase();
+    }
+
     renderWord();
     renderKeyboard();
 }
 
 function getHelperLetters(word, level) {
-    // Deterministic helper letters based on level
     const unique = [...new Set(word.replace(/\s/g, '').split(''))];
-    const count = Math.max(1, Math.floor(unique.length * 0.2)); // Show 20%
-
-    // Simple LCG to pick letters deterministically
+    const count = Math.max(1, Math.floor(unique.length * 0.2));
     let seed = level + 500;
     const helpers = [];
+    const tempUnique = [...unique];
     for(let i=0; i<count; i++) {
         seed = (seed * 9301 + 49297) % 233280;
-        const idx = Math.floor((seed / 233280) * unique.length);
-        const letter = unique.splice(idx, 1)[0];
+        const idx = Math.floor((seed / 233280) * tempUnique.length);
+        const letter = tempUnique.splice(idx, 1)[0];
         if(letter) helpers.push(letter);
     }
     return helpers;
@@ -107,7 +112,7 @@ function renderWord() {
 function renderKeyboard() {
     const letters = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ";
     keyboard.innerHTML = letters.split('').map(l => `
-        <button class="key ${guessedLetters.includes(l) ? 'disabled' : ''}" onclick="makeGuess('${l}')" ${guessedLetters.includes(l) ? 'disabled' : ''}>${l}</button>
+        <button class="key" onclick="makeGuess('${l}')" ${guessedLetters.includes(l) ? 'disabled' : ''}>${l}</button>
     `).join('');
 }
 
@@ -117,10 +122,9 @@ function makeGuess(letter) {
     guessedLetters.push(letter);
     if (!selectedWord.includes(letter)) {
         mistakes++;
-        hangmanParts[mistakes - 1].style.display = 'block';
-        if (mistakes >= 6) {
-            setTimeout(() => GameManager.showResult('loss', `La palabra era: ${selectedWord}`), 500);
-        }
+        drawHangman(mistakes);
+        GameManager.loseLife();
+        // loseLife calls showResult('loss') if lives <= 0
     }
 
     renderWord();
@@ -130,7 +134,40 @@ function makeGuess(letter) {
 
 function checkWin() {
     const isWon = selectedWord.split('').every(l => guessedLetters.includes(l) || l === ' ');
-    if (isWon) {
-        setTimeout(() => GameManager.showResult('win', '¡Palabra completada!'), 500);
+    if (isWon && mistakes < 6) {
+        setTimeout(() => GameManager.showResult('win', '¡Palabra completada!'), 400);
+    }
+}
+
+// Drawing logic
+function drawBase() {
+    if (!ctx) return;
+    ctx.strokeStyle = '#444';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(20, 170); ctx.lineTo(160, 170);
+    ctx.moveTo(40, 170); ctx.lineTo(40, 20);
+    ctx.moveTo(40, 20); ctx.lineTo(120, 20);
+    ctx.moveTo(120, 20); ctx.lineTo(120, 40);
+    ctx.stroke();
+}
+
+function drawHangman(step) {
+    if (!ctx) return;
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 3;
+    switch(step) {
+        case 1: // Head
+            ctx.beginPath(); ctx.arc(120, 55, 15, 0, Math.PI*2); ctx.stroke(); break;
+        case 2: // Body
+            ctx.beginPath(); ctx.moveTo(120, 70); ctx.lineTo(120, 120); ctx.stroke(); break;
+        case 3: // Left Arm
+            ctx.beginPath(); ctx.moveTo(120, 80); ctx.lineTo(100, 100); ctx.stroke(); break;
+        case 4: // Right Arm
+            ctx.beginPath(); ctx.moveTo(120, 80); ctx.lineTo(140, 100); ctx.stroke(); break;
+        case 5: // Left Leg
+            ctx.beginPath(); ctx.moveTo(120, 120); ctx.lineTo(100, 150); ctx.stroke(); break;
+        case 6: // Right Leg
+            ctx.beginPath(); ctx.moveTo(120, 120); ctx.lineTo(140, 150); ctx.stroke(); break;
     }
 }

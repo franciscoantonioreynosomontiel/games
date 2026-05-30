@@ -130,7 +130,7 @@ function endGame(winner) {
     } else {
         if (gameMode === 'pva') {
             status.innerText = winner === 1 ? "¡Has Ganado!" : "¡La IA ha ganado!";
-            GameManager.showResult(winner === 1 ? 'win' : 'loss');
+            GameManager.showResult(winner === 1 ? 'win' : 'loss', winner === 1 ? '¡Has derrotado a la IA!' : 'La IA ha ganado esta vez.');
         } else {
             status.innerText = `¡Jugador ${winner} ha ganado!`;
             UIManager.alert('Fin del juego', `¡Jugador ${winner} ha ganado!`, 'success');
