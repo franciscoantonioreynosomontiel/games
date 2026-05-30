@@ -1,5 +1,6 @@
 const GameManager = {
     lives: 3,
+    maxLives: 3,
     currentGame: '',
     currentDifficulty: 'medium',
     currentLevel: 1,
@@ -23,10 +24,10 @@ const GameManager = {
         this.currentGame = gameName;
         this.hasLevels = hasLevels;
         this.currentDifficulty = difficulty;
-        this.lives = 3;
+        this.maxLives = (gameName === 'hangman') ? 6 : 3;
+        this.lives = this.maxLives;
         this.loadLevel();
 
-        // Check for autostart override (ensure we are on the right level)
         if (sessionStorage.getItem(`autostart_${this.currentGame}`) === 'true') {
             const sessionLvl = sessionStorage.getItem(`target_level_${this.currentGame}`);
             if (sessionLvl) this.currentLevel = parseInt(sessionLvl);
@@ -78,13 +79,12 @@ const GameManager = {
         const target = container || document.getElementById('gm-lives');
         if (!target) return;
         target.innerHTML = '';
-        // Some games don't use hearts (Hanoi)
         if (this.currentGame === 'hanoi') return;
 
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < this.maxLives; i++) {
             const heart = document.createElement('span');
             heart.className = 'material-icons';
-            heart.style.cssText = `font-size: 22px; margin-right: 4px; transition: transform 0.3s;`;
+            heart.style.cssText = `font-size: 18px; margin-right: 2px; transition: transform 0.3s;`;
             heart.innerText = i < this.lives ? 'favorite' : 'favorite_border';
             heart.style.color = i < this.lives ? '#f44336' : '#bbb';
             target.appendChild(heart);
@@ -161,14 +161,24 @@ const GameManager = {
     },
 
     showResult(type, details = "") {
+        const existing = document.querySelector('.modal-overlay-result');
+        if (existing) existing.remove();
+
         const overlay = document.createElement('div');
-        overlay.className = 'modal-overlay';
-        overlay.style.display = 'flex';
-        overlay.style.zIndex = '3000';
+        overlay.className = 'modal-overlay-result';
+        overlay.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); display: flex; align-items: center;
+            justify-content: center; z-index: 9999;
+        `;
 
         const content = document.createElement('div');
         content.className = `modal-content animated ${type === 'win' ? 'bounceIn' : 'fadeInUp'}`;
-        content.style.textAlign = 'center';
+        content.style.cssText = `
+            background: white; padding: 30px; border-radius: 20px;
+            text-align: center; width: 90%; max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        `;
 
         let title, msg, icon, color;
         if (type === 'win') {
@@ -182,7 +192,7 @@ const GameManager = {
             icon = 'equalizer';
             color = '#FF9800';
         } else {
-            title = 'INTENTO FALLIDO';
+            title = 'FIN DEL JUEGO';
             msg = details || `Has agotado tus intentos.`;
             icon = 'sentiment_very_dissatisfied';
             color = '#F44336';
@@ -193,18 +203,18 @@ const GameManager = {
 
         content.innerHTML = `
             <span class="material-icons" style="font-size: 80px; color: ${color}; margin-bottom: 20px;">${icon}</span>
-            <h2 style="margin-bottom: 10px; color: ${color};">${title}</h2>
-            <p style="color: #555; margin-bottom: 25px; line-height: 1.5;">${msg}</p>
-            <div style="display: flex; gap: 12px;">
-                <button id="btn-next" class="btn-premium" style="flex: 1;">${showNext ? 'SIGUIENTE' : 'REINTENTAR'}</button>
-                <button onclick="location.href='../../index.html'" class="btn-premium" style="flex: 1; background: #eee; color: #333;">VOLVER</button>
+            <h2 style="margin-bottom: 10px; color: ${color}; text-transform: uppercase;">${title}</h2>
+            <p style="color: #555; margin-bottom: 25px; line-height: 1.5; font-weight: 500;">${msg}</p>
+            <div style="display: flex; gap: 12px; flex-direction: column;">
+                <button id="btn-next-res" class="btn-premium" style="width: 100%;">${showNext ? 'SIGUIENTE NIVEL' : 'REINTENTAR'}</button>
+                <button onclick="location.href='../../index.html'" class="btn-premium" style="width: 100%; background: #eee; color: #333;">VOLVER AL MENÚ</button>
             </div>
         `;
 
         overlay.appendChild(content);
         document.body.appendChild(overlay);
 
-        document.getElementById('btn-next').onclick = () => {
+        document.getElementById('btn-next-res').onclick = () => {
             if (showNext) {
                 const nextLevel = this.currentLevel + 1;
                 if (Auth.isLoggedIn()) {
