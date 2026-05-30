@@ -4,6 +4,8 @@ const colorButtons = [
     document.getElementById('yellow'),
     document.getElementById('blue')
 ];
+const statusDisplay = document.getElementById('status-display');
+const startBtn = document.getElementById('start-btn');
 
 let sequence = [];
 let userSequence = [];
@@ -16,15 +18,20 @@ function initGame() {
     sequence = [];
     userSequence = [];
     roundCount = 0;
-    startRound();
+    updateStatus();
+    startBtn.style.display = 'block';
+}
+
+function updateStatus() {
+    statusDisplay.innerText = `Ronda ${roundCount + 1}/${roundsPerLevel}`;
 }
 
 function startRound() {
+    startBtn.style.display = 'none';
     userSequence = [];
-    // Levels affect playback speed
-    const speed = Math.max(800 - (GameManager.currentLevel * 40), 200);
+    updateStatus();
 
-    // Add one new step to the sequence
+    const speed = Math.max(800 - (GameManager.currentLevel * 40), 200);
     sequence.push(Math.floor(Math.random() * 4));
 
     playSequence(speed);
@@ -32,13 +39,20 @@ function startRound() {
 
 function playSequence(speed) {
     isPlayingSequence = true;
+    statusDisplay.innerText = "¡Observa!";
+    statusDisplay.className = "status-badge watching";
+
     let i = 0;
     const interval = setInterval(() => {
         flashButton(sequence[i]);
         i++;
         if (i >= sequence.length) {
             clearInterval(interval);
-            isPlayingSequence = false;
+            setTimeout(() => {
+                isPlayingSequence = false;
+                statusDisplay.innerText = "¡Tu turno!";
+                statusDisplay.className = "status-badge playing";
+            }, 500);
         }
     }, speed);
 }
@@ -46,7 +60,6 @@ function playSequence(speed) {
 function flashButton(index) {
     const btn = colorButtons[index];
     btn.classList.add('active');
-    // Simple audio feedback simulation
     setTimeout(() => btn.classList.remove('active'), 300);
 }
 
@@ -59,11 +72,11 @@ function handleInput(index) {
     const lastIdx = userSequence.length - 1;
     if (userSequence[lastIdx] !== sequence[lastIdx]) {
         if (GameManager.loseLife()) {
-            // End game handled by GM
+            // GM handles loss
         } else {
-            // Restart current round
+            // Restart sequence
             userSequence = [];
-            setTimeout(() => playSequence(800 - (GameManager.currentLevel * 40)), 1000);
+            setTimeout(() => playSequence(Math.max(800 - (GameManager.currentLevel * 40), 200)), 1000);
         }
         return;
     }
@@ -75,7 +88,10 @@ function handleInput(index) {
                 GameManager.showResult('win', `¡Nivel ${GameManager.currentLevel} superado!`);
             }, 500);
         } else {
-            setTimeout(startRound, 1000);
+            setTimeout(() => {
+                updateStatus();
+                startBtn.style.display = 'block';
+            }, 1000);
         }
     }
 }

@@ -9,9 +9,13 @@
     <style>
         .game-area { display: flex; flex-direction: column; align-items: center; padding: 15px; }
         #word-display {
-            font-size: 1.6rem; letter-spacing: 0.3rem; margin: 15px 0;
+            font-size: 1.6rem; margin: 15px 0;
             font-family: 'Roboto Mono', monospace; font-weight: bold; color: var(--primary-color);
             text-align: center; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
+        }
+        .letter-box {
+            width: 30px; border-bottom: 3px solid var(--primary-color);
+            min-height: 40px; display: flex; align-items: center; justify-content: center;
         }
         .keyboard {
             display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;
@@ -70,7 +74,7 @@
     <script src="script.js"></script>
     <script>
         GameManager.currentGame = 'hangman';
-        const grid = document.getElementById('levels-grid');
+        GameManager.setGame('hangman', true); const grid = document.getElementById('levels-grid');
         const unlocked = GameManager.getUnlockedLevel();
         const completed = JSON.parse(localStorage.getItem(`completed_${Auth.currentUser?.username}_hangman`) || '[]');
 
@@ -81,13 +85,13 @@
             btn.className = 'lvl-btn-mini';
             btn.style.cssText = `padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: ${isLocked ? '#f5f5f5' : (isDone ? '#e8f5e9' : 'white')}; cursor: ${isLocked ? 'default' : 'pointer'}; position: relative; font-weight: bold; color: ${isLocked ? '#999' : '#333'}`;
             btn.innerHTML = `${i}${isLocked ? '<span class="material-icons" style="font-size: 12px; position: absolute; top: 2px; right: 2px;">lock</span>' : ''}${isDone ? '<span class="material-icons" style="font-size: 12px; position: absolute; bottom: 2px; right: 2px; color: #4caf50;">star</span>' : ''}`;
-            if (!isLocked) btn.onclick = () => startMode('p1', i);
+            if (!isLocked) btn.onclick = () => startMode('pva', i);
             grid.appendChild(btn);
         }
 
         if (sessionStorage.getItem('autostart_hangman') === 'true') {
             sessionStorage.removeItem('autostart_hangman');
-            startMode('p1', GameManager.currentLevel);
+            startMode('pva', GameManager.currentLevel);
         }
 
         function startMode(m, lvl) {
