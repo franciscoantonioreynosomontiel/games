@@ -6,7 +6,9 @@ let board = [];
 let moves = 0;
 
 function initGame() {
+    // Correctly set as difficulty-based
     GameManager.setGame('sliding', false, size + 'x' + size);
+
     const containerSize = Math.min(window.innerWidth * 0.9, 360);
     const tileSize = Math.floor((containerSize - (size * 8)) / size);
 
@@ -75,6 +77,7 @@ function moveTile(idx) {
 function checkWin() {
     if (board.every((val, i) => val === i)) {
         setTimeout(() => {
+            // Important: This triggers star persistence in GameManager
             GameManager.showResult('win', `¡Puzzle resuelto en ${moves} movimientos!`);
         }, 400);
     }

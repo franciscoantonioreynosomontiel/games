@@ -12,7 +12,7 @@
     <div class="app-container">
         <header class="app-header">
             <div class="header-top">
-                <a href="index.html" class="material-icons back-icon" style="color: white; text-decoration: none;">arrow_back</a>
+                <a href="index.html" class="material-icons back-icon">arrow_back</a>
                 <h1 class="app-title">Salón de la Fama</h1>
             </div>
         </header>
@@ -24,20 +24,33 @@
             </div>
 
             <div id="scores-content" class="scores-list animated fadeInUp">
-                <!-- Data will be loaded here -->
-                <div class="loader">Cargando...</div>
+                <div style="text-align:center; padding: 40px; color: #999;">Cargando puntajes...</div>
             </div>
         </main>
+
+        <footer class="app-footer">
+            <nav class="bottom-nav">
+                <div class="nav-item" onclick="location.href='index.html'"><span class="material-icons">home</span><span>Inicio</span></div>
+                <div class="nav-item active" onclick="location.href='scores.html'"><span class="material-icons">emoji_events</span><span>Puntajes</span></div>
+                <div class="nav-item" id="admin-nav" style="display: none;" onclick="location.href='admin.html'"><span class="material-icons">admin_panel_settings</span><span>Admin</span></div>
+            </nav>
+        </footer>
     </div>
 
-    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
     <script src="js/ui-manager.js"></script>
     <script src="js/auth.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
-            if (!Auth.isLoggedIn()) window.location.href = 'login.html';
+            if (!Auth.isLoggedIn()) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            if (Auth.isAdmin()) {
+                document.getElementById('admin-nav').style.display = 'flex';
+            }
 
             const content = document.getElementById('scores-content');
             const tabs = document.querySelectorAll('.tab-btn');
@@ -51,41 +64,35 @@
             });
 
             async function loadScores(type) {
-                content.innerHTML = '<div class="loader">Cargando...</div>';
+                content.innerHTML = '<div style="text-align:center; padding: 40px; color: #999;">Cargando...</div>';
                 try {
-                    let data;
+                    let res;
                     if (type === 'global') {
-                        const res = await window.appConfig.supabase
+                        res = await window.appConfig.supabase
                             .from('game_scores')
-                            .select(`
-                                *,
-                                app_users (username)
-                            `)
+                            .select('*, app_users(username)')
                             .order('score', { ascending: false })
-                            .limit(20);
-                        data = res.data;
+                            .limit(30);
                     } else {
-                        const res = await window.appConfig.supabase
+                        res = await window.appConfig.supabase
                             .from('game_scores')
-                            .select(`
-                                *,
-                                app_users (username)
-                            `)
+                            .select('*, app_users(username)')
                             .eq('user_id', Auth.currentUser.id)
                             .order('created_at', { ascending: false })
-                            .limit(20);
-                        data = res.data;
+                            .limit(30);
                     }
 
-                    renderScores(data);
+                    if (res.error) throw res.error;
+                    renderScores(res.data);
                 } catch (e) {
-                    content.innerHTML = '<p class="error">Error al cargar datos</p>';
+                    console.error(e);
+                    content.innerHTML = '<p style="text-align:center; color: red; padding: 20px;">Error al cargar datos</p>';
                 }
             }
 
             function renderScores(scores) {
                 if (!scores || scores.length === 0) {
-                    content.innerHTML = '<p class="empty-msg">No hay registros aún</p>';
+                    content.innerHTML = '<p style="text-align:center; color: #999; padding: 40px;">No hay registros aún</p>';
                     return;
                 }
 
@@ -93,12 +100,12 @@
                     <div class="score-item">
                         <div class="score-info">
                             <span class="game-tag">${s.game_id.toUpperCase()}</span>
-                            <span class="user-name">${s.app_users?.username || 'Anónimo'}</span>
+                            <span class="user-name">${s.app_users?.username || 'Usuario'}</span>
                             <span class="date">${new Date(s.created_at).toLocaleDateString()}</span>
                         </div>
                         <div class="score-value">
-                            <span class="res" style="font-size: 11px; opacity: 0.8; margin-right: 5px;">LVL ${s.level}</span>
                             <strong>${s.score} pts</strong>
+                            <span style="font-size: 11px; color: #666;">${s.difficulty ? s.difficulty : 'Nivel ' + s.level}</span>
                         </div>
                     </div>
                 `).join('');

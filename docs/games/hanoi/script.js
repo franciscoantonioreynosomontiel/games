@@ -3,31 +3,29 @@ const tower2 = document.getElementById('tower2');
 const tower3 = document.getElementById('tower3');
 
 let diskCount = 3;
-let selectedDisk = null;
+const diskColors = ['#F44336', '#E91E63', '#9C27B0', '#673AB7', '#3F51B5', '#2196F3', '#03A9F4', '#00BCD4', '#009688'];
 
 function initGame() {
-    // Map levels 1-7 to 3-9 disks
-    const level = GameManager.currentLevel;
-    diskCount = 2 + level;
-    GameManager.setGame('hanoi', true);
-    GameManager.maxLevel = 7;
+    const diff = GameManager.currentLevel;
+    diskCount = 2 + diff;
 
-    tower1.innerHTML = '';
-    tower2.innerHTML = '';
-    tower3.innerHTML = '';
+    // Set game as NOT level-based (use difficulty system)
+    GameManager.setGame('hanoi', false, 'Dificultad ' + diff);
 
-    // Adjust pole height based on disk count
-    const poleHeight = diskCount * 25 + 40;
+    tower1.innerHTML = '<div class="pole"></div><div class="base"></div>';
+    tower2.innerHTML = '<div class="pole"></div><div class="base"></div>';
+    tower3.innerHTML = '<div class="pole"></div><div class="base"></div>';
+
+    const poleHeight = diskCount * 26 + 40;
     document.querySelectorAll('.pole').forEach(p => p.style.height = `${poleHeight}px`);
 
     for (let i = diskCount; i >= 1; i--) {
         const disk = document.createElement('div');
         disk.className = 'disk';
         disk.style.width = `${40 + i * 20}px`;
+        disk.style.backgroundColor = diskColors[(i - 1) % diskColors.length];
         disk.dataset.size = i;
-        disk.draggable = true;
 
-        // Touch Dragging Logic
         disk.addEventListener('touchstart', handleTouchStart, {passive: false});
         disk.addEventListener('touchmove', handleTouchMove, {passive: false});
         disk.addEventListener('touchend', handleTouchEnd);
@@ -41,6 +39,7 @@ let startTower = null;
 
 function handleTouchStart(e) {
     const disk = e.target;
+    if (!disk.classList.contains('disk')) return;
     const tower = disk.parentElement;
     if (tower.lastElementChild !== disk) return;
 
@@ -84,13 +83,18 @@ function handleTouchEnd(e) {
 }
 
 function isValidMove(tower, disk) {
-    const topDisk = tower.lastElementChild;
-    if (!topDisk) return true;
+    // Last two children are pole and base
+    const disks = Array.from(tower.children).filter(c => c.classList.contains('disk'));
+    if (disks.length === 0) return true;
+    const topDisk = disks[disks.length - 1];
     return parseInt(disk.dataset.size) < parseInt(topDisk.dataset.size);
 }
 
 function checkWin() {
-    if (tower3.childElementCount === diskCount) {
-        setTimeout(() => GameManager.showResult('win'), 500);
+    const disksInTower3 = Array.from(tower3.children).filter(c => c.classList.contains('disk')).length;
+    if (disksInTower3 === diskCount) {
+        setTimeout(() => {
+            GameManager.showResult('win', '¡Torre completada!');
+        }, 500);
     }
 }
