@@ -58,6 +58,7 @@
     <script src="../../js/game-manager.js"></script>
     <script src="script.js"></script>
     <script>
+        GameManager.currentGame = 'simon';
         const grid = document.getElementById('levels-grid');
         const unlocked = GameManager.getUnlockedLevel();
         const completed = JSON.parse(localStorage.getItem(`completed_${Auth.currentUser?.username}_simon`) || '[]');

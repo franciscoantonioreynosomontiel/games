@@ -1,142 +1,96 @@
-const poles = [document.getElementById('pole-0'), document.getElementById('pole-1'), document.getElementById('pole-2')];
-const movesDisplay = document.getElementById('moves');
+const tower1 = document.getElementById('tower1');
+const tower2 = document.getElementById('tower2');
+const tower3 = document.getElementById('tower3');
 
-let moves = 0;
 let diskCount = 3;
-let selectedPole = null;
+let selectedDisk = null;
 
-function initHanoi(lvl) {
-    diskCount = 2 + Math.ceil(lvl / 7);
+function initGame() {
+    // Map levels 1-7 to 3-9 disks
+    const level = GameManager.currentLevel;
+    diskCount = 2 + level;
     GameManager.setGame('hanoi', true);
-    resetHanoi();
-}
+    GameManager.maxLevel = 7;
 
-function resetHanoi() {
-    moves = 0;
-    movesDisplay.innerText = moves;
-    selectedPole = null;
+    tower1.innerHTML = '';
+    tower2.innerHTML = '';
+    tower3.innerHTML = '';
 
-    const poleHeight = Math.max(180, diskCount * 35 + 20);
-    poles.forEach(p => {
-        p.style.height = `${poleHeight}px`;
-        p.innerHTML = '';
-        p.classList.remove('selected');
+    // Adjust pole height based on disk count
+    const poleHeight = diskCount * 25 + 40;
+    document.querySelectorAll('.pole').forEach(p => p.style.height = `${poleHeight}px`);
 
-        p.ontouchstart = handleTouchStart;
-        p.ontouchmove = handleTouchMove;
-        p.ontouchend = handleTouchEnd;
-        p.onclick = () => handlePoleClick(p);
-    });
-
-    document.getElementById('board-container').style.minHeight = `${poleHeight + 30}px`;
-
-    for (let i = diskCount; i > 0; i--) {
+    for (let i = diskCount; i >= 1; i--) {
         const disk = document.createElement('div');
         disk.className = 'disk';
+        disk.style.width = `${40 + i * 20}px`;
         disk.dataset.size = i;
-        // visual width scaling
-        disk.style.width = `${25 + (i * (75 / (diskCount + 1)))}%`;
-        poles[0].appendChild(disk);
+        disk.draggable = true;
+
+        // Touch Dragging Logic
+        disk.addEventListener('touchstart', handleTouchStart, {passive: false});
+        disk.addEventListener('touchmove', handleTouchMove, {passive: false});
+        disk.addEventListener('touchend', handleTouchEnd);
+
+        tower1.appendChild(disk);
     }
-    updateDiskPositions();
 }
 
-let draggedDisk = null;
-let sourcePole = null;
+let touchDisk = null;
+let startTower = null;
 
 function handleTouchStart(e) {
-    const pole = e.currentTarget;
-    const topDisk = getTopDisk(pole);
-    if (!topDisk) return;
+    const disk = e.target;
+    const tower = disk.parentElement;
+    if (tower.lastElementChild !== disk) return;
 
-    draggedDisk = topDisk;
-    sourcePole = pole;
-    draggedDisk.style.transition = 'none';
-    draggedDisk.style.zIndex = '1000';
-    pole.classList.add('selected');
+    touchDisk = disk;
+    startTower = tower;
+    disk.classList.add('dragging');
+    e.preventDefault();
 }
 
 function handleTouchMove(e) {
-    if (!draggedDisk) return;
+    if (!touchDisk) return;
     const touch = e.touches[0];
-    draggedDisk.style.position = 'fixed';
-    draggedDisk.style.left = (touch.clientX - (draggedDisk.offsetWidth / 2)) + 'px';
-    draggedDisk.style.top = (touch.clientY - (draggedDisk.offsetHeight / 2)) + 'px';
+    touchDisk.style.position = 'fixed';
+    touchDisk.style.left = (touch.clientX - touchDisk.offsetWidth / 2) + 'px';
+    touchDisk.style.top = (touch.clientY - touchDisk.offsetHeight / 2) + 'px';
+    touchDisk.style.zIndex = '1000';
+    e.preventDefault();
 }
 
 function handleTouchEnd(e) {
-    if (!draggedDisk) return;
+    if (!touchDisk) return;
+    touchDisk.classList.remove('dragging');
+    touchDisk.style.position = '';
+    touchDisk.style.left = '';
+    touchDisk.style.top = '';
+    touchDisk.style.zIndex = '';
 
     const touch = e.changedTouches[0];
-    const targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
-    const targetPole = targetEl ? targetEl.closest('.pole') : null;
+    const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+    const targetTower = dropTarget ? dropTarget.closest('.tower') : null;
 
-    if (targetPole && targetPole !== sourcePole) {
-        const targetTop = getTopDisk(targetPole);
-        if (!targetTop || parseInt(draggedDisk.dataset.size) < parseInt(targetTop.dataset.size)) {
-            targetPole.appendChild(draggedDisk);
-            moves++;
-            movesDisplay.innerText = moves;
-            checkWin();
-        }
-    }
-
-    draggedDisk.style.position = 'absolute';
-    draggedDisk.style.transition = 'all 0.3s';
-    draggedDisk.style.zIndex = '1';
-    sourcePole.classList.remove('selected');
-
-    draggedDisk = null;
-    sourcePole = null;
-    updateDiskPositions();
-}
-
-function handlePoleClick(pole) {
-    if (selectedPole === null) {
-        if (getTopDisk(pole)) {
-            selectedPole = pole;
-            pole.classList.add('selected');
-        }
+    if (targetTower && isValidMove(targetTower, touchDisk)) {
+        targetTower.appendChild(touchDisk);
+        checkWin();
     } else {
-        if (selectedPole === pole) {
-            selectedPole.classList.remove('selected');
-            selectedPole = null;
-        } else {
-            const disk = getTopDisk(selectedPole);
-            const targetTop = getTopDisk(pole);
-            if (!targetTop || parseInt(disk.dataset.size) < parseInt(targetTop.dataset.size)) {
-                pole.appendChild(disk);
-                moves++;
-                movesDisplay.innerText = moves;
-                checkWin();
-            }
-            selectedPole.classList.remove('selected');
-            selectedPole = null;
-            updateDiskPositions();
-        }
+        startTower.appendChild(touchDisk);
     }
+
+    touchDisk = null;
+    startTower = null;
 }
 
-function getTopDisk(p) {
-    const disks = p.querySelectorAll('.disk');
-    return disks.length > 0 ? disks[disks.length - 1] : null;
-}
-
-function updateDiskPositions() {
-    poles.forEach(p => {
-        const disks = p.querySelectorAll('.disk');
-        disks.forEach((d, i) => {
-            d.style.bottom = `${i * 32}px`;
-            d.style.left = '50%';
-            d.style.transform = 'translateX(-50%)';
-        });
-    });
+function isValidMove(tower, disk) {
+    const topDisk = tower.lastElementChild;
+    if (!topDisk) return true;
+    return parseInt(disk.dataset.size) < parseInt(topDisk.dataset.size);
 }
 
 function checkWin() {
-    if (poles[2].querySelectorAll('.disk').length === diskCount) {
-        setTimeout(() => GameManager.showResult('win', `¡Hanoi resuelto en ${moves} movimientos!`), 500);
+    if (tower3.childElementCount === diskCount) {
+        setTimeout(() => GameManager.showResult('win'), 500);
     }
 }
-
-document.getElementById('reset-btn').onclick = resetHanoi;

@@ -50,6 +50,7 @@
     <script src="../../js/game-manager.js"></script>
     <script src="script.js"></script>
     <script>
+        GameManager.currentGame = 'connect4';
         const isDone = GameManager.isCompleted('hard');
         const btnIA = document.getElementById('btn-ia');
         btnIA.innerHTML = `CONTRA IA ${isDone ? '<span class="material-icons" style="font-size: 16px; vertical-align: middle;">star</span>' : ''}`;
