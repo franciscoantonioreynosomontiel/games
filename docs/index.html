@@ -12,32 +12,37 @@
     <div class="app-container">
         <header class="app-header">
             <div class="header-top">
-                <span class="material-icons menu-icon">menu</span>
+                <span class="material-icons menu-icon" style="opacity:0">menu</span>
                 <h1 class="app-title">GameHub</h1>
                 <div id="user-info" style="display: flex; align-items: center; gap: 8px;">
-                    <span id="display-username"></span>
-                    <span class="material-icons profile-icon" id="profile-btn">account_circle</span>
+                    <span id="display-username" style="font-weight: 500;"></span>
+                    <span class="material-icons profile-icon" id="profile-btn" style="font-size: 32px;">account_circle</span>
+                </div>
+
+                <!-- Profile Dropdown -->
+                <div id="profile-menu" class="profile-menu">
+                    <div class="menu-item" id="menu-user-info">
+                        <span class="material-icons">person</span>
+                        <span id="menu-username">Usuario</span>
+                    </div>
+                    <button class="menu-item logout" id="btn-logout">
+                        <span class="material-icons">logout</span>
+                        Cerrar Sesión
+                    </button>
                 </div>
             </div>
         </header>
 
         <main class="game-grid" id="main-grid">
-            <!-- Login Card (shown if not logged in) -->
-            <div id="login-section" style="grid-column: 1/-1; padding: 20px; text-align: center;">
-                <h2>Bienvenido</h2>
-                <p>Inicia sesión para guardar tus puntajes</p>
-                <button class="btn-primary" style="max-width: 200px; margin-top: 15px;" id="show-login">Iniciar Sesión</button>
-            </div>
-
             <!-- Admin Section (shown if admin) -->
             <div id="admin-section" style="grid-column: 1/-1; display: none; padding: 15px; background: #e3f2fd; border-radius: 12px; margin-bottom: 10px;">
-                <h3 style="display: flex; align-items: center; gap: 8px;"><span class="material-icons">admin_panel_settings</span> Panel Admin</h3>
-                <button class="btn-primary" style="max-width: 200px; margin-top: 10px;" onclick="location.href='adminUsuarios.html'">Gestionar Usuarios</button>
+                <h3 style="display: flex; align-items: center; gap: 8px; color: #1976d2;"><span class="material-icons">admin_panel_settings</span> Panel de Control</h3>
+                <button class="btn-premium" style="margin-top: 10px; width: 100%; background: #1976d2;" onclick="location.href='adminUsuarios.html'">Gestionar Usuarios</button>
             </div>
 
             <!-- Game Cards -->
             <a href="games/chess/ajedrez.html" class="game-card">
-                <div class="card-icon chess-icon"><span class="material-icons">extension</span></div>
+                <div class="card-icon chess-icon"><span class="material-icons">military_tech</span></div>
                 <div class="card-content"><h2>Ajedrez</h2><p>Modo Reto IA</p></div>
             </a>
             <a href="games/sudoku/sudoku.html" class="game-card">
@@ -81,25 +86,6 @@
                 <div class="nav-item" id="admin-nav" style="display: none;" onclick="location.href='adminUsuarios.html'"><span class="material-icons">admin_panel_settings</span><span>Admin</span></div>
             </nav>
         </footer>
-    </div>
-
-    <!-- Modals -->
-    <div class="modal-overlay" id="login-modal">
-        <div class="modal-content">
-            <h2>Iniciar Sesión</h2>
-            <div class="form-group"><label>Usuario</label><input type="text" id="login-user"></div>
-            <div class="form-group"><label>Contraseña</label><input type="password" id="login-pass"></div>
-            <button class="btn-primary" id="btn-do-login">Entrar</button>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="register-modal">
-        <div class="modal-content">
-            <h2>Crear Usuario</h2>
-            <div class="form-group"><label>Usuario</label><input type="text" id="reg-user"></div>
-            <div class="form-group"><label>Contraseña</label><input type="password" id="reg-pass"></div>
-            <button class="btn-primary" id="btn-do-reg">Crear</button>
-        </div>
     </div>
 
     <!-- Scripts -->

@@ -25,6 +25,15 @@
             <div class="header-top">
                 <a href="index.html" class="material-icons back-icon">arrow_back</a>
                 <h1 class="app-title">Usuarios del Sistema</h1>
+                <div id="user-info" style="display: flex; align-items: center; gap: 8px;">
+                    <span class="material-icons profile-icon" id="profile-btn" style="font-size: 32px; color: white;">account_circle</span>
+                </div>
+                <div id="profile-menu" class="profile-menu">
+                    <button class="menu-item logout" id="btn-logout">
+                        <span class="material-icons">logout</span>
+                        Cerrar Sesión
+                    </button>
+                </div>
             </div>
         </header>
 
@@ -67,6 +76,7 @@
     <script src="js/config.js"></script>
     <script src="js/ui-manager.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             if (!Auth.isAdmin()) {

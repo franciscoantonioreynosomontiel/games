@@ -5,13 +5,12 @@ const colorButtons = [
     document.getElementById('blue')
 ];
 const statusDisplay = document.getElementById('status-display');
-const startBtn = document.getElementById('start-btn');
 
 let sequence = [];
 let userSequence = [];
 let isPlayingSequence = false;
 let roundCount = 0;
-const roundsPerLevel = 3;
+const roundsPerLevel = 5; // Standard 5 rounds
 
 function initGame() {
     GameManager.setGame('simon', true);
@@ -19,14 +18,12 @@ function initGame() {
     userSequence = [];
     roundCount = 0;
     updateStatus();
-    // Auto-start after a delay
     setTimeout(startRound, 1000);
-    if (startBtn) startBtn.style.display = 'none';
 }
 
 function updateStatus() {
     if (statusDisplay) {
-        statusDisplay.innerText = `Ronda ${roundCount + 1}/${roundsPerLevel}`;
+        statusDisplay.innerText = `Secuencia: ${roundCount + 1}/${roundsPerLevel}`;
     }
 }
 
@@ -57,8 +54,8 @@ function playSequence(speed) {
             setTimeout(() => {
                 isPlayingSequence = false;
                 if (statusDisplay) {
-                    statusDisplay.innerText = "¡Tu turno!";
                     statusDisplay.className = "status-badge playing";
+                    updateStatus();
                 }
             }, 500);
         }
@@ -82,7 +79,7 @@ function handleInput(index) {
     const lastIdx = userSequence.length - 1;
     if (userSequence[lastIdx] !== sequence[lastIdx]) {
         if (GameManager.loseLife()) {
-            // End game
+            // End game handled by GM
         } else {
             userSequence = [];
             setTimeout(() => playSequence(Math.max(800 - (GameManager.currentLevel * 40), 200)), 1000);
@@ -97,7 +94,7 @@ function handleInput(index) {
                 GameManager.showResult('win', `¡Nivel ${GameManager.currentLevel} superado!`);
             }, 600);
         } else {
-            // Automatic start of next round
+            // Automatic start of next round without user click
             setTimeout(startRound, 1200);
         }
     }
