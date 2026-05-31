@@ -1,0 +1,17 @@
+{
+  "name": "GameHub vdev",
+  "short_name": "GameHub",
+  "description": "Puzzle Arcade Offline",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#6200ee",
+  "theme_color": "#6200ee",
+  "icons": [
+    {
+      "src": "assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

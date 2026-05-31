@@ -147,17 +147,61 @@ const GameManager = {
             }
         }
 
-        try {
-            await window.appConfig.supabase
-                .from('game_scores')
-                .insert([{
-                    user_id: user.id,
-                    game_id: this.currentGame,
-                    score: score,
-                    level: this.currentLevel,
-                    difficulty: this.currentDifficulty
-                }]);
-        } catch (e) { console.error('Supabase error:', e); }
+        const scoreData = {
+            user_id: user.id,
+            game_id: this.currentGame,
+            score: score,
+            level: this.currentLevel,
+            difficulty: this.currentDifficulty,
+            created_at: new Date().toISOString()
+        };
+
+        if (navigator.onLine) {
+            try {
+                const { error } = await window.appConfig.supabase
+                    .from('game_scores')
+                    .insert([scoreData]);
+                if (error) throw error;
+            } catch (e) {
+                console.error('Supabase error, saving locally:', e);
+                this.savePendingScore(scoreData);
+            }
+        } else {
+            console.log('Offline: saving score locally');
+            this.savePendingScore(scoreData);
+        }
+    },
+
+    savePendingScore(data) {
+        const pending = JSON.parse(localStorage.getItem('pending_scores') || '[]');
+        pending.push(data);
+        localStorage.setItem('pending_scores', JSON.stringify(pending));
+    },
+
+    async syncPendingScores() {
+        if (!navigator.onLine) return;
+        const pending = JSON.parse(localStorage.getItem('pending_scores') || '[]');
+        if (pending.length === 0) return;
+
+        console.log(`Syncing ${pending.length} pending scores...`);
+        const remaining = [];
+
+        for (const score of pending) {
+            try {
+                const { error } = await window.appConfig.supabase
+                    .from('game_scores')
+                    .insert([score]);
+                if (error) throw error;
+            } catch (e) {
+                console.error('Sync failed for score:', e);
+                remaining.push(score);
+            }
+        }
+
+        localStorage.setItem('pending_scores', JSON.stringify(remaining));
+        if (remaining.length === 0) {
+            console.log('All scores synced successfully');
+        }
     },
 
     showResult(type, details = "") {
@@ -239,3 +283,8 @@ const GameManager = {
 
 window.GameManager = GameManager;
 GameManager.init();
+
+// Sync when coming back online
+window.addEventListener('online', () => GameManager.syncPendingScores());
+// Periodic sync attempt every 1 minute if online
+setInterval(() => GameManager.syncPendingScores(), 60000);
