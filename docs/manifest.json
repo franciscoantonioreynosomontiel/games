@@ -1,6 +1,6 @@
 {
-  "name": "GameHub vdev",
-  "short_name": "GameHub",
+  "name": "Viking Games",
+  "short_name": "Viking Games",
   "description": "Puzzle Arcade Offline",
   "start_url": "index.html",
   "display": "standalone",
