@@ -13,7 +13,15 @@ function initGame() {
 
     [tower1, tower2, tower3].forEach(t => {
         t.innerHTML = '<div class="pole"></div><div class="base"></div>';
-        t.onclick = () => handleTowerClick(t);
+
+        // Remove old listeners to prevent duplication
+        t.onclick = null;
+        t.onclick = (e) => {
+            // Only trigger if not a disk touch (to avoid double events)
+            if (e.pointerType === 'mouse' || e.pointerType === 'touch') {
+                handleTowerInteraction(t);
+            }
+        };
     });
 
     const poleHeight = diskCount * 26 + 40;
@@ -26,6 +34,7 @@ function initGame() {
         disk.style.backgroundColor = diskColors[(i - 1) % diskColors.length];
         disk.dataset.size = i;
 
+        // Touch Dragging (Specific for mobile)
         disk.addEventListener('touchstart', handleTouchStart, {passive: false});
         disk.addEventListener('touchmove', handleTouchMove, {passive: false});
         disk.addEventListener('touchend', handleTouchEnd);
@@ -34,8 +43,8 @@ function initGame() {
     }
 }
 
-// CLICK LOGIC (PC)
-function handleTowerClick(tower) {
+// HYBRID LOGIC
+function handleTowerInteraction(tower) {
     if (selectedDisk) {
         if (isValidMove(tower, selectedDisk)) {
             tower.appendChild(selectedDisk);
@@ -43,6 +52,7 @@ function handleTowerClick(tower) {
             selectedDisk = null;
             checkWin();
         } else {
+            // Deselect if invalid or same tower
             selectedDisk.classList.remove('dragging');
             selectedDisk = null;
         }
@@ -55,7 +65,7 @@ function handleTowerClick(tower) {
     }
 }
 
-// TOUCH LOGIC (MOBILE)
+// TOUCH DRAG (Mobile)
 let touchDisk = null;
 let startTower = null;
 
@@ -64,6 +74,10 @@ function handleTouchStart(e) {
     if (!disk.classList.contains('disk')) return;
     const tower = disk.parentElement;
     if (tower.lastElementChild !== disk) return;
+
+    // Clear click selection if dragging
+    if (selectedDisk) selectedDisk.classList.remove('dragging');
+    selectedDisk = null;
 
     touchDisk = disk;
     startTower = tower;
