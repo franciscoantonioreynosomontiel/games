@@ -1,6 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
     updateAuthUI();
 
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('SW registered'))
+                .catch(err => console.log('SW failed', err));
+        });
+    }
+
     // Profile Menu Toggle
     const userInfo = document.getElementById('user-info');
     const profileMenu = document.getElementById('profile-menu');

@@ -16,7 +16,7 @@ function initGame() {
         onDragStart: onDragStart,
         onDrop: onDrop,
         onSnapEnd: onSnapEnd,
-        pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+        pieceTheme: '../../assets/chess/{piece}.png'
     };
 
     board = Chessboard('board', config);

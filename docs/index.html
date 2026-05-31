@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GameHub - Puzzle Arcade</title>
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <link href="lib/fonts/roboto.css" rel="stylesheet">
+    <link href="lib/fonts/material-icons.css" rel="stylesheet">
 </head>
 <body>
     <div class="app-container">
@@ -43,39 +44,39 @@
             <!-- Game Cards -->
             <a href="games/chess/ajedrez.html" class="game-card">
                 <div class="card-icon chess-icon"><span class="material-icons">military_tech</span></div>
-                <div class="card-content"><h2>Ajedrez</h2><p>Modo Reto IA</p></div>
+                <div class="card-content"><h2>Ajedrez</h2></div>
             </a>
             <a href="games/sudoku/sudoku.html" class="game-card">
                 <div class="card-icon sudoku-icon"><span class="material-icons">grid_on</span></div>
-                <div class="card-content"><h2>Sudoku</h2><p>Desafío Mental</p></div>
+                <div class="card-content"><h2>Sudoku</h2></div>
             </a>
             <a href="games/tictactoe/tictactoe.html" class="game-card">
                 <div class="card-icon tictactoe-icon"><span class="material-icons">close</span></div>
-                <div class="card-content"><h2>Tres en Raya</h2><p>Vs IA Imbatible</p></div>
+                <div class="card-content"><h2>Tres en Raya</h2></div>
             </a>
             <a href="games/memory/memoria.html" class="game-card">
                 <div class="card-icon memory-icon"><span class="material-icons">style</span></div>
-                <div class="card-content"><h2>Memoria</h2><p>Parejas Locas</p></div>
+                <div class="card-content"><h2>Memoria</h2></div>
             </a>
             <a href="games/sliding/rompecabezas.html" class="game-card">
                 <div class="card-icon sliding-icon"><span class="material-icons">apps</span></div>
-                <div class="card-content"><h2>Rompecabezas</h2><p>15-Puzzle</p></div>
+                <div class="card-content"><h2>Rompecabezas</h2></div>
             </a>
             <a href="games/connect4/conecta4.html" class="game-card">
                 <div class="card-icon connect4-icon"><span class="material-icons">lens</span></div>
-                <div class="card-content"><h2>Conecta 4</h2><p>Estrategia Pura</p></div>
+                <div class="card-content"><h2>Conecta 4</h2></div>
             </a>
             <a href="games/simon/simon.html" class="game-card">
                 <div class="card-icon simon-icon"><span class="material-icons">gesture</span></div>
-                <div class="card-content"><h2>Simon</h2><p>Sigue el ritmo</p></div>
+                <div class="card-content"><h2>Simon</h2></div>
             </a>
             <a href="games/hangman/ahorcado.html" class="game-card">
                 <div class="card-icon hangman-icon"><span class="material-icons">person_outline</span></div>
-                <div class="card-content"><h2>Ahorcado</h2><p>Adivina o muere</p></div>
+                <div class="card-content"><h2>Ahorcado</h2></div>
             </a>
             <a href="games/hanoi/hanoi.html" class="game-card">
                 <div class="card-icon hanoi-icon"><span class="material-icons">format_list_numbered</span></div>
-                <div class="card-content"><h2>Torres de Hanoi</h2><p>Lógica de discos</p></div>
+                <div class="card-content"><h2>Torres de Hanoi</h2></div>
             </a>
         </main>
 
@@ -89,7 +90,7 @@
     </div>
 
     <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="lib/supabase.js"></script>
     <script src="js/config.js"></script>
     <script src="js/ui-manager.js"></script>
     <script src="js/auth.js"></script>
