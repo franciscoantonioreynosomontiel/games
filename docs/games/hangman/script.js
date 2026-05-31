@@ -1,29 +1,29 @@
 const wordList = [
-    { word: "CASA" }, { word: "EL RATON DE LOS DIENTES" },
-    { word: "PERRO" }, { word: "LA LUNA ESTA LLENA" },
-    { word: "POSTRE" }, { word: "EL SOL SALE SIEMPRE" },
-    { word: "PLANETA" }, { word: "AGUA QUE NO HAS DE BEBER" },
-    { word: "ESTRELLA" }, { word: "CAMARON QUE SE DUERME" },
-    { word: "MONTAÑA" }, { word: "MAS VALE TARDE QUE NUNCA" },
-    { word: "GUITARRA" }, { word: "PERRO QUE LADRA NO MUERDE" },
-    { word: "CELESTE" }, { word: "EN BOCA CERRADA NO ENTRAN MOSCAS" },
-    { word: "BIBLIOTECA" }, { word: "EL QUE BUSCA ENCUENTRA" },
-    { word: "DINOSAURIO" }, { word: "LA UNION HACE LA FUERZA" },
-    { word: "MARIPOSA" }, { word: "CRIA CUERVOS Y TE SACARAN LOS OJOS" },
-    { word: "TELEFONO" }, { word: "AL MAL TIEMPO BUENA CARA" },
-    { word: "HELADO" }, { word: "MAS VALE PAJARO EN MANO" },
-    { word: "BICICLETA" }, { word: "A CABALLO REGALADO NO LE MIRES EL DIENTE" },
-    { word: "COCODRILO" }, { word: "DE TAL PALO TAL ASTILLA" },
-    { word: "PIRAMIDE" }, { word: "HAZ EL BIEN SIN MIRAR A QUIEN" },
-    { word: "UNIVERSO" }, { word: "LA CURIOSIDAD MATO AL GATO" },
-    { word: "FUTBOL" }, { word: "OJO POR OJO DIENTE POR DIENTE" },
-    { word: "CHOCOLATE" }, { word: "QUERER ES PODER" },
-    { word: "ORQUESTA" }, { word: "EL TIEMPO ES ORO" },
-    { word: "AVENTURA" }, { word: "CADA OVEJA CON SU PAREJA" },
-    { word: "HORMIGA" }, { word: "MUCHO RUIDO Y POCAS NUECES" },
-    { word: "ESPEJO" }, { word: "LO PROMETIDO ES DEUDA" },
-    { word: "CAMINO" }, { word: "CADA LOCO CON SU TEMA" },
-    { word: "SOMBRERO" }, { word: "SONREIR ES GRATIS" }
+    { word: "EL RATON DE LOS DIENTES" }, { word: "LA LUNA ESTA LLENA" },
+    { word: "EL SOL SALE SIEMPRE" }, { word: "AGUA QUE NO HAS DE BEBER" },
+    { word: "CAMARON QUE SE DUERME" }, { word: "MAS VALE TARDE QUE NUNCA" },
+    { word: "PERRO QUE LADRA NO MUERDE" }, { word: "EN BOCA CERRADA NO ENTRAN MOSCAS" },
+    { word: "EL QUE BUSCA ENCUENTRA" }, { word: "LA UNION HACE LA FUERZA" },
+    { word: "CRIA CUERVOS Y TE SACARAN LOS OJOS" }, { word: "AL MAL TIEMPO BUENA CARA" },
+    { word: "MAS VALE PAJARO EN MANO" }, { word: "A CABALLO REGALADO NO LE MIRES EL DIENTE" },
+    { word: "DE TAL PALO TAL ASTILLA" }, { word: "HAZ EL BIEN SIN MIRAR A QUIEN" },
+    { word: "LA CURIOSIDAD MATO AL GATO" }, { word: "OJO POR OJO DIENTE POR DIENTE" },
+    { word: "QUERER ES PODER" }, { word: "EL TIEMPO ES ORO" },
+    { word: "CADA OVEJA CON SU PAREJA" }, { word: "MUCHO RUIDO Y POCAS NUECES" },
+    { word: "LO PROMETIDO ES DEUDA" }, { word: "CADA LOCO CON SU TEMA" },
+    { word: "SONREIR ES GRATIS" }, { word: "EL QUE RIE AL ULTIMO RIE MEJOR" },
+    { word: "A QUIEN MADRUGA DIOS LE AYUDA" }, { word: "NO HAY MAL QUE POR BIEN NO VENGA" },
+    { word: "TRAS LA TORMENTA LLEGA LA CALMA" }, { word: "EL SABER NO OCUPA LUGAR" },
+    { word: "MAS VALE MAÑA QUE FUERZA" }, { word: "TODO LO QUE BRILLA NO ES ORO" },
+    { word: "LA PACIENCIA ES LA MADRE DE LA CIENCIA" }, { word: "A FALTA DE PAN BUENAS SON TORTAS" },
+    { word: "QUIEN TIENE UN AMIGO TIENE UN TESORO" }, { word: "EN LA VARIEDAD ESTA EL GUSTO" },
+    { word: "DEL DICHO AL HECHO HAY MUCHO TRECHO" }, { word: "CADA MONEDA TIENE DOS CARAS" },
+    { word: "EL HABITO NO HACE AL MONJE" }, { word: "NO DEJES PARA MAÑANA LO QUE PUEDAS HACER HOY" },
+    { word: "PIENSA MAL Y ACERTARAS" }, { word: "EL QUE NO ARRIESGA NO GANA" },
+    { word: "LA FE MUEVE MONTAÑAS" }, { word: "A BUEN ENTENDEDOR POCAS PALABRAS BASTAN" },
+    { word: "NUNCA ES TARDE SI LA DICHA ES BUENA" }, { word: "CABALLO GRANDE ANDE O NO ANDE" },
+    { word: "CADA UNO CUENTA LA FERIA COMO LE VA EN ELLA" }, { word: "DONDE HAY CAPITAN NO MANDA MARINERO" },
+    { word: "LA CARIDAD BIEN ENTENDIDA EMPIEZA POR UNO MISMO" }, { word: "OBRAS SON AMORES Y NO BUENAS RAZONES" }
 ];
 
 const wordDisplay = document.getElementById('word-display');
@@ -80,7 +80,7 @@ function getHelperLetters(word, level) {
 
 function renderWord() {
     wordDisplay.innerHTML = selectedWord.split('').map(letter => `
-        <div class="letter-box">${guessedLetters.includes(letter) || letter === ' ' ? letter : ''}</div>
+        <div class="${letter === ' ' ? '' : 'letter-box'}" style="${letter === ' ' ? 'width: 20px;' : ''}">${guessedLetters.includes(letter) || letter === ' ' ? letter : ''}</div>
     `).join('');
 }
 
