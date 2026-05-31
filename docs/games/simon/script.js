@@ -19,7 +19,9 @@ function initGame() {
     userSequence = [];
     roundCount = 0;
     updateStatus();
-    startBtn.style.display = 'block';
+    // Auto-start after a delay
+    setTimeout(startRound, 1000);
+    if (startBtn) startBtn.style.display = 'none';
 }
 
 function updateStatus() {
@@ -30,7 +32,6 @@ function updateStatus() {
 
 function startRound() {
     if (isPlayingSequence) return;
-    startBtn.style.display = 'none';
     userSequence = [];
     updateStatus();
 
@@ -81,9 +82,8 @@ function handleInput(index) {
     const lastIdx = userSequence.length - 1;
     if (userSequence[lastIdx] !== sequence[lastIdx]) {
         if (GameManager.loseLife()) {
-            // End game handled by GM
+            // End game
         } else {
-            // Restart sequence
             userSequence = [];
             setTimeout(() => playSequence(Math.max(800 - (GameManager.currentLevel * 40), 200)), 1000);
         }
@@ -94,15 +94,11 @@ function handleInput(index) {
         roundCount++;
         if (roundCount >= roundsPerLevel) {
             setTimeout(() => {
-                // EXPLICIT POPUP CALL
                 GameManager.showResult('win', `¡Nivel ${GameManager.currentLevel} superado!`);
             }, 600);
         } else {
-            setTimeout(() => {
-                updateStatus();
-                startBtn.style.display = 'block';
-                startBtn.innerText = "SIGUIENTE RONDA";
-            }, 1000);
+            // Automatic start of next round
+            setTimeout(startRound, 1200);
         }
     }
 }

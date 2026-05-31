@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuarios - GameHub Admin</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        .user-item {
+            background: white; padding: 15px; border-radius: 12px;
+            display: flex; align-items: center; gap: 15px;
+            margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #eee;
+        }
+        .user-info { flex: 1; display: flex; flex-direction: column; }
+        .user-info strong { font-size: 16px; color: #333; }
+        .user-info span { font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-top">
+                <a href="index.html" class="material-icons back-icon">arrow_back</a>
+                <h1 class="app-title">Usuarios del Sistema</h1>
+            </div>
+        </header>
+
+        <main class="content-area">
+            <div style="margin-bottom: 20px;">
+                <button class="btn-premium" id="btn-open-create" style="width: 100%;">
+                    <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">person_add</span>
+                    CREAR NUEVO USUARIO
+                </button>
+            </div>
+
+            <div id="user-list-container" class="animated fadeInUp">
+                <div style="text-align: center; padding: 40px; color: #999;">Cargando lista de usuarios...</div>
+            </div>
+        </main>
+
+        <footer class="app-footer">
+            <nav class="bottom-nav">
+                <div class="nav-item" onclick="location.href='index.html'"><span class="material-icons">home</span><span>Inicio</span></div>
+                <div class="nav-item" onclick="location.href='scores.html'"><span class="material-icons">emoji_events</span><span>Puntajes</span></div>
+                <div class="nav-item active"><span class="material-icons">admin_panel_settings</span><span>Admin</span></div>
+            </nav>
+        </footer>
+    </div>
+
+    <!-- Create User Modal -->
+    <div class="modal-overlay" id="create-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; align-items: center; justify-content: center;">
+        <div class="modal-content" style="background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 400px;">
+            <h2 style="margin-bottom: 20px; color: var(--primary-color);">Nuevo Usuario</h2>
+            <div class="form-group"><label>Nombre de Usuario</label><input type="text" id="new-username"></div>
+            <div class="form-group"><label>Contraseña</label><input type="password" id="new-password"></div>
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+                <button class="btn-premium" id="btn-save-user">CREAR CUENTA</button>
+                <button class="btn-premium" style="background: #eee; color: #333;" onclick="document.getElementById('create-modal').style.display='none'">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/ui-manager.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!Auth.isAdmin()) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const container = document.getElementById('user-list-container');
+
+            async function loadUsers() {
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">Actualizando...</div>';
+                try {
+                    const { data, error } = await window.appConfig.supabase.from('app_users').select('*').order('created_at', { ascending: false });
+                    if (error) throw error;
+
+                    if (!data || data.length === 0) {
+                        container.innerHTML = '<p style="text-align: center; padding: 40px;">No hay usuarios registrados</p>';
+                        return;
+                    }
+
+                    container.innerHTML = data.map(u => `
+                        <div class="user-item">
+                            <span class="material-icons" style="color: #6200ee; font-size: 32px;">account_circle</span>
+                            <div class="user-info">
+                                <strong>${u.username}</strong>
+                                <span>${u.role.toUpperCase()} • Creado el ${new Date(u.created_at).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                } catch (e) {
+                    container.innerHTML = '<p style="color: red; text-align: center;">Error al cargar usuarios</p>';
+                }
+            }
+
+            document.getElementById('btn-open-create').onclick = () => {
+                document.getElementById('create-modal').style.display = 'flex';
+            };
+
+            document.getElementById('btn-save-user').onclick = async () => {
+                const user = document.getElementById('new-username').value.trim();
+                const pass = document.getElementById('new-password').value.trim();
+                if (!user || !pass) return UIManager.alert('Error', 'Completa todos los campos', 'error');
+
+                try {
+                    await Auth.register(user, pass);
+                    UIManager.alert('Éxito', 'Usuario creado', 'success');
+                    document.getElementById('create-modal').style.display = 'none';
+                    loadUsers();
+                } catch (e) {
+                    UIManager.alert('Error', 'No se pudo crear el usuario', 'error');
+                }
+            };
+
+            loadUsers();
+        });
+    </script>
+</body>
+</html>
