@@ -4,17 +4,17 @@ const tower3 = document.getElementById('tower3');
 
 let diskCount = 3;
 const diskColors = ['#F44336', '#E91E63', '#9C27B0', '#673AB7', '#3F51B5', '#2196F3', '#03A9F4', '#00BCD4', '#009688'];
+let selectedDisk = null;
 
 function initGame() {
     const diff = GameManager.currentLevel;
     diskCount = 2 + diff;
-
-    // Set game as NOT level-based (use difficulty system)
     GameManager.setGame('hanoi', false, 'Dificultad ' + diff);
 
-    tower1.innerHTML = '<div class="pole"></div><div class="base"></div>';
-    tower2.innerHTML = '<div class="pole"></div><div class="base"></div>';
-    tower3.innerHTML = '<div class="pole"></div><div class="base"></div>';
+    [tower1, tower2, tower3].forEach(t => {
+        t.innerHTML = '<div class="pole"></div><div class="base"></div>';
+        t.onclick = () => handleTowerClick(t);
+    });
 
     const poleHeight = diskCount * 26 + 40;
     document.querySelectorAll('.pole').forEach(p => p.style.height = `${poleHeight}px`);
@@ -34,6 +34,28 @@ function initGame() {
     }
 }
 
+// CLICK LOGIC (PC)
+function handleTowerClick(tower) {
+    if (selectedDisk) {
+        if (isValidMove(tower, selectedDisk)) {
+            tower.appendChild(selectedDisk);
+            selectedDisk.classList.remove('dragging');
+            selectedDisk = null;
+            checkWin();
+        } else {
+            selectedDisk.classList.remove('dragging');
+            selectedDisk = null;
+        }
+    } else {
+        const disks = Array.from(tower.children).filter(c => c.classList.contains('disk'));
+        if (disks.length > 0) {
+            selectedDisk = disks[disks.length - 1];
+            selectedDisk.classList.add('dragging');
+        }
+    }
+}
+
+// TOUCH LOGIC (MOBILE)
 let touchDisk = null;
 let startTower = null;
 
@@ -83,7 +105,6 @@ function handleTouchEnd(e) {
 }
 
 function isValidMove(tower, disk) {
-    // Last two children are pole and base
     const disks = Array.from(tower.children).filter(c => c.classList.contains('disk'));
     if (disks.length === 0) return true;
     const topDisk = disks[disks.length - 1];
@@ -93,8 +114,6 @@ function isValidMove(tower, disk) {
 function checkWin() {
     const disksInTower3 = Array.from(tower3.children).filter(c => c.classList.contains('disk')).length;
     if (disksInTower3 === diskCount) {
-        setTimeout(() => {
-            GameManager.showResult('win', '¡Torre completada!');
-        }, 500);
+        setTimeout(() => GameManager.showResult('win', '¡Torre completada!'), 500);
     }
 }

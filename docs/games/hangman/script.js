@@ -71,12 +71,11 @@ function initGame() {
         guessedLetters = getHelperLetters(selectedWord, GameManager.currentLevel);
     } else {
         GameManager.setGame('hangman', false, 'PVP');
-        // selectedWord should be set by startP2 in HTML
     }
 
     mistakes = 0;
-    // Set 6 lives for Hangman
     GameManager.lives = 6;
+    GameManager.maxLives = 6;
     GameManager.updateLivesUI();
 
     if (ctx) {
@@ -124,7 +123,6 @@ function makeGuess(letter) {
         mistakes++;
         drawHangman(mistakes);
         GameManager.loseLife();
-        // loseLife calls showResult('loss') if lives <= 0
     }
 
     renderWord();
@@ -139,7 +137,6 @@ function checkWin() {
     }
 }
 
-// Drawing logic
 function drawBase() {
     if (!ctx) return;
     ctx.strokeStyle = '#444';
@@ -157,17 +154,11 @@ function drawHangman(step) {
     ctx.strokeStyle = '#333';
     ctx.lineWidth = 3;
     switch(step) {
-        case 1: // Head
-            ctx.beginPath(); ctx.arc(120, 55, 15, 0, Math.PI*2); ctx.stroke(); break;
-        case 2: // Body
-            ctx.beginPath(); ctx.moveTo(120, 70); ctx.lineTo(120, 120); ctx.stroke(); break;
-        case 3: // Left Arm
-            ctx.beginPath(); ctx.moveTo(120, 80); ctx.lineTo(100, 100); ctx.stroke(); break;
-        case 4: // Right Arm
-            ctx.beginPath(); ctx.moveTo(120, 80); ctx.lineTo(140, 100); ctx.stroke(); break;
-        case 5: // Left Leg
-            ctx.beginPath(); ctx.moveTo(120, 120); ctx.lineTo(100, 150); ctx.stroke(); break;
-        case 6: // Right Leg
-            ctx.beginPath(); ctx.moveTo(120, 120); ctx.lineTo(140, 150); ctx.stroke(); break;
+        case 1: ctx.beginPath(); ctx.arc(120, 55, 15, 0, Math.PI*2); ctx.stroke(); break;
+        case 2: ctx.beginPath(); ctx.moveTo(120, 70); ctx.lineTo(120, 120); ctx.stroke(); break;
+        case 3: ctx.beginPath(); ctx.moveTo(120, 80); ctx.lineTo(100, 100); ctx.stroke(); break;
+        case 4: ctx.beginPath(); ctx.moveTo(120, 80); ctx.lineTo(140, 100); ctx.stroke(); break;
+        case 5: ctx.beginPath(); ctx.moveTo(120, 120); ctx.lineTo(100, 150); ctx.stroke(); break;
+        case 6: ctx.beginPath(); ctx.moveTo(120, 120); ctx.lineTo(140, 150); ctx.stroke(); break;
     }
 }
