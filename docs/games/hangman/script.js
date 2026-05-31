@@ -1,54 +1,29 @@
 const wordList = [
-    { word: "CASA", hint: "Lugar donde vives" },
-    { word: "PERRO", hint: "El mejor amigo del hombre" },
-    { word: "TECLADO", hint: "Periférico para escribir" },
-    { word: "POSTRE", hint: "Se come al final de la comida" },
-    { word: "PLANETA", hint: "La Tierra es uno" },
-    { word: "ESTRELLA", hint: "Brilla en el cielo nocturno" },
-    { word: "MONTAÑA", hint: "Elevación natural del terreno" },
-    { word: "GUITARRA", hint: "Instrumento de seis cuerdas" },
-    { word: "CELESTE", hint: "Color del cielo despejado" },
-    { word: "BIBLIOTECA", hint: "Lugar lleno de libros" },
-    { word: "DINOSAURIO", hint: "Animal prehistórico extinto" },
-    { word: "MARIPOSA", hint: "Insecto con alas coloridas" },
-    { word: "TELEFONO", hint: "Dispositivo para llamar" },
-    { word: "HELADO", hint: "Dulce frío de muchos sabores" },
-    { word: "BICICLETA", hint: "Vehículo de dos ruedas" },
-    { word: "COCODRILO", hint: "Reptil de grandes mandíbulas" },
-    { word: "PIRAMIDE", hint: "Construcción antigua de Egipto" },
-    { word: "UNIVERSO", hint: "Todo lo que existe en el espacio" },
-    { word: "FUTBOL", hint: "Deporte de once contra once" },
-    { word: "CHOCOLATE", hint: "Dulce hecho de cacao" },
-    { word: "ORQUESTA", hint: "Grupo de músicos dirigidos" },
-    { word: "AVENTURA", hint: "Experiencia emocionante" },
-    { word: "HORMIGA", hint: "Insecto pequeño y trabajador" },
-    { word: "ESPEJO", hint: "Refleja tu imagen" },
-    { word: "CAMINO", hint: "Por donde se transita" },
-    { word: "SOMBRERO", hint: "Se usa en la cabeza" },
-    { word: "CABALLO", hint: "Animal que se monta" },
-    { word: "PUERTA", hint: "Se abre para entrar" },
-    { word: "VENTANA", hint: "Se mira a través de ella" },
-    { word: "RELOJ", hint: "Mide el tiempo" },
-    { word: "LAMPARA", hint: "Da luz en la oscuridad" },
-    { word: "CASCADA", hint: "Caída de agua natural" },
-    { word: "BOSQUE", hint: "Lugar con muchos árboles" },
-    { word: "DESIERTO", hint: "Lugar con mucha arena" },
-    { word: "OCEANO", hint: "Gran masa de agua salada" },
-    { word: "TIBURON", hint: "Pez depredador del mar" },
-    { word: "BALLENA", hint: "Mamífero marino gigante" },
-    { word: "DELFIN", hint: "Animal marino inteligente" },
-    { word: "PINGÜINO", hint: "Ave que no vuela y vive en el frío" },
-    { word: "LEON", hint: "El rey de la selva" },
-    { word: "TIGRE", hint: "Felino con rayas" },
-    { word: "ELEFANTE", hint: "Animal con trompa larga" },
-    { word: "JIRAFA", hint: "Animal con cuello largo" },
-    { word: "CEBRA", hint: "Animal con rayas blancas y negras" },
-    { word: "PANDA", hint: "Oso de China blanco y negro" },
-    { word: "CANGURO", hint: "Animal que salta y tiene bolsa" },
-    { word: "KOALA", hint: "Marsupial que come eucalipto" },
-    { word: "AGUILA", hint: "Ave de rapiña majestuosa" },
-    { word: "BUHO", hint: "Ave nocturna sabia" },
-    { word: "LORO", hint: "Ave que puede hablar" }
+    { word: "CASA" }, { word: "EL RATON DE LOS DIENTES" },
+    { word: "PERRO" }, { word: "LA LUNA ESTA LLENA" },
+    { word: "POSTRE" }, { word: "EL SOL SALE SIEMPRE" },
+    { word: "PLANETA" }, { word: "AGUA QUE NO HAS DE BEBER" },
+    { word: "ESTRELLA" }, { word: "CAMARON QUE SE DUERME" },
+    { word: "MONTAÑA" }, { word: "MAS VALE TARDE QUE NUNCA" },
+    { word: "GUITARRA" }, { word: "PERRO QUE LADRA NO MUERDE" },
+    { word: "CELESTE" }, { word: "EN BOCA CERRADA NO ENTRAN MOSCAS" },
+    { word: "BIBLIOTECA" }, { word: "EL QUE BUSCA ENCUENTRA" },
+    { word: "DINOSAURIO" }, { word: "LA UNION HACE LA FUERZA" },
+    { word: "MARIPOSA" }, { word: "CRIA CUERVOS Y TE SACARAN LOS OJOS" },
+    { word: "TELEFONO" }, { word: "AL MAL TIEMPO BUENA CARA" },
+    { word: "HELADO" }, { word: "MAS VALE PAJARO EN MANO" },
+    { word: "BICICLETA" }, { word: "A CABALLO REGALADO NO LE MIRES EL DIENTE" },
+    { word: "COCODRILO" }, { word: "DE TAL PALO TAL ASTILLA" },
+    { word: "PIRAMIDE" }, { word: "HAZ EL BIEN SIN MIRAR A QUIEN" },
+    { word: "UNIVERSO" }, { word: "LA CURIOSIDAD MATO AL GATO" },
+    { word: "FUTBOL" }, { word: "OJO POR OJO DIENTE POR DIENTE" },
+    { word: "CHOCOLATE" }, { word: "QUERER ES PODER" },
+    { word: "ORQUESTA" }, { word: "EL TIEMPO ES ORO" },
+    { word: "AVENTURA" }, { word: "CADA OVEJA CON SU PAREJA" },
+    { word: "HORMIGA" }, { word: "MUCHO RUIDO Y POCAS NUECES" },
+    { word: "ESPEJO" }, { word: "LO PROMETIDO ES DEUDA" },
+    { word: "CAMINO" }, { word: "CADA LOCO CON SU TEMA" },
+    { word: "SOMBRERO" }, { word: "SONREIR ES GRATIS" }
 ];
 
 const wordDisplay = document.getElementById('word-display');
@@ -63,11 +38,12 @@ let mistakes = 0;
 let gameMode = 'pva';
 
 function initGame() {
+    guessedLetters = [];
+    hintDisplay.innerText = "";
     if (gameMode === 'pva') {
         GameManager.setGame('hangman', true);
         const levelData = wordList[(GameManager.currentLevel - 1) % wordList.length];
         selectedWord = levelData.word.toUpperCase();
-        hintDisplay.innerText = "Pista: " + levelData.hint;
         guessedLetters = getHelperLetters(selectedWord, GameManager.currentLevel);
     } else {
         GameManager.setGame('hangman', false, 'PVP');
@@ -89,7 +65,7 @@ function initGame() {
 
 function getHelperLetters(word, level) {
     const unique = [...new Set(word.replace(/\s/g, '').split(''))];
-    const count = Math.max(1, Math.floor(unique.length * 0.2));
+    const count = Math.min(3, Math.max(1, Math.floor(unique.length * 0.2)));
     let seed = level + 500;
     const helpers = [];
     const tempUnique = [...unique];
