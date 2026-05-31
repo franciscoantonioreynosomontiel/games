@@ -74,6 +74,19 @@
     <script src="../../js/game-manager.js"></script>
     <script src="script.js"></script>
     <script>
+        // Force reset hangman progress for all users to show new phrases
+        if (Auth.isLoggedIn()) {
+            const user = Auth.currentUser.username;
+            const resetKey = `hangman_reset_v2_${user}`;
+            if (!localStorage.getItem(resetKey)) {
+                localStorage.removeItem(`completed_${user}_hangman`);
+                localStorage.removeItem(`level_${user}_hangman`);
+                localStorage.removeItem(`max_unlocked_${user}_hangman`);
+                localStorage.setItem(resetKey, 'true');
+                console.log(`Progress reset for user ${user}`);
+            }
+        }
+
         GameManager.currentGame = 'hangman';
         GameManager.setGame('hangman', true); const grid = document.getElementById('levels-grid');
         const unlocked = GameManager.getUnlockedLevel();

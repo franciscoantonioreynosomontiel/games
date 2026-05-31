@@ -77,15 +77,17 @@
                         res = await window.appConfig.supabase
                             .from('game_scores')
                             .select('*, app_users(username)')
-                            .order('score', { ascending: false })
-                            .limit(30);
+                            .order('level', { ascending: false })
+                            .order('created_at', { ascending: false })
+                            .limit(200);
                     } else {
                         res = await window.appConfig.supabase
                             .from('game_scores')
                             .select('*, app_users(username)')
                             .eq('user_id', Auth.currentUser.id)
+                            .order('level', { ascending: false })
                             .order('created_at', { ascending: false })
-                            .limit(30);
+                            .limit(100);
                     }
 
                     if (res.error) throw res.error;
@@ -102,7 +104,20 @@
                     return;
                 }
 
-                content.innerHTML = scores.map(s => `
+                // Filter to show only the best record per user-game combination
+                const filtered = [];
+                const seen = new Set();
+
+                for (const s of scores) {
+                    const key = `${s.user_id}_${s.game_id}`;
+                    if (!seen.has(key)) {
+                        seen.add(key);
+                        filtered.push(s);
+                    }
+                    if (filtered.length >= 50) break;
+                }
+
+                content.innerHTML = filtered.map(s => `
                     <div class="score-item">
                         <div class="score-info">
                             <span class="game-tag">${s.game_id.toUpperCase()}</span>
@@ -110,8 +125,7 @@
                             <span class="date">${new Date(s.created_at).toLocaleDateString()}</span>
                         </div>
                         <div class="score-value">
-                            <strong>${s.score} pts</strong>
-                            <span style="font-size: 11px; color: #666;">${s.difficulty ? s.difficulty : 'Nivel ' + s.level}</span>
+                            <strong style="color: var(--primary-color); font-size: 18px;">${s.difficulty && s.difficulty !== 'medium' ? s.difficulty.toUpperCase() : 'NIVEL ' + s.level}</strong>
                         </div>
                     </div>
                 `).join('');

@@ -42,9 +42,9 @@ const UIManager = {
                 <span class="material-icons" style="font-size: 64px; color: var(--primary-color); margin-bottom: 16px;">help_outline</span>
                 <h2 style="margin-bottom: 8px;">${title}</h2>
                 <p style="color: #666; margin-bottom: 24px;">${message}</p>
-                <div style="display: flex; gap: 10px;">
-                    <button class="btn-primary" style="background: #eee; color: #333;" id="ui-confirm-cancel">CANCELAR</button>
-                    <button class="btn-primary" id="ui-confirm-ok">CONFIRMAR</button>
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <button class="btn-primary" style="background: #eee; color: #333; flex: 1;" id="confirm-no">CANCELAR</button>
+                    <button class="btn-primary" style="flex: 1;" id="confirm-yes">CONFIRMAR</button>
                 </div>
             </div>
         `;
@@ -52,13 +52,20 @@ const UIManager = {
         document.body.appendChild(overlay);
 
         return new Promise(resolve => {
-            document.getElementById('ui-confirm-ok').onclick = () => {
+            overlay.querySelector('#confirm-yes').onclick = () => {
                 overlay.remove();
                 resolve(true);
             };
-            document.getElementById('ui-confirm-cancel').onclick = () => {
+            overlay.querySelector('#confirm-no').onclick = () => {
                 overlay.remove();
                 resolve(false);
+            };
+            // Close on background click
+            overlay.onclick = (e) => {
+                if (e.target === overlay) {
+                    overlay.remove();
+                    resolve(false);
+                }
             };
         });
     },
