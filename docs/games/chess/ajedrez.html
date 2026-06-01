@@ -8,10 +8,34 @@
     <link rel="stylesheet" href="../../lib/chessboard.min.css">
     <link href="../../lib/fonts/material-icons.css" rel="stylesheet">
     <style>
-        body { overscroll-behavior-y: contain; }
-        .game-area { padding: 10px; display: flex; flex-direction: column; align-items: center; }
-        #board { width: 340px; max-width: 95vw; margin: 15px 0; border: 4px solid #333; border-radius: 4px; overflow: hidden; touch-action: none; }
-        .controls { width: 100%; max-width: 350px; display: flex; flex-direction: column; gap: 10px; }
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            overscroll-behavior: none;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+        .app-container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            max-height: 100vh;
+        }
+        .game-area {
+            padding: 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            touch-action: none;
+            overflow: hidden;
+        }
+        #board { width: 320px; max-width: 90vw; margin: 10px 0; border: 4px solid #333; border-radius: 4px; overflow: hidden; }
+        .controls { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 8px; }
         .status-box { background: #eee; padding: 10px; border-radius: 8px; font-weight: bold; text-align: center; margin-bottom: 5px; min-height: 40px; border-left: 5px solid var(--primary-color); }
         .highlight-check { box-shadow: inset 0 0 5px 5px red !important; }
     </style>
