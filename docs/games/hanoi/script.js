@@ -88,6 +88,13 @@ function handleTouchStart(e) {
     touchOffset.x = touch.clientX - rect.left;
     touchOffset.y = touch.clientY - rect.top;
 
+    // Prepare disk for GPU-accelerated dragging
+    touchDisk.style.position = 'fixed';
+    touchDisk.style.top = '0';
+    touchDisk.style.left = '0';
+    touchDisk.style.zIndex = '1000';
+    touchDisk.style.transform = `translate3d(${rect.left}px, ${rect.top}px, 0) scale(1.1)`;
+
     disk.classList.add('dragging');
     e.preventDefault();
 }
@@ -95,10 +102,9 @@ function handleTouchStart(e) {
 function handleTouchMove(e) {
     if (!touchDisk) return;
     const touch = e.touches[0];
-    touchDisk.style.position = 'fixed';
-    touchDisk.style.left = (touch.clientX - touchOffset.x) + 'px';
-    touchDisk.style.top = (touch.clientY - touchOffset.y) + 'px';
-    touchDisk.style.zIndex = '1000';
+    const x = touch.clientX - touchOffset.x;
+    const y = touch.clientY - touchOffset.y;
+    touchDisk.style.transform = `translate3d(${x}px, ${y}px, 0) scale(1.1)`;
     e.preventDefault();
 }
 
@@ -113,7 +119,7 @@ function handleTouchEnd(e) {
     if (!targetTower) {
         const towers = [tower1, tower2, tower3];
         let closest = null;
-        let minDistance = 100; // threshold in pixels
+        let minDistance = 150; // Increased threshold for easier drops
 
         towers.forEach(t => {
             const rect = t.getBoundingClientRect();
@@ -129,8 +135,9 @@ function handleTouchEnd(e) {
 
     touchDisk.classList.remove('dragging');
     touchDisk.style.position = '';
-    touchDisk.style.left = '';
     touchDisk.style.top = '';
+    touchDisk.style.left = '';
+    touchDisk.style.transform = '';
     touchDisk.style.zIndex = '';
 
     if (targetTower && isValidMove(targetTower, touchDisk)) {
