@@ -77,7 +77,7 @@
         // Force reset hangman progress for all users to show new phrases
         if (Auth.isLoggedIn()) {
             const user = Auth.currentUser.username;
-            const resetKey = `hangman_reset_v2_${user}`;
+            const resetKey = `hangman_reset_v3_${user}`;
             if (!localStorage.getItem(resetKey)) {
                 localStorage.removeItem(`completed_${user}_hangman`);
                 localStorage.removeItem(`level_${user}_hangman`);
