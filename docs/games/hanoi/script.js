@@ -68,6 +68,7 @@ function handleTowerInteraction(tower) {
 // TOUCH DRAG (Mobile)
 let touchDisk = null;
 let startTower = null;
+let touchOffset = { x: 0, y: 0 };
 
 function handleTouchStart(e) {
     const disk = e.target;
@@ -81,6 +82,12 @@ function handleTouchStart(e) {
 
     touchDisk = disk;
     startTower = tower;
+
+    const touch = e.touches[0];
+    const rect = disk.getBoundingClientRect();
+    touchOffset.x = touch.clientX - rect.left;
+    touchOffset.y = touch.clientY - rect.top;
+
     disk.classList.add('dragging');
     e.preventDefault();
 }
@@ -89,23 +96,42 @@ function handleTouchMove(e) {
     if (!touchDisk) return;
     const touch = e.touches[0];
     touchDisk.style.position = 'fixed';
-    touchDisk.style.left = (touch.clientX - touchDisk.offsetWidth / 2) + 'px';
-    touchDisk.style.top = (touch.clientY - touchDisk.offsetHeight / 2) + 'px';
+    touchDisk.style.left = (touch.clientX - touchOffset.x) + 'px';
+    touchDisk.style.top = (touch.clientY - touchOffset.y) + 'px';
     touchDisk.style.zIndex = '1000';
     e.preventDefault();
 }
 
 function handleTouchEnd(e) {
     if (!touchDisk) return;
+
+    const touch = e.changedTouches[0];
+    const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+    let targetTower = dropTarget ? dropTarget.closest('.tower') : null;
+
+    // Fallback: search for the closest tower if elementFromPoint failed or returned something else
+    if (!targetTower) {
+        const towers = [tower1, tower2, tower3];
+        let closest = null;
+        let minDistance = 100; // threshold in pixels
+
+        towers.forEach(t => {
+            const rect = t.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const distance = Math.abs(touch.clientX - centerX);
+            if (distance < minDistance) {
+                minDistance = distance;
+                closest = t;
+            }
+        });
+        targetTower = closest;
+    }
+
     touchDisk.classList.remove('dragging');
     touchDisk.style.position = '';
     touchDisk.style.left = '';
     touchDisk.style.top = '';
     touchDisk.style.zIndex = '';
-
-    const touch = e.changedTouches[0];
-    const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
-    const targetTower = dropTarget ? dropTarget.closest('.tower') : null;
 
     if (targetTower && isValidMove(targetTower, touchDisk)) {
         targetTower.appendChild(touchDisk);
