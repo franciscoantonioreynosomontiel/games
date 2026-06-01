@@ -3,6 +3,7 @@ var game = new Chess();
 var $status = $('#status');
 var gameMode = 'pvp';
 var difficulty = 'easy';
+var selectedSquare = null;
 
 function initGame() {
     GameManager.setGame('chess', false, difficulty.toUpperCase());
@@ -11,15 +12,23 @@ function initGame() {
     }
 
     var config = {
-        draggable: true,
+        draggable: false, // Disabling drag and drop
         position: 'start',
-        onDragStart: onDragStart,
-        onDrop: onDrop,
-        onSnapEnd: onSnapEnd,
         pieceTheme: '../../assets/chess/{piece}.png'
     };
 
     board = Chessboard('board', config);
+
+    // Attach click events to squares using delegation
+    // Using a more generic selector and ensuring we capture clicks on the piece images too
+    $('#board').on('click', '.square-55d63', function() {
+        var square = $(this).attr('data-square');
+        if (!square) {
+            square = $(this).closest('.square-55d63').attr('data-square');
+        }
+        console.log('Clicked square:', square);
+        onSquareClick(square);
+    });
 
     setTimeout(() => {
         board.resize();
@@ -27,23 +36,61 @@ function initGame() {
     }, 300);
 }
 
-function onDragStart(source, piece, position, orientation) {
-    if (game.game_over()) return false;
-    if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
-        (game.turn() === 'b' && piece.search(/^w/) !== -1)) return false;
-    if (gameMode !== 'pvp' && game.turn() === 'b') return false;
+function removeHighlights() {
+    $('.square-55d63').removeClass('highlight-move highlight-selected');
 }
 
-function onDrop(source, target) {
-    var move = game.move({ from: source, to: target, promotion: 'q' });
-    if (move === null) return 'snapback';
-    updateStatus();
-    if (gameMode !== 'pvp' && !game.game_over()) {
-        window.setTimeout(makeAIMove, 500);
+function onSquareClick(square) {
+    if (!square) return;
+    if (game.game_over()) return;
+    if (gameMode !== 'pvp' && game.turn() === 'b') return;
+
+    var piece = game.get(square);
+
+    if (selectedSquare) {
+        var move = game.move({
+            from: selectedSquare,
+            to: square,
+            promotion: 'q'
+        });
+
+        if (move !== null) {
+            board.position(game.fen());
+            selectedSquare = null;
+            removeHighlights();
+            updateStatus();
+
+            if (gameMode !== 'pvp' && !game.game_over()) {
+                window.setTimeout(makeAIMove, 500);
+            }
+            return;
+        }
+    }
+
+    if (piece && piece.color === game.turn()) {
+        if (selectedSquare === square) {
+            selectedSquare = null;
+            removeHighlights();
+            return;
+        }
+
+        selectedSquare = square;
+        removeHighlights();
+        $('.square-' + square).addClass('highlight-selected');
+
+        var moves = game.moves({
+            square: square,
+            verbose: true
+        });
+
+        moves.forEach(function(m) {
+            $('.square-' + m.to).addClass('highlight-move');
+        });
+    } else {
+        selectedSquare = null;
+        removeHighlights();
     }
 }
-
-function onSnapEnd() { board.position(game.fen()); }
 
 function makeAIMove() {
     if (game.game_over()) return;
@@ -183,5 +230,19 @@ function updateStatus() {
     }
 }
 
-$('#reset-btn').on('click', function() { game.reset(); board.start(); updateStatus(); });
-$('#undo-btn').on('click', function() { game.undo(); if (gameMode !== 'pvp') game.undo(); board.position(game.fen()); updateStatus(); });
+$('#reset-btn').on('click', function() {
+    game.reset();
+    board.start();
+    selectedSquare = null;
+    removeHighlights();
+    updateStatus();
+});
+
+$('#undo-btn').on('click', function() {
+    game.undo();
+    if (gameMode !== 'pvp') game.undo();
+    board.position(game.fen());
+    selectedSquare = null;
+    removeHighlights();
+    updateStatus();
+});
