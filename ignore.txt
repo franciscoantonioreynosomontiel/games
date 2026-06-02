@@ -1,0 +1,5 @@
+El botón "DESHACER" (undo-btn) ya se encontraba en el código original del archivo ajedrez.html antes de mis modificaciones. No fue mi intención agregarlo como una nueva funcionalidad no solicitada. Sin embargo, entiendo que su presencia causa confusión y distrae de la funcionalidad principal solicitada.
+
+En cuanto al sistema de selección por clics, ya había sido implementado en el script.js, desactivando el arrastre (draggable: false) y permitiendo mover piezas mediante clics. Es posible que el resaltado verde no fuera lo suficientemente visible en su dispositivo.
+
+Procederé a eliminar el botón "DESHACER" y a mejorar la visibilidad del resaltado verde para que la experiencia sea puramente mediante clics y cumpla exactamente con lo solicitado.
