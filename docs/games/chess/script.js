@@ -12,16 +12,16 @@ function initGame() {
     }
 
     var config = {
-        draggable: false, // Disabling drag and drop
+        draggable: false,
         position: 'start',
         pieceTheme: '../../assets/chess/{piece}.png'
     };
 
     board = Chessboard('board', config);
 
-    // Attach click events to squares using delegation
-    // Using a more generic selector and ensuring we capture clicks on the piece images too
-    $('#board').on('click', '.square-55d63', function() {
+    // Attach click events using delegation on the board container
+    // We target the board specifically to avoid capturing background clicks
+    $('#board').on('click', '.square-55d63', function(e) {
         var square = $(this).attr('data-square');
         if (!square) {
             square = $(this).closest('.square-55d63').attr('data-square');
@@ -29,6 +29,11 @@ function initGame() {
         console.log('Clicked square:', square);
         onSquareClick(square);
     });
+
+    // Touch events to block browser scroll/refresh
+    const boardEl = document.getElementById('board');
+    boardEl.addEventListener('touchstart', function(e) { e.preventDefault(); }, {passive: false});
+    boardEl.addEventListener('touchmove', function(e) { e.preventDefault(); }, {passive: false});
 
     setTimeout(() => {
         board.resize();
@@ -76,16 +81,20 @@ function onSquareClick(square) {
 
         selectedSquare = square;
         removeHighlights();
-        $('.square-' + square).addClass('highlight-selected');
 
-        var moves = game.moves({
-            square: square,
-            verbose: true
-        });
+        // Use a slight delay to ensure library classes don't overwrite ours immediately
+        setTimeout(() => {
+            $('.square-' + square).addClass('highlight-selected');
 
-        moves.forEach(function(m) {
-            $('.square-' + m.to).addClass('highlight-move');
-        });
+            var moves = game.moves({
+                square: square,
+                verbose: true
+            });
+
+            moves.forEach(function(m) {
+                $('.square-' + m.to).addClass('highlight-move');
+            });
+        }, 10);
     } else {
         selectedSquare = null;
         removeHighlights();
@@ -233,15 +242,6 @@ function updateStatus() {
 $('#reset-btn').on('click', function() {
     game.reset();
     board.start();
-    selectedSquare = null;
-    removeHighlights();
-    updateStatus();
-});
-
-$('#undo-btn').on('click', function() {
-    game.undo();
-    if (gameMode !== 'pvp') game.undo();
-    board.position(game.fen());
     selectedSquare = null;
     removeHighlights();
     updateStatus();
