@@ -14,26 +14,22 @@ function initGame() {
     var config = {
         draggable: false,
         position: 'start',
+        onSnapEnd: onSnapEnd,
         pieceTheme: '../../assets/chess/{piece}.png'
     };
 
     board = Chessboard('board', config);
 
-    // Attach click events using delegation on the board container
-    // We target the board specifically to avoid capturing background clicks
+    // Attach click events to squares using delegation
+    // We use click instead of mousedown for better compatibility with Playwright click() and mobile tap
     $('#board').on('click', '.square-55d63', function(e) {
         var square = $(this).attr('data-square');
         if (!square) {
             square = $(this).closest('.square-55d63').attr('data-square');
         }
-        console.log('Clicked square:', square);
+        console.log('Square clicked:', square);
         onSquareClick(square);
     });
-
-    // Touch events to block browser scroll/refresh
-    const boardEl = document.getElementById('board');
-    boardEl.addEventListener('touchstart', function(e) { e.preventDefault(); }, {passive: false});
-    boardEl.addEventListener('touchmove', function(e) { e.preventDefault(); }, {passive: false});
 
     setTimeout(() => {
         board.resize();
@@ -41,8 +37,12 @@ function initGame() {
     }, 300);
 }
 
+function onSnapEnd() {
+    board.position(game.fen());
+}
+
 function removeHighlights() {
-    $('.square-55d63').removeClass('highlight-move highlight-selected');
+    $('.square-55d63').removeClass('highlight-move highlight-selected highlight-invalid');
 }
 
 function onSquareClick(square) {
@@ -52,7 +52,14 @@ function onSquareClick(square) {
 
     var piece = game.get(square);
 
+    // 1. Si ya hay una pieza seleccionada e intentamos mover
     if (selectedSquare) {
+        if (selectedSquare === square) {
+            selectedSquare = null;
+            removeHighlights();
+            return;
+        }
+
         var move = game.move({
             from: selectedSquare,
             to: square,
@@ -69,32 +76,32 @@ function onSquareClick(square) {
                 window.setTimeout(makeAIMove, 500);
             }
             return;
+        } else {
+            // Movimiento inválido a una casilla que no es una pieza propia
+            if (!piece || piece.color !== game.turn()) {
+                $('.square-' + square).addClass('highlight-invalid');
+                setTimeout(() => {
+                    $('.square-' + square).removeClass('highlight-invalid');
+                }, 500);
+                return;
+            }
         }
     }
 
+    // 2. Selección de pieza
     if (piece && piece.color === game.turn()) {
-        if (selectedSquare === square) {
-            selectedSquare = null;
-            removeHighlights();
-            return;
-        }
-
         selectedSquare = square;
         removeHighlights();
+        $('.square-' + square).addClass('highlight-selected');
 
-        // Use a slight delay to ensure library classes don't overwrite ours immediately
-        setTimeout(() => {
-            $('.square-' + square).addClass('highlight-selected');
+        var moves = game.moves({
+            square: square,
+            verbose: true
+        });
 
-            var moves = game.moves({
-                square: square,
-                verbose: true
-            });
-
-            moves.forEach(function(m) {
-                $('.square-' + m.to).addClass('highlight-move');
-            });
-        }, 10);
+        moves.forEach(function(m) {
+            $('.square-' + m.to).addClass('highlight-move');
+        });
     } else {
         selectedSquare = null;
         removeHighlights();
