@@ -68,6 +68,13 @@
             grid.appendChild(btn);
         });
 
+        const puzzleBtn = document.createElement('button');
+        puzzleBtn.className = 'btn-premium';
+        puzzleBtn.style.background = '#ff9800';
+        puzzleBtn.innerHTML = 'PUZZLES <span class="material-icons" style="font-size: 16px; vertical-align: middle;">extension</span>';
+        puzzleBtn.onclick = () => window.location.href = 'puzzleschess.html';
+        grid.appendChild(puzzleBtn);
+
         function startMode(m) {
             gameMode = (m === 'pvp') ? 'pvp' : 'pva';
             difficulty = m;
