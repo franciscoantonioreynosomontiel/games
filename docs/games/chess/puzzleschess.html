@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../lib/chessboard.min.css">
+    <link href="../../lib/fonts/material-icons.css" rel="stylesheet">
+    <style>
+        .game-area { padding: 10px; display: flex; flex-direction: column; align-items: center; }
+        #board { width: 340px; max-width: 95vw; margin: 15px 0; border: 4px solid #333; border-radius: 4px; overflow: hidden; }
+        .controls { width: 100%; max-width: 350px; display: flex; flex-direction: column; gap: 10px; }
+        .status-box { background: #eee; padding: 10px; border-radius: 8px; font-weight: bold; text-align: center; margin-bottom: 5px; min-height: 40px; border-left: 5px solid var(--primary-color); width: 100%; max-width: 350px; }
+        .instruction-box { background: #fff8e1; padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 10px; border: 1px solid #ffe082; color: #856404; width: 100%; max-width: 350px; font-weight: 500; font-size: 1.1rem; }
+        .highlight-move { background-color: rgba(0, 255, 0, 0.6) !important; }
+        .highlight-selected { background-color: rgba(255, 255, 0, 0.6) !important; }
+        .highlight-invalid { background-color: rgba(255, 0, 0, 0.6) !important; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-top">
+                <a href="ajedrez.html" class="material-icons back-icon">arrow_back</a>
+                <h1 class="app-title">Ajedrez Puzzles</h1>
+            </div>
+        </header>
+
+        <div id="splash" class="splash-screen">
+            <span class="material-icons" style="font-size: 60px; color: #ff9800; margin-bottom: 15px;">extension</span>
+            <h2>Niveles</h2>
+            <div id="levels-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 25px; max-height: 350px; overflow-y: auto; padding: 5px; width: 100%; max-width: 350px;">
+                <!-- Injected -->
+            </div>
+        </div>
+
+        <main class="game-area" id="main-game" style="display: none;">
+            <div id="instruction" class="instruction-box">Encuentra el mejor movimiento</div>
+            <div id="status" class="status-box">Nivel 1</div>
+            <div id="board"></div>
+            <div class="controls">
+                <button class="btn-premium" onclick="location.reload()" style="background: #eee; color: #333;">SALIR AL MENÚ</button>
+            </div>
+        </main>
+    </div>
+
+    <script src="../../lib/jquery.min.js"></script>
+    <script src="../../lib/chessboard.min.js"></script>
+    <script src="../../lib/chess.min.js"></script>
+    <script src="../../lib/supabase.js"></script>
+    <script src="../../js/config.js"></script>
+    <script src="../../js/auth.js"></script>
+    <script src="../../js/ui-manager.js"></script>
+    <script src="../../js/game-manager.js"></script>
+    <script>
+        GameManager.currentGame = 'chess_puzzles';
+        GameManager.setGame('chess_puzzles', true);
+
+        const grid = document.getElementById('levels-grid');
+        const unlocked = GameManager.getUnlockedLevel();
+        const completed = JSON.parse(localStorage.getItem(`completed_${Auth.currentUser?.username}_chess_puzzles`) || '[]');
+
+        for (let i = 1; i <= 50; i++) {
+            const isLocked = i > unlocked;
+            const isDone = completed.includes(i);
+            const btn = document.createElement('button');
+            btn.className = 'lvl-btn-mini';
+            btn.style.cssText = `padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: ${isLocked ? '#f5f5f5' : (isDone ? '#e8f5e9' : 'white')}; cursor: ${isLocked ? 'default' : 'pointer'}; position: relative; font-weight: bold; color: ${isLocked ? '#999' : '#333'}`;
+            btn.innerHTML = `${i}${isLocked ? '<span class="material-icons" style="font-size: 12px; position: absolute; top: 2px; right: 2px;">lock</span>' : ''}${isDone ? '<span class="material-icons" style="font-size: 12px; position: absolute; bottom: 2px; right: 2px; color: #4caf50;">star</span>' : ''}`;
+            if (!isLocked) btn.onclick = () => startLevel(i);
+            grid.appendChild(btn);
+        }
+
+        if (sessionStorage.getItem('autostart_chess_puzzles') === 'true') {
+            sessionStorage.removeItem('autostart_chess_puzzles');
+            startLevel(GameManager.currentLevel);
+        }
+
+        function startLevel(lvl) {
+            GameManager.currentLevel = lvl;
+            if (Auth.isLoggedIn()) {
+                localStorage.setItem(`level_${Auth.currentUser.username}_chess_puzzles`, lvl);
+            }
+            document.getElementById('splash').style.display = 'none';
+            document.getElementById('main-game').style.display = 'flex';
+            initPuzzle();
+        }
+
+        const puzzles = {
+            1: { fen: 'r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4', sol: 'Qxf7#', task: 'Mate en 1' },
+            2: { fen: '6k1/5ppp/8/8/8/8/8/4R1K1 w - - 0 1', sol: 'Re8#', task: 'Mate en 1' },
+            3: { fen: 'R7/8/8/8/8/8/5K1k/7r w - - 0 1', sol: 'Rh8#', task: 'Mate en 1' },
+            4: { fen: 'r1b1k1nr/pppp1ppp/2n5/2b1p3/2B1P2q/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 5', sol: 'Nxh4', task: 'Captura la Dama' },
+            5: { fen: '4R3/2p3pk/pp1p3p/5r2/P7/2P3QP/1P3PPK/4q3 w - - 4 31', sol: 'Qxe1', task: 'Captura la Dama' },
+            6: { fen: 'rnbqkbnr/pppp1ppp/8/4p3/5PP1/8/PPPPP2P/RNBQKBNR b KQkq g3 0 2', sol: 'Qh4#', task: 'Mate en 1' },
+            7: { fen: 'r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3', sol: 'Nxe4', task: 'Gana un Peón' },
+            8: { fen: 'rnbqk1nr/pppp1ppp/8/4p3/1b1PP3/8/PPP2PPP/RNBQKBNR w KQkq - 1 3', sol: 'c3', task: 'Defiende el Rey' },
+            9: { fen: 'r1bqk2r/pppp1ppp/2n2n2/4p3/2B1P3/2P2N2/PPP2PPP/R1BQK2R b KQkq - 0 5', sol: 'Nxe4', task: 'Gana un Peón' },
+            10: { fen: 'rnbqk1nr/ppp2ppp/3p4/4p3/1b1PP3/2P5/PP3PPP/RNBQKBNR w KQkq - 0 4', sol: 'cxb4', task: 'Gana una pieza' },
+            11: { fen: '5k2/5ppp/8/8/8/8/5R2/5RK1 w - - 0 1', sol: 'Rxf7+', task: 'Jaque' },
+            12: { fen: '1r4k1/5ppp/8/8/8/8/5PPP/1R4K1 w - - 0 1', sol: 'Rxb8#', task: 'Mate en 1' },
+            13: { fen: 'rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2', sol: 'd4', task: 'Mejor movimiento' },
+            14: { fen: 'rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2', sol: 'Nc6', task: 'Defiende el Peón' },
+            15: { fen: 'r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3', sol: 'a6', task: 'Mejor movimiento' },
+            16: { fen: 'r1bqkbnr/1ppp1ppp/p1n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 4', sol: 'Bxc6', task: 'Cambio de piezas' },
+            17: { fen: 'rnbqkb1r/pppp1ppp/5n2/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3', sol: 'Nxe5', task: 'Gana un Peón' },
+            18: { fen: 'rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2', sol: 'exd5', task: 'Mejor movimiento' },
+            19: { fen: 'rnbqkbnr/ppp2ppp/8/3pp3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 3', sol: 'Nxe5', task: 'Mejor movimiento' },
+            20: { fen: 'r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/5N2/PPPP1PPP/RNBQ1RK1 b KQkq - 5 4', sol: 'Nxe4', task: 'Mejor movimiento' },
+            21: { fen: 'rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4', sol: 'O-O', task: 'Enroque' },
+            22: { fen: 'rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/2P2N2/PPPP1PPP/RNBQK2R b KQkq - 0 4', sol: 'O-O', task: 'Enroque' },
+            23: { fen: 'r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2PP1N2/PP3PPP/RNBQK2R b KQkq - 0 5', sol: 'd6', task: 'Mejor movimiento' },
+            24: { fen: 'r1bqk2r/ppp2ppp/2np1n2/2b1p3/2B1P3/2PP1N2/PP3PPP/RNBQ1RK1 b KQkq - 0 6', sol: 'O-O', task: 'Enroque' },
+            25: { fen: 'r1bq1rk1/ppp2ppp/2np1n2/2b1p3/2B1P3/2PP1N2/PP1N1PPP/R1BQ1RK1 b - - 2 7', sol: 'a6', task: 'Mejor movimiento' },
+            26: { fen: 'r1bq1rk1/1pp2ppp/p1np1n2/2b1p3/2B1P3/2PP1N2/PP1N1PPP/R1BQ1RK1 w - - 0 8', sol: 'Bb3', task: 'Retirada' },
+            27: { fen: 'r1bq1rk1/1pp2ppp/p1np1n2/2b1p3/1B2P3/2PP1N2/PP1N1PPP/R2Q1RK1 w - - 0 8', sol: 'Bxc5', task: 'Mejor intercambio' },
+            28: { fen: 'r1bq1rk1/1pp2ppp/p1np1n2/1Bb1p3/4P3/2PP1N2/PP1N1PPP/R2Q1RK1 w - - 0 8', sol: 'Bxc6', task: 'Mejor intercambio' },
+            29: { fen: 'r1bq1rk1/1pp2ppp/p1Bp1n2/2b1p3/4P3/2PP1N2/PP1N1PPP/R2Q1RK1 b - - 0 8', sol: 'bxc6', task: 'Mejor intercambio' },
+            30: { fen: 'r1bq1rk1/2p2ppp/p1pp1n2/2b1p3/4P3/2PP1N2/PP1N1PPP/R2Q1RK1 w - - 0 9', sol: 'd4', task: 'Mejor movimiento' },
+            31: { fen: 'r1bq1rk1/2p2ppp/p1pp1n2/2b1p3/3PP3/2P2N2/PP1N1PPP/R2Q1RK1 b - - 0 9', sol: 'exd4', task: 'Mejor intercambio' },
+            32: { fen: 'r1bq1rk1/2p2ppp/p1pp1n2/2b5/3pP3/2P2N2/PP1N1PPP/R2Q1RK1 w - - 0 10', sol: 'cxd4', task: 'Mejor intercambio' },
+            33: { fen: 'r1bq1rk1/2p2ppp/p1pp1n2/8/3PP3/5N2/PP1N1PPP/R2Q1RK1 b - - 0 10', sol: 'Re8', task: 'Mejor movimiento' },
+            34: { fen: 'r1bq1rk1/2p2ppp/p1pp1n2/4b3/3PP3/5N2/PP1N1PPP/R2Q1RK1 w - - 1 11', sol: 'dxe5', task: 'Mejor intercambio' },
+            35: { fen: 'r1bq1rk1/2p2ppp/p1p2n2/4P3/8/5N2/PP1N1PPP/R2Q1RK1 b - - 0 11', sol: 'Nd5', task: 'Mejor movimiento' },
+            36: { fen: 'r1bq1rk1/2p2ppp/p1p2n2/3NP3/8/5N2/PP1N1PPP/R2Q1RK1 b - - 0 11', sol: 'cxd5', task: 'Mejor intercambio' },
+            37: { fen: 'r1bq1rk1/2p2ppp/p1p2n2/3pP3/8/5N2/PP1N1PPP/R2Q1RK1 b - - 0 11', sol: 'Ne4', task: 'Mejor movimiento' },
+            38: { fen: 'r1bq1rk1/2p2ppp/p1p2n2/3pP3/1b6/5N2/PP1N1PPP/R2Q1RK1 w - - 1 12', sol: 'exf6', task: 'Mejor intercambio' },
+            39: { fen: 'r1bq1rk1/2p2ppp/p1p2P2/3p4/1b6/5N2/PP1N1PPP/R2Q1RK1 b - - 0 12', sol: 'Qxf6', task: 'Mejor intercambio' },
+            40: { fen: 'r1bq1rk1/2p2ppp/p1p2q2/3p4/1b6/2N2N2/PP1N1PPP/R2Q1RK1 w - - 2 13', sol: 'Rc1', task: 'Mejor movimiento' },
+            41: { fen: '3rk2r/pp3ppp/2n5/2b1p3/4P1b1/2P2N2/PP3PPP/R1B1KB1R w KQk - 1 10', sol: 'Be2', task: 'Desarrollo' },
+            42: { fen: '3rk2r/pp3ppp/2n5/2b1p3/4P1b1/2P2N2/PP2BPPP/R1B1K2R b KQk - 2 10', sol: 'O-O', task: 'Enroque' },
+            43: { fen: '3r1rk1/pp3ppp/2n5/2b1p3/4P1b1/2P2N2/PP2BPPP/R1B2RK1 w - - 3 11', sol: 'h3', task: 'Pregunta al Alfil' },
+            44: { fen: '3r1rk1/pp3ppp/2n5/2b1p3/4P1b1/2P2N1P/PP2BPP1/R1B2RK1 b - - 0 11', sol: 'Bxf3', task: 'Intercambio' },
+            45: { fen: '3r1rk1/pp3ppp/2n5/2b1p3/4P3/2P2b1P/PP2BPP1/R1B2RK1 w - - 0 12', sol: 'Bxf3', task: 'Recupera pieza' },
+            46: { fen: '3r1rk1/pp3ppp/2n5/2b1p3/4P3/2P2B1P/PP3PP1/R1B2RK1 b - - 0 12', sol: 'Rd3', task: 'Domina la columna' },
+            47: { fen: '3r1rk1/pp3ppp/2n5/2b1p3/4P3/2PR1B1P/PP3PP1/R1B3K1 b - - 0 13', sol: 'Rxd3', task: 'Gana calidad' },
+            48: { fen: '2r2rk1/pp3ppp/2n5/2b1p3/4P3/2PR1B1P/PP3PP1/R1B3K1 w - - 1 14', sol: 'Be3', task: 'Mejor movimiento' },
+            49: { fen: '2r2rk1/pp3ppp/2n5/2b1p3/4P3/2PRBB1P/PP3PP1/R5K1 b - - 2 14', sol: 'Bxe3', task: 'Intercambio' },
+            50: { fen: '2r2rk1/pp3ppp/2n5/4p3/4P3/2PRRB1P/PP3PP1/R5K1 w - - 0 15', sol: 'Rxe3', task: 'Mejor captura' }
+        };
+
+        let board = null;
+        let game = new Chess();
+        let selectedSquare = null;
+        let currentPuzzle = null;
+
+        function initPuzzle() {
+            currentPuzzle = puzzles[GameManager.currentLevel];
+            if (!currentPuzzle) {
+                UIManager.alert('Fin', '¡Has completado todos los puzzles!', 'success');
+                return;
+            }
+
+            document.getElementById('instruction').innerText = currentPuzzle.task;
+            document.getElementById('status').innerText = 'Nivel ' + GameManager.currentLevel;
+
+            game.load(currentPuzzle.fen);
+            const orientation = game.turn() === 'b' ? 'black' : 'white';
+
+            if (board) board.destroy();
+            board = Chessboard('board', {
+                draggable: false,
+                position: currentPuzzle.fen,
+                orientation: orientation,
+                pieceTheme: '../../assets/chess/{piece}.png'
+            });
+
+            $('#board').off('click').on('click', '.square-55d63', function() {
+                const square = $(this).attr('data-square');
+                onSquareClick(square);
+            });
+
+            setTimeout(() => board.resize(), 300);
+        }
+
+        function removeHighlights() {
+            $('.square-55d63').removeClass('highlight-move highlight-selected highlight-invalid');
+        }
+
+        function onSquareClick(square) {
+            if (!square) return;
+            const piece = game.get(square);
+
+            if (selectedSquare) {
+                if (selectedSquare === square) {
+                    selectedSquare = null;
+                    removeHighlights();
+                    return;
+                }
+
+                // Check if move is legal
+                const moveAttempt = {
+                    from: selectedSquare,
+                    to: square,
+                    promotion: 'q'
+                };
+
+                const move = game.move(moveAttempt);
+
+                if (move) {
+                    board.position(game.fen());
+
+                    // Validate against solution
+                    // We can check if SAN or UCI matches. Using SAN for simplicity.
+                    const sanMove = move.san;
+                    const uciMove = move.from + move.to;
+
+                    if (sanMove === currentPuzzle.sol || uciMove === currentPuzzle.sol) {
+                        selectedSquare = null;
+                        removeHighlights();
+                        setTimeout(() => {
+                            GameManager.showResult('win', '¡Movimiento Correcto!');
+                        }, 500);
+                    } else {
+                        // Wrong move for the puzzle
+                        game.undo();
+                        board.position(game.fen());
+                        $('.square-' + square).addClass('highlight-invalid');
+                        setTimeout(() => {
+                            $('.square-' + square).removeClass('highlight-invalid');
+                            removeHighlights();
+                            selectedSquare = null;
+                        }, 500);
+                        GameManager.loseLife();
+                    }
+                } else {
+                    // Illegal move
+                    if (!piece || piece.color !== game.turn()) {
+                        $('.square-' + square).addClass('highlight-invalid');
+                        setTimeout(() => $('.square-' + square).removeClass('highlight-invalid'), 500);
+                    } else {
+                        // Select other piece
+                        selectPiece(square);
+                    }
+                }
+            } else if (piece && piece.color === game.turn()) {
+                selectPiece(square);
+            }
+        }
+
+        function selectPiece(square) {
+            selectedSquare = square;
+            removeHighlights();
+            $('.square-' + square).addClass('highlight-selected');
+            const moves = game.moves({ square: square, verbose: true });
+            moves.forEach(m => $('.square-' + m.to).addClass('highlight-move'));
+        }
+    </script>
+</body>
+</html>
