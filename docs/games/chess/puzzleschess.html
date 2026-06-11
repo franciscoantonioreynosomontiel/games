@@ -20,14 +20,21 @@
         .highlight-selected { background-color: rgba(255, 255, 0, 0.5) !important; }
         .highlight-invalid { background-color: rgba(255, 0, 0, 0.5) !important; }
         .highlight-check { box-shadow: inset 0 0 5px 5px red !important; }
+        .highlight-target { background-color: rgba(255, 0, 0, 0.4) !important; border: 4px solid #f44336 !important; }
 
-        /* Cropping classes */
-        .crop-6x6 .square-55d63[data-square^="g"], .crop-6x6 .square-55d63[data-square^="h"],
-        .crop-6x6 .square-55d63[data-square$="7"], .crop-6x6 .square-55d63[data-square$="8"] { display: none !important; }
-        .crop-4x4 .square-55d63[data-square^="e"], .crop-4x4 .square-55d63[data-square^="f"],
-        .crop-4x4 .square-55d63[data-square^="g"], .crop-4x4 .square-55d63[data-square^="h"],
-        .crop-4x4 .square-55d63[data-square$="5"], .crop-4x4 .square-55d63[data-square$="6"],
-        .crop-4x4 .square-55d63[data-square$="7"], .crop-4x4 .square-55d63[data-square$="8"] { display: none !important; }
+        /* Cropping classes - using data-square attributes to hide unwanted columns/rows */
+        /* 3x3 (a1-c3) */
+        .crop-3x3 .square-55d63:not([data-square^="a"]):not([data-square^="b"]):not([data-square^="c"]),
+        .crop-3x3 .square-55d63:not([data-square$="1"]):not([data-square$="2"]):not([data-square$="3"]) { display: none !important; }
+        /* 4x4 (a1-d4) */
+        .crop-4x4 .square-55d63:not([data-square^="a"]):not([data-square^="b"]):not([data-square^="c"]):not([data-square^="d"]),
+        .crop-4x4 .square-55d63:not([data-square$="1"]):not([data-square$="2"]):not([data-square$="3"]):not([data-square$="4"]) { display: none !important; }
+        /* 5x5 (a1-e5) */
+        .crop-5x5 .square-55d63:not([data-square^="a"]):not([data-square^="b"]):not([data-square^="c"]):not([data-square^="d"]):not([data-square^="e"]),
+        .crop-5x5 .square-55d63:not([data-square$="1"]):not([data-square$="2"]):not([data-square$="3"]):not([data-square$="4"]):not([data-square$="5"]) { display: none !important; }
+        /* 6x6 (a1-f6) */
+        .crop-6x6 .square-55d63:not([data-square^="a"]):not([data-square^="b"]):not([data-square^="c"]):not([data-square^="d"]):not([data-square^="e"]):not([data-square^="f"]),
+        .crop-6x6 .square-55d63:not([data-square$="1"]):not([data-square$="2"]):not([data-square$="3"]):not([data-square$="4"]):not([data-square$="5"]):not([data-square$="6"]) { display: none !important; }
     </style>
 </head>
 <body>
@@ -108,361 +115,401 @@
 
         const puzzles = {
           "1": {
-                    "type": "mate",
-                    "fen": "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4",
-                    "sol": "Qxf7#",
-                    "task": "¡Mate en 1!"
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/8/P7/4K3 w - - 0 1",
+                    "target": "a3",
+                    "task": "Laberinto: Lleva el Peón a a3",
+                    "crop": "3x3",
+                    "turn": "w"
           },
           "2": {
-                    "type": "mate",
-                    "fen": "6k1/5ppp/8/8/8/8/8/4R1K1 w - - 0 1",
-                    "sol": "Re8#",
-                    "task": "¡Mate en 1!"
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/2B5/8/4K3 w - - 0 1",
+                    "target": "a1",
+                    "task": "Misión: Alfil a la esquina roja",
+                    "crop": "4x4",
+                    "turn": "w"
           },
           "3": {
-                    "type": "match",
-                    "fen": "8/8/8/8/8/8/5K2/4R2k w - - 0 1",
-                    "goal": "8/8/8/8/8/8/5K1k/7R",
-                    "task": "Lleva al Rey Negro a h2 y tu Torre a h1",
+                    "type": "reach",
+                    "fen": "8/8/8/8/2N5/8/8/4K3 w - - 0 1",
+                    "target": "a1",
+                    "task": "Salto: Caballo al cuadro rojo",
+                    "crop": "4x4",
                     "turn": "w"
           },
           "4": {
                     "type": "match",
-                    "fen": "4k3/8/8/8/8/8/8/4K3 w - - 0 1",
-                    "goal": "8/8/8/8/8/8/5K2/6k1",
-                    "task": "Lleva tu Rey a f2 y el Rey Negro a g1",
+                    "fen": "8/8/8/8/8/8/P1P5/4K3 w - - 0 1",
+                    "goal": "8/8/8/8/8/P1P5/8/4K3",
+                    "task": "Pareja: Sube ambos peones un nivel",
+                    "crop": "3x3",
                     "turn": "w"
           },
           "5": {
-                    "type": "match",
-                    "fen": "4k3/8/8/8/8/8/8/R3K2R w KQkq - 0 1",
-                    "goal": "4k3/8/8/8/8/8/8/2KR3R",
-                    "task": "Realiza el Enroque largo (mueve el Rey a c1)",
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/8/R7/4K3 w - - 0 1",
+                    "target": "a4",
+                    "task": "Torre: Alcanza el sector rojo",
+                    "crop": "4x4",
                     "turn": "w"
           },
           "6": {
-                    "type": "mate",
-                    "fen": "rnbqkbnr/pppp1ppp/8/4p3/5PP1/8/PPPPP2P/RNBQKBNR b KQkq g3 0 2",
-                    "sol": "Qh4#",
-                    "task": "¡Mate en 1!"
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/8/Q7/4K3 w - - 0 1",
+                    "target": "c3",
+                    "task": "Reina: Posición estratégica en c3",
+                    "crop": "3x3",
+                    "turn": "w"
           },
           "7": {
                     "type": "match",
-                    "fen": "8/8/8/8/2B5/8/8/4K3 w - - 0 1",
-                    "goal": "8/8/8/8/8/2B5/8/4K3",
-                    "task": "Mueve el Alfil a c3",
-                    "crop": "4x4",
+                    "fen": "8/8/8/8/8/8/R1B5/4K3 w - - 0 1",
+                    "goal": "8/8/8/8/8/B1R5/8/4K3",
+                    "task": "Intercambio: Cruza la Torre y el Alfil",
+                    "crop": "3x3",
                     "turn": "w"
           },
           "8": {
-                    "type": "match",
-                    "fen": "8/8/8/8/8/8/P7/4K3 w - - 0 1",
-                    "goal": "8/8/8/8/P7/8/8/4K3",
-                    "task": "Avanza el Peón a a4",
-                    "crop": "4x4",
-                    "turn": "w"
+                    "type": "mate",
+                    "fen": "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4",
+                    "sol": "Qxf7#",
+                    "task": "Clásico: ¡Mate en 1!"
           },
           "9": {
-                    "type": "match",
-                    "fen": "8/8/8/8/2N5/8/8/4K3 w - - 0 1",
-                    "goal": "8/8/8/2N5/8/8/8/4K3",
-                    "task": "Mueve el Caballo a c5",
-                    "crop": "6x6",
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/1P6/8/4K3 w - - 0 1",
+                    "target": "b4",
+                    "task": "Escalada: Peón a b4",
+                    "crop": "4x4",
                     "turn": "w"
           },
           "10": {
                     "type": "match",
-                    "fen": "8/8/8/8/8/8/1P6/4K3 w - - 0 1",
-                    "goal": "8/8/8/8/8/1P6/8/4K3",
-                    "task": "Avanza el Peón a b3",
+                    "fen": "8/8/8/8/8/8/B1B5/4K3 w - - 0 1",
+                    "goal": "8/8/8/8/B1B5/8/8/4K3",
+                    "task": "Simetría: Alfiles a la fila 4",
                     "crop": "4x4",
                     "turn": "w"
           },
           "11": {
-                    "type": "match",
-                    "fen": "8/8/8/8/8/8/R7/4K3 w - - 0 1",
-                    "goal": "8/8/8/R7/8/8/8/4K3",
-                    "task": "Mueve la Torre a a5",
-                    "crop": "6x6",
+                    "type": "reach",
+                    "fen": "8/8/8/8/2N5/8/8/4K3 w - - 0 1",
+                    "target": "d2",
+                    "task": "Aterrizaje: Caballo a d2",
+                    "crop": "4x4",
                     "turn": "w"
           },
           "12": {
                     "type": "match",
-                    "fen": "4k3/8/8/8/8/8/P1P1P1P1/4K3 w - - 0 1",
-                    "goal": "4k3/8/8/8/8/P1P1P1P1/8/4K3",
-                    "task": "Avanza todos los peones una casilla",
+                    "fen": "8/8/8/8/8/8/P1P1P1P1/4K3 w - - 0 1",
+                    "goal": "8/8/8/8/8/P1P1P1P1/8/4K3",
+                    "task": "Formación: Peones a fila 3",
+                    "crop": "4x4",
                     "turn": "w"
           },
           "13": {
-                    "type": "match",
-                    "fen": "4k3/8/8/8/8/2N5/8/4K3 w - - 0 1",
-                    "goal": "4k3/8/8/1N6/8/8/8/4K3",
-                    "task": "Mueve el Caballo en L a b5",
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/2R5/8/4K3 w - - 0 1",
+                    "target": "c2",
+                    "task": "Guardia: Torre a c2",
+                    "crop": "4x4",
                     "turn": "w"
           },
           "14": {
                     "type": "match",
-                    "fen": "4k3/8/8/8/8/8/7P/4K3 w - - 0 1",
-                    "goal": "4k3/8/8/8/7P/8/8/4K3",
-                    "task": "Lleva el Peón a h4",
+                    "fen": "8/8/8/8/8/8/2N1N3/4K3 w - - 0 1",
+                    "goal": "8/8/8/2N1N3/8/8/8/4K3",
+                    "task": "Asalto: Caballos al frente",
                     "crop": "6x6",
                     "turn": "w"
           },
           "15": {
-                    "type": "match",
-                    "fen": "k7/8/8/8/8/8/8/7K w - - 0 1",
-                    "goal": "8/8/8/8/4K3/4k3/8/8",
-                    "task": "Encuentra los Reyes en el centro (e4 y e3)",
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/8/3Q4/4K3 w - - 0 1",
+                    "target": "b4",
+                    "task": "Vuelo: Reina a b4",
+                    "crop": "4x4",
                     "turn": "w"
           },
           "16": {
                     "type": "match",
-                    "fen": "8/8/8/8/8/8/3P4/4K3 w - - 0 1",
-                    "goal": "8/8/8/8/8/3P4/8/4K3",
-                    "task": "Avanza el peón a d3",
+                    "fen": "8/8/8/8/8/2B1B3/8/4K3 w - - 0 1",
+                    "goal": "8/8/8/2B1B3/8/8/8/4K3",
+                    "task": "Alineación: Alfiles en fila 6",
+                    "crop": "6x6",
                     "turn": "w"
           },
           "17": {
-                    "type": "match",
-                    "fen": "8/8/8/8/8/8/4P3/4K3 w - - 0 1",
-                    "goal": "8/8/8/8/8/4P3/8/4K3",
-                    "task": "Avanza el Peón a e3",
-                    "crop": "4x4",
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/8/P7/4K3 w - - 0 1",
+                    "target": "b3",
+                    "task": "Invasión: Peón cruza a b3",
+                    "crop": "3x3",
                     "turn": "w"
           },
           "18": {
                     "type": "match",
-                    "fen": "8/8/8/8/8/8/PPPP4/4K3 w - - 0 1",
-                    "goal": "8/8/8/8/PPPP4/8/8/4K3",
-                    "task": "Forma una barrera de peones en la fila 4",
+                    "fen": "8/8/8/8/8/8/1R1R4/4K3 w - - 0 1",
+                    "goal": "8/8/8/1R1R4/8/8/8/4K3",
+                    "task": "Columnas: Torres a fila 5",
+                    "crop": "5x5",
                     "turn": "w"
           },
           "19": {
-                    "type": "match",
-                    "fen": "8/8/8/8/8/8/4Q3/4K3 w - - 0 1",
-                    "goal": "4Q3/8/8/8/8/8/8/4K3",
-                    "task": "Mueve la Reina a e8",
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/8/2N5/4K3 w - - 0 1",
+                    "target": "d4",
+                    "task": "Trote: Caballo a d4",
+                    "crop": "4x4",
                     "turn": "w"
           },
           "20": {
-                    "type": "match",
-                    "fen": "k7/8/8/3B4/8/8/8/K7 w - - 0 1",
-                    "goal": "k7/7B/8/8/8/8/8/K7",
-                    "task": "Mueve el Alfil a la esquina h7",
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/8/1B6/4K3 w - - 0 1",
+                    "target": "c3",
+                    "task": "Diagonal: Alfil a c3",
+                    "crop": "3x3",
                     "turn": "w"
           },
           "21": {
-                    "type": "match",
-                    "fen": "4k3/8/8/8/8/8/8/4K2R w K - 0 1",
-                    "goal": "4k3/8/8/8/8/8/8/5RK1",
-                    "task": "¡Enroque corto! (mueve el Rey a g1)",
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/8/Q7/4K3 w - - 0 1",
+                    "target": "b2",
+                    "task": "Centro: Reina a b2",
+                    "crop": "3x3",
                     "turn": "w"
           },
           "22": {
                     "type": "match",
-                    "fen": "4k3/8/8/8/4N3/8/8/4K3 w - - 0 1",
-                    "goal": "4k3/8/8/5N2/8/8/8/4K3",
-                    "task": "Mueve el Caballo a f5",
-                    "crop": "6x6",
-                    "turn": "w"
-          },
-          "23": {
-                    "type": "match",
-                    "fen": "4k3/8/8/8/8/8/1P6/4K3 w - - 0 1",
-                    "goal": "4k3/8/8/8/1P6/8/8/4K3",
-                    "task": "Avanza el peón a b4",
+                    "fen": "8/8/8/8/8/8/PP6/4K3 w - - 0 1",
+                    "goal": "8/8/8/8/PP6/8/8/4K3",
+                    "task": "Barrera: Peones en fila 4",
                     "crop": "4x4",
                     "turn": "w"
           },
+          "23": {
+                    "type": "reach",
+                    "fen": "8/8/8/8/2R5/8/8/4K3 w - - 0 1",
+                    "target": "a4",
+                    "task": "Patrulla: Torre a a4",
+                    "crop": "5x5",
+                    "turn": "w"
+          },
           "24": {
-                    "type": "match",
-                    "fen": "4k3/8/8/8/8/2B5/8/4K3 w - - 0 1",
-                    "goal": "4k3/8/8/5B2/8/8/8/4K3",
-                    "task": "Mueve el Alfil a f5",
-                    "crop": "6x6",
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/3N4/8/4K3 w - - 0 1",
+                    "target": "e4",
+                    "task": "Galope: Caballo a e4",
+                    "crop": "5x5",
                     "turn": "w"
           },
           "25": {
-                    "type": "match",
-                    "fen": "4k3/8/8/8/8/3R4/8/4K3 w - - 0 1",
-                    "goal": "4k3/8/8/8/8/7R/8/4K3",
-                    "task": "Mueve la Torre a h3",
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/1B6/8/4K3 w - - 0 1",
+                    "target": "d4",
+                    "task": "Observatorio: Alfil a d4",
+                    "crop": "4x4",
                     "turn": "w"
           },
           "26": {
-                    "type": "match",
-                    "fen": "4k3/8/8/8/8/3Q4/8/4K3 w - - 0 1",
-                    "goal": "4k3/3Q4/8/8/8/8/8/4K3",
-                    "task": "Mueve la Reina a d7",
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/8/4P3/4K3 w - - 0 1",
+                    "target": "e4",
+                    "task": "Avance: Peón a e4",
+                    "crop": "5x5",
                     "turn": "w"
           },
           "27": {
-                    "type": "match",
-                    "fen": "4k3/8/8/8/8/8/8/R3K3 w Q - 0 1",
-                    "goal": "4k3/8/8/8/8/8/8/2KR4",
-                    "task": "¡Enroque largo! (mueve el Rey a c1)",
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/8/1Q6/4K3 w - - 0 1",
+                    "target": "c4",
+                    "task": "Dominio: Reina a c4",
+                    "crop": "4x4",
                     "turn": "w"
           },
           "28": {
                     "type": "match",
-                    "fen": "4k3/8/8/8/4N3/8/8/4K3 w - - 0 1",
-                    "goal": "4k3/8/6N1/8/8/8/8/4K3",
-                    "task": "Mueve el Caballo a g6",
+                    "fen": "8/8/8/8/8/8/RR6/4K3 w - - 0 1",
+                    "goal": "8/8/8/8/RR6/8/8/4K3",
+                    "task": "Dúo: Torres en fila 4",
+                    "crop": "4x4",
                     "turn": "w"
           },
           "29": {
                     "type": "match",
-                    "fen": "8/8/8/8/8/8/4P3/4K3 w - - 0 1",
-                    "goal": "8/8/8/8/4P3/8/8/4K3",
-                    "task": "Mueve el Peón a e4",
+                    "fen": "8/8/8/8/8/8/NN6/4K3 w - - 0 1",
+                    "goal": "8/8/8/8/NN6/8/8/4K3",
+                    "task": "Escuadrón: Caballos en fila 4",
                     "crop": "4x4",
                     "turn": "w"
           },
           "30": {
                     "type": "match",
-                    "fen": "4k3/8/8/8/8/3B4/8/4K3 w - - 0 1",
-                    "goal": "4k3/8/8/8/8/8/5B2/4K3",
-                    "task": "Mueve el Alfil a f2",
+                    "fen": "8/8/8/8/8/8/BB6/4K3 w - - 0 1",
+                    "goal": "8/8/8/8/BB6/8/8/4K3",
+                    "task": "Elegancia: Alfiles en fila 4",
+                    "crop": "4x4",
                     "turn": "w"
           },
           "31": {
-                    "type": "match",
-                    "fen": "8/8/8/8/8/8/1P1P1P1P/4K3 w - - 0 1",
-                    "goal": "8/8/8/8/1P1P1P1P/8/8/4K3",
-                    "task": "Avanza la barrera de peones a la fila 4",
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/8/P7/4K3 w - - 0 1",
+                    "target": "a2",
+                    "task": "Sigilo: Peón a a2",
+                    "crop": "3x3",
                     "turn": "w"
           },
           "32": {
-                    "type": "match",
-                    "fen": "4k3/8/8/8/8/8/2R5/4K3 w - - 0 1",
-                    "goal": "4k3/2R5/8/8/8/8/8/4K3",
-                    "task": "Mueve la Torre a c7",
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/8/R7/4K3 w - - 0 1",
+                    "target": "b1",
+                    "task": "Ancla: Torre a b1",
+                    "crop": "3x3",
                     "turn": "w"
           },
           "33": {
-                    "type": "match",
-                    "fen": "4k3/8/8/8/8/4B3/8/4K3 w - - 0 1",
-                    "goal": "4k3/1B6/8/8/8/8/8/4K3",
-                    "task": "Mueve el Alfil a b7",
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/8/N7/4K3 w - - 0 1",
+                    "target": "c2",
+                    "task": "Ágil: Caballo a c2",
+                    "crop": "3x3",
                     "turn": "w"
           },
           "34": {
-                    "type": "match",
-                    "fen": "4k3/8/8/8/3N4/8/8/4K3 w - - 0 1",
-                    "goal": "4k3/8/8/1N6/8/8/8/4K3",
-                    "task": "Mueve el Caballo a b5",
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/8/B7/4K3 w - - 0 1",
+                    "target": "c3",
+                    "task": "Visión: Alfil a c3",
+                    "crop": "3x3",
                     "turn": "w"
           },
           "35": {
-                    "type": "match",
-                    "fen": "4k3/8/8/8/8/8/3P4/4K3 w - - 0 1",
-                    "goal": "4k3/3P4/8/8/8/8/8/4K3",
-                    "task": "Avanza el peón a d7",
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/8/Q7/4K3 w - - 0 1",
+                    "target": "a3",
+                    "task": "Poder: Reina a a3",
+                    "crop": "3x3",
                     "turn": "w"
           },
           "36": {
-                    "type": "match",
-                    "fen": "4k3/8/8/8/8/3R4/8/4K3 w - - 0 1",
-                    "goal": "4k3/3R4/8/8/8/8/8/4K3",
-                    "task": "Lleva la Torre a d8",
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/8/4P3/4K3 w - - 0 1",
+                    "target": "e3",
+                    "task": "Empuje: Peón a e3",
+                    "crop": "5x5",
                     "turn": "w"
           },
           "37": {
-                    "type": "match",
-                    "fen": "4k3/8/8/8/4N3/8/8/4K3 w - - 0 1",
-                    "goal": "4k3/8/8/8/2N5/8/8/4K3",
-                    "task": "Mueve el Caballo a c4",
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/8/5R2/4K3 w - - 0 1",
+                    "target": "f4",
+                    "task": "Horizonte: Torre a f4",
+                    "crop": "6x6",
                     "turn": "w"
           },
           "38": {
-                    "type": "match",
-                    "fen": "4k3/8/8/8/8/3B4/8/4K3 w - - 0 1",
-                    "goal": "4k3/8/8/5B2/8/8/8/4K3",
-                    "task": "Mueve el Alfil a f5",
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/8/5N2/4K3 w - - 0 1",
+                    "target": "d4",
+                    "task": "Salto Largo: Caballo a d4",
+                    "crop": "6x6",
                     "turn": "w"
           },
           "39": {
-                    "type": "match",
-                    "fen": "4k3/8/8/8/8/8/6P1/4K3 w - - 0 1",
-                    "goal": "4k3/8/8/8/6P1/8/8/4K3",
-                    "task": "Avanza el peón a g4",
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/8/5B2/4K3 w - - 0 1",
+                    "target": "b6",
+                    "task": "Distancia: Alfil a b6",
+                    "crop": "6x6",
                     "turn": "w"
           },
           "40": {
-                    "type": "match",
-                    "fen": "4k3/8/8/8/8/8/2Q5/4K3 w - - 0 1",
-                    "goal": "4k3/8/8/2Q5/8/8/8/4K3",
-                    "task": "Mueve la Reina a c5",
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/8/5Q2/4K3 w - - 0 1",
+                    "target": "f1",
+                    "task": "Retorno: Reina a f1",
+                    "crop": "6x6",
                     "turn": "w"
           },
           "41": {
-                    "type": "match",
-                    "fen": "4k3/8/8/8/8/8/8/R3K3 w Q - 0 1",
-                    "goal": "4k3/8/8/8/8/8/8/2KR4",
-                    "task": "¡Enroque largo!",
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/8/P7/4K3 w - - 0 1",
+                    "target": "a3",
+                    "task": "Paso 1: Peón a a3",
+                    "crop": "3x3",
                     "turn": "w"
           },
           "42": {
-                    "type": "match",
-                    "fen": "4k3/8/8/8/4B3/8/8/4K3 w - - 0 1",
-                    "goal": "4k3/8/8/8/1B6/8/8/4K3",
-                    "task": "Mueve el Alfil a b4",
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/8/R7/4K3 w - - 0 1",
+                    "target": "c1",
+                    "task": "Paso 2: Torre a c1",
+                    "crop": "3x3",
                     "turn": "w"
           },
           "43": {
-                    "type": "match",
-                    "fen": "4k3/8/8/8/8/3N4/8/4K3 w - - 0 1",
-                    "goal": "4k3/8/8/5N2/8/8/8/4K3",
-                    "task": "Mueve el Caballo a f5",
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/8/N7/4K3 w - - 0 1",
+                    "target": "b3",
+                    "task": "Paso 3: Caballo a b3",
+                    "crop": "3x3",
                     "turn": "w"
           },
           "44": {
-                    "type": "match",
-                    "fen": "4k3/8/8/8/8/8/5P2/4K3 w - - 0 1",
-                    "goal": "4k3/8/8/8/5P2/8/8/4K3",
-                    "task": "Avanza el peón a f4",
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/8/B7/4K3 w - - 0 1",
+                    "target": "b2",
+                    "task": "Paso 4: Alfil a b2",
+                    "crop": "3x3",
                     "turn": "w"
           },
           "45": {
-                    "type": "match",
-                    "fen": "4k3/8/8/8/8/8/R7/4K3 w - - 0 1",
-                    "goal": "4k3/8/8/8/8/R7/8/4K3",
-                    "task": "Mueve la Torre a a3",
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/8/Q7/4K3 w - - 0 1",
+                    "target": "c2",
+                    "task": "Paso 5: Reina a c2",
+                    "crop": "3x3",
                     "turn": "w"
           },
           "46": {
                     "type": "match",
-                    "fen": "4k3/8/8/8/8/3Q4/8/4K3 w - - 0 1",
-                    "goal": "4k3/3Q4/8/8/8/8/8/4K3",
-                    "task": "Mueve la Reina a d8",
+                    "fen": "8/8/8/8/8/8/PP6/4K3 w - - 0 1",
+                    "goal": "8/8/8/8/8/PP6/8/4K3",
+                    "task": "Muro: Peones en fila 2",
+                    "crop": "3x3",
                     "turn": "w"
           },
           "47": {
                     "type": "match",
-                    "fen": "4k3/8/8/8/4N3/8/8/4K3 w - - 0 1",
-                    "goal": "4k3/8/8/8/6N1/8/8/4K3",
-                    "task": "Mueve el Caballo a g4",
+                    "fen": "8/8/8/8/8/8/RR6/4K3 w - - 0 1",
+                    "goal": "8/8/8/8/8/RR6/8/4K3",
+                    "task": "Base: Torres en fila 2",
+                    "crop": "3x3",
                     "turn": "w"
           },
           "48": {
                     "type": "match",
-                    "fen": "4k3/8/8/8/8/3B4/8/4K3 w - - 0 1",
-                    "goal": "4k3/B7/8/8/8/8/8/4K3",
-                    "task": "Mueve el Alfil a a7",
+                    "fen": "8/8/8/8/8/8/NN6/4K3 w - - 0 1",
+                    "goal": "8/8/8/8/8/NN6/8/4K3",
+                    "task": "Establo: Caballos en fila 2",
+                    "crop": "3x3",
                     "turn": "w"
           },
           "49": {
                     "type": "match",
-                    "fen": "4k3/8/8/8/8/8/4P3/4K3 w - - 0 1",
-                    "goal": "4k3/8/8/8/4P3/8/8/4K3",
-                    "task": "Avanza el peón a e4",
+                    "fen": "8/8/8/8/8/8/BB6/4K3 w - - 0 1",
+                    "goal": "8/8/8/8/8/BB6/8/4K3",
+                    "task": "Templo: Alfiles en fila 2",
+                    "crop": "3x3",
                     "turn": "w"
           },
           "50": {
-                    "type": "match",
-                    "fen": "4k3/8/8/8/8/3Q4/8/4K3 w - - 0 1",
-                    "goal": "4k3/8/8/8/8/8/8/3QK3",
-                    "task": "Lleva la Reina al lado del Rey en d1",
+                    "type": "reach",
+                    "fen": "8/8/8/8/8/8/Q7/4K3 w - - 0 1",
+                    "target": "a1",
+                    "task": "Final Absoluto: Reina a la esquina roja",
+                    "crop": "3x3",
                     "turn": "w"
           }
 };
@@ -522,12 +569,22 @@
                     onSquareClick(square);
                 });
 
-                setTimeout(() => board.resize(), 200);
+                setTimeout(() => {
+                    board.resize();
+                    highlightTargetSquare();
+                }, 200);
             });
+        }
+
+        function highlightTargetSquare() {
+            if (currentPuzzle.type === 'reach' && currentPuzzle.target) {
+                $(`.square-${currentPuzzle.target}`).addClass('highlight-target');
+            }
         }
 
         function removeHighlights() {
             $('.square-55d63').removeClass('highlight-move highlight-selected highlight-invalid highlight-check');
+            highlightTargetSquare();
         }
 
         function onSquareClick(square) {
@@ -565,7 +622,9 @@
                     movesMade++;
                     board.position(game.fen());
 
-                    if (move.san === currentPuzzle.sol || (move.from + move.to) === currentPuzzle.sol || (move.from + move.to + 'q') === currentPuzzle.sol) {
+                    if (currentPuzzle.type === 'reach') {
+                        checkReachWin(square);
+                    } else if (move.san === currentPuzzle.sol || (move.from + move.to) === currentPuzzle.sol || (move.from + move.to + 'q') === currentPuzzle.sol) {
                         selectedSquare = null;
                         removeHighlights();
                         setTimeout(() => {
@@ -617,8 +676,6 @@
         }
 
         function checkMatchWin() {
-            // Simplified position check for match puzzles
-            // Current FEN vs Goal FEN pieces part
             const currentPieces = game.fen().split(' ')[0];
             const goalPieces = currentPuzzle.goal.split(' ')[0];
 
@@ -626,7 +683,17 @@
                 selectedSquare = null;
                 removeHighlights();
                 setTimeout(() => {
-                    GameManager.showResult('win', '¡Posición Igualada!');
+                    GameManager.showResult('win', '¡Completado!');
+                }, 500);
+            }
+        }
+
+        function checkReachWin(square) {
+            if (currentPuzzle.type === 'reach' && square === currentPuzzle.target) {
+                selectedSquare = null;
+                removeHighlights();
+                setTimeout(() => {
+                    GameManager.showResult('win', '¡Objetivo alcanzado!');
                 }, 500);
             }
         }
