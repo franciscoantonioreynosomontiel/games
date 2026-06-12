@@ -110,387 +110,387 @@
         }
 
         const puzzles = {
-          "1": {
-                    "type": "match",
-                    "fen": "8/8/8/8/8/8/8/N1B2K2 w - - 0 1",
-                    "goal": "8/8/8/8/8/8/8/B1N2K2",
-                    "task": "Laberinto I: El Gran Intercambio",
-                    "crop": "3x3",
-                    "best": 14
-          },
-          "2": {
-                    "type": "match",
-                    "fen": "8/8/8/8/8/8/8/N1N2K2 w - - 0 1",
-                    "goal": "8/8/8/8/8/N1N5/8/4K3",
-                    "task": "Laberinto II: Caballos al fondo",
-                    "crop": "3x3",
-                    "best": 12
-          },
-          "3": {
-                    "type": "match",
-                    "fen": "8/8/8/8/8/8/8/NRB2K2 w - - 0 1",
-                    "goal": "8/8/8/8/8/8/8/BRN2K2",
-                    "task": "Laberinto III: Rotación de Élite",
-                    "crop": "3x3",
-                    "best": 25
-          },
-          "4": {
-                    "type": "match",
-                    "fen": "8/8/8/8/8/8/8/RNBQ1K2 w - - 0 1",
-                    "goal": "8/8/8/8/RNBQ4/8/8/4K3",
-                    "task": "Laberinto IV: Ascenso en bloque",
-                    "crop": "4x4",
-                    "best": 30
-          },
-          "5": {
-                    "type": "match",
-                    "fen": "8/8/8/8/8/N1N5/8/B1B2K2 w - - 0 1",
-                    "goal": "8/8/8/8/8/B1B5/8/N1N2K2",
-                    "task": "Laberinto V: Intercambio cruzado",
-                    "crop": "3x3",
-                    "best": 35
-          },
-          "6": {
-                    "type": "match",
-                    "fen": "8/8/8/8/8/8/8/N1N1K3 w - - 0 1",
-                    "goal": "8/8/8/8/2N2N2/8/8/4K3",
-                    "task": "Laberinto VI: Galope sincronizado",
-                    "crop": "4x4",
-                    "best": 28
-          },
-          "7": {
-                    "type": "match",
-                    "fen": "8/8/8/8/8/8/8/RNBRN1K1 w - - 0 1",
-                    "goal": "8/8/8/8/RNBRN3/8/8/4K3",
-                    "task": "Laberinto VII: Formación avanzada",
-                    "crop": "4x4",
-                    "best": 45
-          },
-          "8": {
-                    "type": "match",
-                    "fen": "8/8/8/8/8/8/8/NRBN2K1 w - - 0 1",
-                    "goal": "8/8/8/8/8/NRBN4/8/4K3",
-                    "task": "Laberinto VIII: El Nudo 3x3",
-                    "crop": "3x3",
-                    "best": 50
-          },
-          "9": {
-                    "type": "match",
-                    "fen": "8/8/8/8/8/8/8/BB2K3 w - - 0 1",
-                    "goal": "8/8/8/8/BB6/8/8/4K3",
-                    "task": "Laberinto IX: Alfiles paralelos",
-                    "crop": "5x5",
-                    "best": 35
-          },
-          "10": {
-                    "type": "match",
-                    "fen": "8/8/8/8/8/8/8/RNBQK3 w - - 0 1",
-                    "goal": "8/8/8/8/RNBQK3/8/8/8",
-                    "task": "Laberinto X: Despliegue total",
-                    "crop": "4x4",
-                    "best": 60
-          },
-          "11": {
-                    "type": "hunt",
-                    "fen": "8/8/8/8/3p4/2p1p3/3p4/4R1K1 w - - 0 1",
-                    "task": "Cacería I: Limpia el camino",
-                    "crop": "5x5",
-                    "best": 5
-          },
-          "12": {
-                    "type": "hunt",
-                    "fen": "8/8/8/2n2n2/8/3R4/8/4K3 w - - 0 1",
-                    "task": "Cacería II: Doble salto",
-                    "crop": "6x6",
-                    "best": 3
-          },
-          "13": {
-                    "type": "hunt",
-                    "fen": "8/8/3bb3/8/3Q4/8/8/4K3 w - - 0 1",
-                    "task": "Cacería III: Reina implacable",
-                    "crop": "6x6",
-                    "best": 2
-          },
-          "14": {
-                    "type": "hunt",
-                    "fen": "8/8/2ppp3/2p1p3/2ppp3/3B4/8/4K3 w - - 0 1",
-                    "task": "Cacería IV: Alfil táctico",
-                    "crop": "6x6",
-                    "best": 8
-          },
-          "15": {
-                    "type": "hunt",
-                    "fen": "8/3ppp3/3ppp3/3ppp3/4N3/8/8/4K3 w - - 0 1",
-                    "task": "Cacería V: El Caballo hambriento",
-                    "crop": "8x8",
-                    "best": 10
-          },
-          "16": {
-                    "type": "hunt",
-                    "fen": "8/8/4r1r1/4r1r1/8/3Q4/8/4K3 w - - 0 1",
-                    "task": "Cacería VI: Batalla campal",
-                    "crop": "8x8",
-                    "best": 4
-          },
-          "17": {
-                    "type": "hunt",
-                    "fen": "8/1pppppp1/1p4p1/1p4p1/1pppppp1/3Q4/8/4K3 w - - 0 1",
-                    "task": "Cacería VII: Cerco roto",
-                    "crop": "8x8",
-                    "best": 15
-          },
-          "18": {
-                    "type": "hunt",
-                    "fen": "8/2nnnn2/2n2n2/2nnnn2/8/2R5/8/4K3 w - - 0 1",
-                    "task": "Cacería VIII: Torre vs Establo",
-                    "crop": "8x8",
-                    "best": 10
-          },
-          "19": {
-                    "type": "hunt",
-                    "fen": "8/2bbbb2/2b2b2/2bbbb2/8/2Q5/8/4K3 w - - 0 1",
-                    "task": "Cacería IX: Reina vs Monasterio",
-                    "crop": "8x8",
-                    "best": 10
-          },
-          "20": {
-                    "type": "hunt",
-                    "fen": "2p1p1p1/1p1p1p1p/2p1p1p1/1p1p1p1p/8/2Q5/8/4K3 w - - 0 1",
-                    "task": "Cacería X: Campo de minas",
-                    "crop": "8x8",
-                    "best": 16
-          },
-          "21": {
-                    "type": "match",
-                    "fen": "8/8/8/8/8/8/8/PPPPK3 w - - 0 1",
-                    "goal": "8/8/8/8/PPPP4/8/8/4K3",
-                    "task": "Espejo I: Muro de peones",
-                    "crop": "4x4",
-                    "best": 15
-          },
-          "22": {
-                    "type": "match",
-                    "fen": "8/8/8/8/8/8/8/RBNRK3 w - - 0 1",
-                    "goal": "8/8/8/8/RBNR4/8/8/4K3",
-                    "task": "Espejo II: Ascenso real",
-                    "crop": "4x4",
-                    "best": 25
-          },
-          "23": {
-                    "type": "match",
-                    "fen": "8/8/8/8/8/8/8/B1N1B1K1 w - - 0 1",
-                    "goal": "8/8/8/8/1B1N1B2/8/8/4K3",
-                    "task": "Espejo III: Tridente",
-                    "crop": "4x4",
-                    "best": 22
-          },
-          "24": {
-                    "type": "match",
-                    "fen": "8/8/8/8/8/8/8/NNRRK3 w - - 0 1",
-                    "goal": "8/8/8/NNRR4/8/8/8/4K3",
-                    "task": "Espejo IV: Cuadrilla",
-                    "crop": "4x4",
-                    "best": 35
-          },
-          "25": {
-                    "type": "match",
-                    "fen": "8/8/8/8/8/8/8/QQQQK3 w - - 0 1",
-                    "goal": "8/8/8/QQQQ4/8/8/8/4K3",
-                    "task": "Espejo V: Reinas unidas",
-                    "crop": "4x4",
-                    "best": 40
-          },
-          "26": {
-                    "type": "match",
-                    "fen": "8/8/8/8/8/8/8/RRRRK3 w - - 0 1",
-                    "goal": "8/8/8/RRRR4/8/8/8/4K3",
-                    "task": "Espejo VI: Fortaleza móvil",
-                    "crop": "4x4",
-                    "best": 40
-          },
-          "27": {
-                    "type": "match",
-                    "fen": "8/8/8/8/8/8/8/BBBBK3 w - - 0 1",
-                    "goal": "8/8/8/BBBB4/8/8/8/4K3",
-                    "task": "Espejo VII: Diagonal total",
-                    "crop": "4x4",
-                    "best": 40
-          },
-          "28": {
-                    "type": "match",
-                    "fen": "8/8/8/8/8/8/8/NNNNK3 w - - 0 1",
-                    "goal": "8/8/8/NNNN4/8/8/8/4K3",
-                    "task": "Espejo VIII: Galope masivo",
-                    "crop": "4x4",
-                    "best": 45
-          },
-          "29": {
-                    "type": "match",
-                    "fen": "8/8/8/8/8/8/8/RBNQK3 w - - 0 1",
-                    "goal": "8/8/8/RBNQK3/8/8/8/8",
-                    "task": "Espejo IX: Desfile real",
-                    "crop": "5x5",
-                    "best": 50
-          },
-          "30": {
-                    "type": "match",
-                    "fen": "8/8/8/8/8/8/8/PPPPPK2 w - - 0 1",
-                    "goal": "8/8/8/8/PPPPPK2/8/8/8",
-                    "task": "Espejo X: Invasión de peones",
-                    "crop": "5x5",
-                    "best": 55
-          },
-          "31": {
-                    "type": "mate",
-                    "fen": "k7/8/1K6/2Q5/8/8/8/8 w - - 0 1",
-                    "sol": "Qc8#",
-                    "task": "Mate I: Cierre",
-                    "best": 1
-          },
-          "32": {
-                    "type": "mate",
-                    "fen": "k7/8/K7/8/8/8/8/R7 w - - 0 1",
-                    "sol": "Ra8#",
-                    "task": "Mate II: Pasillo",
-                    "best": 1
-          },
-          "33": {
-                    "type": "mate",
-                    "fen": "k7/2P5/1K6/8/8/8/8/8 w - - 0 1",
-                    "sol": "c8=Q#",
-                    "task": "Mate III: Coronación",
-                    "best": 1
-          },
-          "34": {
-                    "type": "mate",
-                    "fen": "r1bqkbnr/pppp1ppp/2n5/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 0 1",
-                    "sol": "Qxf7#",
-                    "task": "Mate IV: Pastor",
-                    "best": 1
-          },
-          "35": {
-                    "type": "mate",
-                    "fen": "8/8/8/8/8/1k6/p7/K1R5 w - - 0 1",
-                    "sol": "Rc3#",
-                    "task": "Mate V: Sacrificio",
-                    "best": 1
-          },
-          "36": {
-                    "type": "mate",
-                    "fen": "8/8/8/8/8/2k5/pp6/K1B5 w - - 0 1",
-                    "sol": "Bxb2#",
-                    "task": "Mate VI: Sorpresa",
-                    "best": 1
-          },
-          "37": {
-                    "type": "mate",
-                    "fen": "8/8/8/8/8/2k5/pp6/K1N5 w - - 0 1",
-                    "sol": "Nb3#",
-                    "task": "Mate VII: Caballo",
-                    "best": 1
-          },
-          "38": {
-                    "type": "mate",
-                    "fen": "k7/p7/P7/8/8/1B6/8/4K3 w - - 0 1",
-                    "sol": "Bd5#",
-                    "task": "Mate VIII: Diagonal",
-                    "best": 1
-          },
-          "39": {
-                    "type": "mate",
-                    "fen": "k7/p7/2Q5/8/8/8/8/4K3 w - - 0 1",
-                    "sol": "Qc8#",
-                    "task": "Mate IX: Fondo",
-                    "best": 1
-          },
-          "40": {
-                    "type": "mate",
-                    "fen": "rnbqkbnr/ppppp2p/8/5ppQ/8/4P3/PPPP1PPP/RNB1KBNR w KQkq - 0 3",
-                    "sol": "Qxh5#",
-                    "task": "Mate X: El Loco",
-                    "best": 1
-          },
-          "41": {
-                    "type": "reach",
-                    "fen": "8/8/8/8/8/3r4/8/4K3 w - - 0 1",
-                    "target": "a8",
-                    "task": "Infiltrado I: Cruce",
-                    "crop": "8x8",
-                    "best": 10
-          },
-          "42": {
-                    "type": "reach",
-                    "fen": "8/8/8/2r1r3/8/8/8/4K3 w - - 0 1",
-                    "target": "e8",
-                    "task": "Infiltrado II: Entre torres",
-                    "crop": "8x8",
-                    "best": 12
-          },
-          "43": {
-                    "type": "reach",
-                    "fen": "8/8/8/3n4/8/8/8/4K3 w - - 0 1",
-                    "target": "h8",
-                    "task": "Infiltrado III: El salto",
-                    "crop": "8x8",
-                    "best": 15
-          },
-          "44": {
-                    "type": "reach",
-                    "fen": "8/8/2b1b3/8/8/8/8/4K3 w - - 0 1",
-                    "target": "a1",
-                    "task": "Infiltrado IV: Vía diagonal",
-                    "crop": "8x8",
-                    "best": 18
-          },
-          "45": {
-                    "type": "reach",
-                    "fen": "8/1q6/8/8/8/8/8/4K3 w - - 0 1",
-                    "target": "h1",
-                    "task": "Infiltrado V: Esquina",
-                    "crop": "8x8",
-                    "best": 20
-          },
-          "46": {
-                    "type": "reach",
-                    "fen": "8/1r1r1r2/8/8/8/8/8/4K3 w - - 0 1",
-                    "target": "d8",
-                    "task": "Infiltrado VI: Fuego",
-                    "crop": "8x8",
-                    "best": 25
-          },
-          "47": {
-                    "type": "reach",
-                    "fen": "8/8/1n1n1n2/8/8/8/8/4K3 w - - 0 1",
-                    "target": "e8",
-                    "task": "Infiltrado VII: Bosque",
-                    "crop": "8x8",
-                    "best": 30
-          },
-          "48": {
-                    "type": "reach",
-                    "fen": "8/1p1p1p1p/8/8/8/8/8/4K3 w - - 0 1",
-                    "target": "f8",
-                    "task": "Infiltrado VIII: Muro",
-                    "crop": "8x8",
-                    "best": 35
-          },
-          "49": {
-                    "type": "reach",
-                    "fen": "8/8/8/2r1r1r1/8/8/8/4K3 w - - 0 1",
-                    "target": "a8",
-                    "task": "Infiltrado IX: Sin salida",
-                    "crop": "8x8",
-                    "best": 40
-          },
-          "50": {
-                    "type": "reach",
-                    "fen": "q1q1q1q1/8/8/8/8/8/8/4K3 w - - 0 1",
-                    "target": "h8",
-                    "task": "Infiltrado X: El escape",
-                    "crop": "8x8",
-                    "best": 50
-          }
-};
+            "1": {
+                "type": "match",
+                "fen": "8/8/8/8/8/8/8/N1B2K2 w - - 0 1",
+                "goal": "8/8/8/8/8/8/8/B1N2K2",
+                "task": "Intercambio en el Rincón (3x3)",
+                "crop": "3x3",
+                "best": 14
+            },
+            "2": {
+                "type": "match",
+                "fen": "8/8/8/8/8/8/8/B1B2K2 w - - 0 1",
+                "goal": "8/8/8/8/8/B1B5/8/4K3",
+                "task": "Escalera de Alfiles (3x3)",
+                "crop": "3x3",
+                "best": 16
+            },
+            "3": {
+                "type": "match",
+                "fen": "8/8/8/8/8/8/8/NNB2K2 w - - 0 1",
+                "goal": "8/8/8/8/8/8/8/BNN2K2",
+                "task": "El Trío del Fondo (3x3)",
+                "crop": "3x3",
+                "best": 22
+            },
+            "4": {
+                "type": "match",
+                "fen": "8/8/8/8/8/8/8/RNBQ1K2 w - - 0 1",
+                "goal": "8/8/8/8/8/RN1Q4/8/2B1K3",
+                "task": "Reordenamiento Real (4x4)",
+                "crop": "4x4",
+                "best": 35
+            },
+            "5": {
+                "type": "match",
+                "fen": "8/8/8/8/8/N1N5/8/B1B2K2 w - - 0 1",
+                "goal": "8/8/8/8/8/B1B5/8/N1N2K2",
+                "task": "Cruces de Cuatro (3x3)",
+                "crop": "3x3",
+                "best": 38
+            },
+            "6": {
+                "type": "match",
+                "fen": "8/8/8/8/8/8/8/R2RK3 w - - 0 1",
+                "goal": "8/8/8/8/R2R4/8/8/4K3",
+                "task": "Torres en Paralelo (4x4)",
+                "crop": "4x4",
+                "best": 25
+            },
+            "7": {
+                "type": "match",
+                "fen": "8/8/8/8/8/8/8/RNNNK3 w - - 0 1",
+                "goal": "8/8/8/8/RNNN4/8/8/4K3",
+                "task": "Galope Triple (4x4)",
+                "crop": "4x4",
+                "best": 30
+            },
+            "8": {
+                "type": "match",
+                "fen": "8/8/8/8/8/8/8/RNBRN1K1 w - - 0 1",
+                "goal": "8/8/8/8/RN1RN3/2B5/8/4K3",
+                "task": "Formación Cerrada (4x4)",
+                "crop": "4x4",
+                "best": 45
+            },
+            "9": {
+                "type": "match",
+                "fen": "8/8/8/8/8/8/8/BB2K3 w - - 0 1",
+                "goal": "8/8/8/8/B4B2/8/8/4K3",
+                "task": "Diagonal Extrema (5x5)",
+                "crop": "5x5",
+                "best": 35
+            },
+            "10": {
+                "type": "match",
+                "fen": "8/8/8/8/8/8/8/RNBQK3 w - - 0 1",
+                "goal": "8/8/8/8/RN1QK3/2B5/8/8",
+                "task": "Invasión Coordinada (4x4)",
+                "crop": "4x4",
+                "best": 60
+            },
+            "11": {
+                "type": "hunt",
+                "fen": "8/8/8/8/3p4/2p1p3/3p4/4R1K1 w - - 0 1",
+                "task": "Limpieza I: El Peón Fugaz",
+                "crop": "5x5",
+                "best": 5
+            },
+            "12": {
+                "type": "hunt",
+                "fen": "8/8/8/2n2n2/8/3R4/8/4K3 w - - 0 1",
+                "task": "Limpieza II: Salto Doble",
+                "crop": "6x6",
+                "best": 3
+            },
+            "13": {
+                "type": "hunt",
+                "fen": "8/8/3bb3/8/3Q4/8/8/4K3 w - - 0 1",
+                "task": "Limpieza III: Reina Voraz",
+                "crop": "6x6",
+                "best": 2
+            },
+            "14": {
+                "type": "hunt",
+                "fen": "8/8/2ppp3/2p1p3/2ppp3/3B4/8/4K3 w - - 0 1",
+                "task": "Limpieza IV: El Alfil Preciso",
+                "crop": "6x6",
+                "best": 8
+            },
+            "15": {
+                "type": "hunt",
+                "fen": "8/3ppp3/3ppp3/3ppp3/4N3/8/8/4K3 w - - 0 1",
+                "task": "Limpieza V: Galope Infatigable",
+                "crop": "8x8",
+                "best": 10
+            },
+            "16": {
+                "type": "hunt",
+                "fen": "8/8/4r1r1/4r1r1/8/3Q4/8/4K3 w - - 0 1",
+                "task": "Limpieza VI: Torbellino Real",
+                "crop": "8x8",
+                "best": 4
+            },
+            "17": {
+                "type": "hunt",
+                "fen": "8/1pppppp1/1p4p1/1p4p1/1pppppp1/3Q4/8/4K3 w - - 0 1",
+                "task": "Limpieza VII: El Laberinto de Peones",
+                "crop": "8x8",
+                "best": 15
+            },
+            "18": {
+                "type": "hunt",
+                "fen": "8/2nnnn2/2n2n2/2nnnn2/8/2R5/8/4K3 w - - 0 1",
+                "task": "Limpieza VIII: Torre contra la Horda",
+                "crop": "8x8",
+                "best": 10
+            },
+            "19": {
+                "type": "hunt",
+                "fen": "8/2bbbb2/2b2b2/2bbbb2/8/2Q5/8/4K3 w - - 0 1",
+                "task": "Limpieza IX: Reina vs el Monasterio",
+                "crop": "8x8",
+                "best": 10
+            },
+            "20": {
+                "type": "hunt",
+                "fen": "2p1p1p1/1p1p1p1p/2p1p1p1/1p1p1p1p/8/2Q5/8/4K3 w - - 0 1",
+                "task": "Limpieza X: Campo de Minas Total",
+                "crop": "8x8",
+                "best": 16
+            },
+            "21": {
+                "type": "match",
+                "fen": "8/8/8/8/8/8/8/PPPPK3 w - - 0 1",
+                "goal": "8/8/8/8/1P1P4/P1P1P3/8/4K3",
+                "task": "Geometría I: El Rombo (4x4)",
+                "crop": "4x4",
+                "best": 25
+            },
+            "22": {
+                "type": "match",
+                "fen": "8/8/8/8/8/8/8/RBNRK3 w - - 0 1",
+                "goal": "8/8/8/8/B2R4/N2N4/8/R2K4",
+                "task": "Geometría II: Dispersión (4x4)",
+                "crop": "4x4",
+                "best": 35
+            },
+            "23": {
+                "type": "match",
+                "fen": "8/8/8/8/8/8/8/B1N1B1K1 w - - 0 1",
+                "goal": "8/8/8/8/1B1N1B2/8/8/4K3",
+                "task": "Geometría III: El Tridente (4x4)",
+                "crop": "4x4",
+                "best": 22
+            },
+            "24": {
+                "type": "match",
+                "fen": "8/8/8/8/8/8/8/NNRRK3 w - - 0 1",
+                "goal": "8/8/8/N2R4/1NR5/8/8/4K3",
+                "task": "Geometría IV: El Cuadrante (4x4)",
+                "crop": "4x4",
+                "best": 35
+            },
+            "25": {
+                "type": "match",
+                "fen": "8/8/8/8/8/8/8/QQQQK3 w - - 0 1",
+                "goal": "8/8/8/1QQ5/Q2Q4/8/8/4K3",
+                "task": "Geometría V: La Cruz de Reinas (4x4)",
+                "crop": "4x4",
+                "best": 45
+            },
+            "26": {
+                "type": "match",
+                "fen": "8/8/8/8/8/8/8/RRRRK3 w - - 0 1",
+                "goal": "8/8/8/R2R4/R2R4/8/8/4K3",
+                "task": "Geometría VI: Columnas Gemelas (4x4)",
+                "crop": "4x4",
+                "best": 40
+            },
+            "27": {
+                "type": "match",
+                "fen": "8/8/8/8/8/8/8/BBBBK3 w - - 0 1",
+                "goal": "8/8/8/1B2B3/B2B4/8/8/4K3",
+                "task": "Geometría VII: X de Alfiles (4x4)",
+                "crop": "4x4",
+                "best": 40
+            },
+            "28": {
+                "type": "match",
+                "fen": "8/8/8/8/8/8/8/NNNNK3 w - - 0 1",
+                "goal": "8/8/8/1NN5/1NN5/8/8/4K3",
+                "task": "Geometría VIII: El Establo Real (4x4)",
+                "crop": "4x4",
+                "best": 55
+            },
+            "29": {
+                "type": "match",
+                "fen": "8/8/8/8/8/8/8/RBNQK3 w - - 0 1",
+                "goal": "8/8/8/RBNQK3/8/8/8/8",
+                "task": "Geometría IX: El Desfile (5x5)",
+                "crop": "5x5",
+                "best": 50
+            },
+            "30": {
+                "type": "match",
+                "fen": "8/8/8/8/8/8/8/PPPPPK2 w - - 0 1",
+                "goal": "8/8/8/8/P1P1PK2/1P1P4/8/8",
+                "task": "Geometría X: Invasión de Peones (5x5)",
+                "crop": "5x5",
+                "best": 55
+            },
+            "31": {
+                "type": "mate",
+                "fen": "k7/8/1K6/2Q5/8/8/8/8 w - - 0 1",
+                "sol": "Qc8#",
+                "task": "Táctica I: Cierre de Filas",
+                "best": 1
+            },
+            "32": {
+                "type": "mate",
+                "fen": "k7/8/K7/8/8/8/8/R7 w - - 0 1",
+                "sol": "Ra8#",
+                "task": "Táctica II: Mate de Pasillo",
+                "best": 1
+            },
+            "33": {
+                "type": "mate",
+                "fen": "k7/2P5/1K6/8/8/8/8/8 w - - 0 1",
+                "sol": "c8=Q#",
+                "task": "Táctica III: Coronación Fatal",
+                "best": 1
+            },
+            "34": {
+                "type": "mate",
+                "fen": "r1bqkbnr/pppp1ppp/2n5/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 0 1",
+                "sol": "Qxf7#",
+                "task": "Táctica IV: El Pastor Revisitado",
+                "best": 1
+            },
+            "35": {
+                "type": "mate",
+                "fen": "8/8/8/8/8/1k6/p7/K1R5 w - - 0 1",
+                "sol": "Rc3#",
+                "task": "Táctica V: Sacrificio de Torre",
+                "best": 1
+            },
+            "36": {
+                "type": "mate",
+                "fen": "8/8/8/8/8/2k5/pp6/K1B5 w - - 0 1",
+                "sol": "Bxb2#",
+                "task": "Táctica VI: Alfil al Descubierto",
+                "best": 1
+            },
+            "37": {
+                "type": "mate",
+                "fen": "8/8/8/8/8/2k5/pp6/K1N5 w - - 0 1",
+                "sol": "Nb3#",
+                "task": "Táctica VII: El Salto del Caballo",
+                "best": 1
+            },
+            "38": {
+                "type": "mate",
+                "fen": "k7/p7/P7/8/8/1B6/8/4K3 w - - 0 1",
+                "sol": "Bd5#",
+                "task": "Táctica VIII: Diagonal Mortal",
+                "best": 1
+            },
+            "39": {
+                "type": "mate",
+                "fen": "k7/p7/2Q5/8/8/8/8/4K3 w - - 0 1",
+                "sol": "Qc8#",
+                "task": "Táctica IX: Mate en el Fondo",
+                "best": 1
+            },
+            "40": {
+                "type": "mate",
+                "fen": "rnbqkbnr/ppppp2p/8/5ppQ/8/4P3/PPPP1PPP/RNB1KBNR w KQkq - 0 3",
+                "sol": "Qxh5#",
+                "task": "Táctica X: El Jaque del Loco",
+                "best": 1
+            },
+            "41": {
+                "type": "reach",
+                "fen": "8/8/8/8/8/3r4/8/4K3 w - - 0 1",
+                "target": "a8",
+                "task": "Infiltrado I: Cruce de Fuego",
+                "crop": "8x8",
+                "best": 10
+            },
+            "42": {
+                "type": "reach",
+                "fen": "8/8/8/2r1r3/8/8/8/4K3 w - - 0 1",
+                "target": "e8",
+                "task": "Infiltrado II: El Murallón",
+                "crop": "8x8",
+                "best": 12
+            },
+            "43": {
+                "type": "reach",
+                "fen": "8/8/8/3n4/8/8/8/4K3 w - - 0 1",
+                "target": "h8",
+                "task": "Infiltrado III: Galope Enemigo",
+                "crop": "8x8",
+                "best": 15
+            },
+            "44": {
+                "type": "reach",
+                "fen": "8/8/2b1b3/8/8/8/8/4K3 w - - 0 1",
+                "target": "a1",
+                "task": "Infiltrado IV: Vía Diagonal",
+                "crop": "8x8",
+                "best": 18
+            },
+            "45": {
+                "type": "reach",
+                "fen": "8/1q6/8/8/8/8/8/4K3 w - - 0 1",
+                "target": "h1",
+                "task": "Infiltrado V: Esquina Fatal",
+                "crop": "8x8",
+                "best": 20
+            },
+            "46": {
+                "type": "reach",
+                "fen": "8/1r1r1r2/8/8/8/8/8/4K3 w - - 0 1",
+                "target": "d8",
+                "task": "Infiltrado VI: Lluvia de Acero",
+                "crop": "8x8",
+                "best": 25
+            },
+            "47": {
+                "type": "reach",
+                "fen": "8/8/1n1n1n2/8/8/8/8/4K3 w - - 0 1",
+                "target": "e8",
+                "task": "Infiltrado VII: Bosque de Sombras",
+                "crop": "8x8",
+                "best": 30
+            },
+            "48": {
+                "type": "reach",
+                "fen": "8/1p1p1p1p/8/8/8/8/8/4K3 w - - 0 1",
+                "target": "f8",
+                "task": "Infiltrado VIII: El Muro de Peones",
+                "crop": "8x8",
+                "best": 35
+            },
+            "49": {
+                "type": "reach",
+                "fen": "8/8/8/2r1r1r1/8/8/8/4K3 w - - 0 1",
+                "target": "a8",
+                "task": "Infiltrado IX: Sin Salida Aparente",
+                "crop": "8x8",
+                "best": 40
+            },
+            "50": {
+                "type": "reach",
+                "fen": "q1q1q1q1/8/8/8/8/8/8/4K3 w - - 0 1",
+                "target": "h8",
+                "task": "Infiltrado X: El Gran Escape",
+                "crop": "8x8",
+                "best": 50
+            }
+        };
 
         let board = null;
         let targetBoard = null;
