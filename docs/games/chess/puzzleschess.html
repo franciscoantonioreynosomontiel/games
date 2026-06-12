@@ -9,32 +9,24 @@
     <link href="../../lib/fonts/material-icons.css" rel="stylesheet">
     <style>
         .game-area { padding: 10px; display: flex; flex-direction: column; align-items: center; min-height: 80vh; }
-        #board { width: 340px; max-width: 95vw; margin: 15px 0; border: 4px solid #333; border-radius: 8px; overflow: hidden; background: #dee3e6; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        #board-wrapper { width: 340px; height: 340px; margin: 15px 0; border: 4px solid #333; border-radius: 8px; overflow: hidden; background: #dee3e6; box-shadow: 0 4px 15px rgba(0,0,0,0.2); position: relative; }
+        #board { position: absolute; bottom: 0; left: 0; width: 100%; }
+
         .controls { width: 100%; max-width: 350px; display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
         .status-box { background: #eee; padding: 10px; border-radius: 8px; font-weight: bold; text-align: center; margin-bottom: 10px; min-height: 40px; border-left: 5px solid var(--primary-color); width: 100%; max-width: 350px; }
-        .instruction-box { background: #fff8e1; padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 10px; border: 2px solid #ffe082; color: #856404; width: 100%; max-width: 350px; font-weight: 600; font-size: 1.2rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .target-card { background: white; border: 2px dashed #ff9800; border-radius: 12px; padding: 10px; margin-bottom: 10px; display: none; flex-direction: column; align-items: center; width: 100%; max-width: 350px; }
-        .target-card h3 { font-size: 14px; color: #ff9800; margin-bottom: 8px; text-transform: uppercase; }
-        #target-board { width: 120px; border: 2px solid #333; }
+        .instruction-box { background: #fff8e1; padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 10px; border: 2px solid #ffe082; color: #856404; width: 100%; max-width: 350px; font-weight: 800; font-size: 1.4rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+        .target-card { background: white; border: 3px dashed #ff9800; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: none; flex-direction: column; align-items: center; width: 100%; max-width: 350px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .target-card h3 { font-size: 16px; color: #ff9800; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+
+        #target-wrapper { width: 180px; height: 180px; border: 2px solid #333; overflow: hidden; position: relative; background: #f0f0f0; }
+        #target-board { position: absolute; bottom: 0; left: 0; width: 100%; }
+
         .highlight-move { background-color: rgba(0, 255, 0, 0.5) !important; }
         .highlight-selected { background-color: rgba(255, 255, 0, 0.5) !important; }
         .highlight-invalid { background-color: rgba(255, 0, 0, 0.5) !important; }
         .highlight-check { box-shadow: inset 0 0 5px 5px red !important; }
         .highlight-target { background-color: rgba(255, 0, 0, 0.4) !important; border: 4px solid #f44336 !important; }
-
-        /* Cropping classes - using data-square attributes to hide unwanted columns/rows */
-        /* 3x3 (a1-c3) */
-        .crop-3x3 .square-55d63:not([data-square^="a"]):not([data-square^="b"]):not([data-square^="c"]),
-        .crop-3x3 .square-55d63:not([data-square$="1"]):not([data-square$="2"]):not([data-square$="3"]) { display: none !important; }
-        /* 4x4 (a1-d4) */
-        .crop-4x4 .square-55d63:not([data-square^="a"]):not([data-square^="b"]):not([data-square^="c"]):not([data-square^="d"]),
-        .crop-4x4 .square-55d63:not([data-square$="1"]):not([data-square$="2"]):not([data-square$="3"]):not([data-square$="4"]) { display: none !important; }
-        /* 5x5 (a1-e5) */
-        .crop-5x5 .square-55d63:not([data-square^="a"]):not([data-square^="b"]):not([data-square^="c"]):not([data-square^="d"]):not([data-square^="e"]),
-        .crop-5x5 .square-55d63:not([data-square$="1"]):not([data-square$="2"]):not([data-square$="3"]):not([data-square$="4"]):not([data-square$="5"]) { display: none !important; }
-        /* 6x6 (a1-f6) */
-        .crop-6x6 .square-55d63:not([data-square^="a"]):not([data-square^="b"]):not([data-square^="c"]):not([data-square^="d"]):not([data-square^="e"]):not([data-square^="f"]),
-        .crop-6x6 .square-55d63:not([data-square$="1"]):not([data-square$="2"]):not([data-square$="3"]):not([data-square$="4"]):not([data-square$="5"]):not([data-square$="6"]) { display: none !important; }
     </style>
 </head>
 <body>
@@ -58,13 +50,17 @@
             <div id="instruction" class="instruction-box">Cargando...</div>
 
             <div id="target-card" class="target-card">
-                <h3>Objetivo</h3>
-                <div id="target-board"></div>
-                <div id="moves-left" style="font-size: 14px; margin-top: 8px; font-weight: bold; color: #d32f2f;">Movimientos: 0</div>
+                <h3>OBJETIVO</h3>
+                <div id="target-wrapper">
+                    <div id="target-board"></div>
+                </div>
+                <div id="moves-left" style="font-size: 18px; margin-top: 12px; font-weight: 900; color: #d32f2f; background: #ffebee; padding: 5px 15px; border-radius: 20px;">MOVIMIENTOS: 0</div>
             </div>
 
             <div id="status" class="status-box">Nivel</div>
-            <div id="board"></div>
+            <div id="board-wrapper">
+                <div id="board"></div>
+            </div>
             <div class="controls">
                 <button class="btn-premium" onclick="location.reload()" style="background: #eee; color: #333;">SALIR AL MENÚ</button>
             </div>
@@ -116,328 +112,373 @@
         const puzzles = {
           "1": {
                     "type": "match",
-                    "fen": "8/8/8/8/8/8/P1P5/4K3 w - - 0 1",
-                    "goal": "8/8/8/8/8/P1P5/8/4K3",
-                    "task": "Espejo I: Sube los peones",
-                    "crop": "3x3"
+                    "fen": "8/8/8/8/8/8/8/N1B2K2 w - - 0 1",
+                    "goal": "8/8/8/8/8/8/8/B1N2K2",
+                    "task": "Laberinto I: El Gran Intercambio",
+                    "crop": "3x3",
+                    "turn": "w"
           },
           "2": {
                     "type": "match",
-                    "fen": "8/8/8/8/8/8/B1B5/4K3 w - - 0 1",
-                    "goal": "8/8/8/8/B1B5/8/8/4K3",
-                    "task": "Espejo II: Alfiles al frente",
-                    "crop": "4x4"
+                    "fen": "8/8/8/8/8/8/8/N1N2K2 w - - 0 1",
+                    "goal": "8/8/8/8/8/N1N5/8/4K3",
+                    "task": "Laberinto II: Caballos al fondo",
+                    "crop": "3x3",
+                    "turn": "w"
           },
           "3": {
                     "type": "match",
-                    "fen": "8/8/8/8/8/8/R1R5/4K3 w - - 0 1",
-                    "goal": "8/8/8/8/R1R5/8/8/4K3",
-                    "task": "Espejo III: Torres paralelas",
-                    "crop": "4x4"
+                    "fen": "8/8/8/8/8/8/8/R1N2K2 w - - 0 1",
+                    "goal": "8/8/8/8/8/8/8/N1R2K2",
+                    "task": "Laberinto III: Torre y Caballo",
+                    "crop": "3x3",
+                    "turn": "w"
           },
           "4": {
                     "type": "match",
-                    "fen": "8/8/8/8/8/8/N1N5/4K3 w - - 0 1",
-                    "goal": "8/8/8/8/8/N1N5/8/4K3",
-                    "task": "Espejo IV: Caballos en fila 2",
-                    "crop": "3x3"
+                    "fen": "8/8/8/8/8/8/8/R1B1K3 w - - 0 1",
+                    "goal": "8/8/8/8/R1B5/8/8/4K3",
+                    "task": "Laberinto IV: Ascenso en diagonal",
+                    "crop": "4x4",
+                    "turn": "w"
           },
           "5": {
                     "type": "match",
-                    "fen": "8/8/8/8/8/8/P1P1P5/4K3 w - - 0 1",
-                    "goal": "8/8/8/8/8/P1P1P5/8/4K3",
-                    "task": "Espejo V: Trío de peones",
-                    "crop": "4x4"
+                    "fen": "8/8/8/8/8/8/8/NBR2K2 w - - 0 1",
+                    "goal": "8/8/8/8/8/8/8/RNB2K2",
+                    "task": "Laberinto V: Rotación de tres",
+                    "crop": "3x3",
+                    "turn": "w"
           },
           "6": {
                     "type": "match",
-                    "fen": "8/8/8/8/8/2B1B3/8/4K3 w - - 0 1",
-                    "goal": "8/8/8/2B1B3/8/8/8/4K3",
-                    "task": "Espejo VI: Alfiles elevados",
-                    "crop": "5x5"
+                    "fen": "8/8/8/8/8/8/8/N1N1K3 w - - 0 1",
+                    "goal": "8/8/8/8/2N2N2/8/8/4K3",
+                    "task": "Laberinto VI: Galope sincronizado",
+                    "crop": "4x4",
+                    "turn": "w"
           },
           "7": {
                     "type": "match",
-                    "fen": "8/8/8/8/8/8/2R1R3/4K3 w - - 0 1",
-                    "goal": "8/8/8/2R1R3/8/8/8/4K3",
-                    "task": "Espejo VII: Torres distantes",
-                    "crop": "5x5"
+                    "fen": "8/8/8/8/8/8/8/Q1N2K2 w - - 0 1",
+                    "goal": "8/8/8/8/8/8/8/N1Q2K2",
+                    "task": "Laberinto VII: Duelo de velocidad",
+                    "crop": "3x3",
+                    "turn": "w"
           },
           "8": {
                     "type": "match",
-                    "fen": "8/8/8/8/8/8/2N1N3/4K3 w - - 0 1",
-                    "goal": "8/8/8/2N1N3/8/8/8/4K3",
-                    "task": "Espejo VIII: Caballos al centro",
-                    "crop": "6x6"
+                    "fen": "8/8/8/8/8/8/8/B1B2K2 w - - 0 1",
+                    "goal": "8/8/8/B1B5/8/8/8/4K3",
+                    "task": "Laberinto VIII: Cruce de Alfiles",
+                    "crop": "5x5",
+                    "turn": "w"
           },
           "9": {
                     "type": "match",
-                    "fen": "8/8/8/8/8/8/PPP5/4K3 w - - 0 1",
-                    "goal": "8/8/8/PPP5/8/8/8/4K3",
-                    "task": "Espejo IX: Bloque sólido",
-                    "crop": "5x5"
+                    "fen": "8/8/8/8/8/8/NN6/4K3 w - - 0 1",
+                    "goal": "8/8/8/2N2N2/8/8/8/4K3",
+                    "task": "Laberinto IX: Formación en V",
+                    "crop": "4x4",
+                    "turn": "w"
           },
           "10": {
                     "type": "match",
-                    "fen": "8/8/8/8/8/8/Q1K5/8 w - - 0 1",
-                    "goal": "8/8/8/Q1K5/8/8/8/8",
-                    "task": "Espejo X: Posición Real",
-                    "crop": "4x4"
+                    "fen": "8/8/8/8/8/8/8/NBN2K2 w - - 0 1",
+                    "goal": "8/8/8/B7/8/8/N1N5/4K3",
+                    "task": "Laberinto X: Desorden total",
+                    "crop": "3x3",
+                    "turn": "w"
           },
           "11": {
                     "type": "hunt",
-                    "fen": "8/8/8/8/8/3p4/8/4R1K1 w - - 0 1",
-                    "task": "Cacería I: Captura el peón negro",
-                    "crop": "4x4"
+                    "fen": "4k3/pppppppp/pppppppp/8/8/2Q5/8/8 w - - 0 1",
+                    "task": "Cacería: Captura todos los peones (11)",
+                    "crop": "8x8"
           },
           "12": {
                     "type": "hunt",
-                    "fen": "8/8/8/8/8/2n1p3/8/4R1K1 w - - 0 1",
-                    "task": "Cacería II: Limpia la zona",
-                    "crop": "4x4"
+                    "fen": "4k3/pppppppp/pppppppp/8/8/2Q5/8/8 w - - 0 1",
+                    "task": "Cacería: Captura todos los peones (12)",
+                    "crop": "8x8"
           },
           "13": {
                     "type": "hunt",
-                    "fen": "8/8/8/8/2b5/2n5/8/4R1K1 w - - 0 1",
-                    "task": "Cacería III: Doble captura",
-                    "crop": "5x5"
+                    "fen": "4k3/pppppppp/pppppppp/8/8/2Q5/8/8 w - - 0 1",
+                    "task": "Cacería: Captura todos los peones (13)",
+                    "crop": "8x8"
           },
           "14": {
                     "type": "hunt",
-                    "fen": "8/8/8/2b2p2/8/8/8/4Q1K1 w - - 0 1",
-                    "task": "Cacería IV: La Reina al acecho",
-                    "crop": "6x6"
+                    "fen": "4k3/pppppppp/pppppppp/8/8/2Q5/8/8 w - - 0 1",
+                    "task": "Cacería: Captura todos los peones (14)",
+                    "crop": "8x8"
           },
           "15": {
                     "type": "hunt",
-                    "fen": "8/8/8/3p1p2/3p1p2/8/8/4R1K1 w - - 0 1",
-                    "task": "Cacería V: Barrida de peones",
-                    "crop": "6x6"
+                    "fen": "4k3/pppppppp/pppppppp/8/8/2Q5/8/8 w - - 0 1",
+                    "task": "Cacería: Captura todos los peones (15)",
+                    "crop": "8x8"
           },
           "16": {
                     "type": "hunt",
-                    "fen": "8/8/8/2p2p2/8/2R5/8/4K3 w - - 0 1",
-                    "task": "Cacería VI: Torre en acción",
-                    "crop": "6x6"
+                    "fen": "4k3/pppppppp/pppppppp/8/8/2Q5/8/8 w - - 0 1",
+                    "task": "Cacería: Captura todos los peones (16)",
+                    "crop": "8x8"
           },
           "17": {
                     "type": "hunt",
-                    "fen": "8/8/2n2n2/8/8/3B4/8/4K3 w - - 0 1",
-                    "task": "Cacería VII: Alfil vs Caballos",
-                    "crop": "6x6"
+                    "fen": "4k3/pppppppp/pppppppp/8/8/2Q5/8/8 w - - 0 1",
+                    "task": "Cacería: Captura todos los peones (17)",
+                    "crop": "8x8"
           },
           "18": {
                     "type": "hunt",
-                    "fen": "8/8/8/3q4/8/8/3Q4/4K3 w - - 0 1",
-                    "task": "Cacería VIII: Duelo de Reinas",
+                    "fen": "4k3/pppppppp/pppppppp/8/8/2Q5/8/8 w - - 0 1",
+                    "task": "Cacería: Captura todos los peones (18)",
                     "crop": "8x8"
           },
           "19": {
                     "type": "hunt",
-                    "fen": "8/8/3r1r2/8/8/3R1R2/8/4K3 w - - 0 1",
-                    "task": "Cacería IX: Guerra de Torres",
+                    "fen": "4k3/pppppppp/pppppppp/8/8/2Q5/8/8 w - - 0 1",
+                    "task": "Cacería: Captura todos los peones (19)",
                     "crop": "8x8"
           },
           "20": {
                     "type": "hunt",
-                    "fen": "8/8/8/2p1p1p1/8/8/2Q5/4K3 w - - 0 1",
-                    "task": "Cacería X: Limpieza Total",
+                    "fen": "4k3/pppppppp/pppppppp/8/8/2Q5/8/8 w - - 0 1",
+                    "task": "Cacería: Captura todos los peones (20)",
                     "crop": "8x8"
           },
           "21": {
-                    "type": "mate",
-                    "fen": "R7/8/8/8/8/8/8/k1K5 w - - 0 1",
-                    "sol": "Ra8#",
-                    "task": "Mate I: Pasillo"
+                    "type": "hunt",
+                    "fen": "4k3/pppppppp/pppppppp/8/8/2Q5/8/8 w - - 0 1",
+                    "task": "Cacería: Captura todos los peones (21)",
+                    "crop": "8x8"
           },
           "22": {
-                    "type": "mate",
-                    "fen": "8/8/8/8/8/5K2/5P2/5k2 w - - 0 1",
-                    "sol": "f4",
-                    "task": "Mate II: Peón final"
+                    "type": "hunt",
+                    "fen": "4k3/pppppppp/pppppppp/8/8/2Q5/8/8 w - - 0 1",
+                    "task": "Cacería: Captura todos los peones (22)",
+                    "crop": "8x8"
           },
           "23": {
-                    "type": "mate",
-                    "fen": "6k1/5ppp/8/8/8/8/5PPP/6K1 w - - 0 1",
-                    "sol": "Kf1",
-                    "task": "Mate III: El Rey avanza"
+                    "type": "hunt",
+                    "fen": "4k3/pppppppp/pppppppp/8/8/2Q5/8/8 w - - 0 1",
+                    "task": "Cacería: Captura todos los peones (23)",
+                    "crop": "8x8"
           },
           "24": {
-                    "type": "mate",
-                    "fen": "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4",
-                    "sol": "Qxf7#",
-                    "task": "Mate IV: Pastor"
+                    "type": "hunt",
+                    "fen": "4k3/pppppppp/pppppppp/8/8/2Q5/8/8 w - - 0 1",
+                    "task": "Cacería: Captura todos los peones (24)",
+                    "crop": "8x8"
           },
           "25": {
-                    "type": "mate",
-                    "fen": "k7/P7/1K6/8/8/8/8/8 w - - 0 1",
-                    "sol": "Kb5",
-                    "task": "Mate V: Ahogado evitado"
+                    "type": "hunt",
+                    "fen": "4k3/pppppppp/pppppppp/8/8/2Q5/8/8 w - - 0 1",
+                    "task": "Cacería: Captura todos los peones (25)",
+                    "crop": "8x8"
           },
           "26": {
-                    "type": "mate",
-                    "fen": "3k4/3P4/3K4/8/8/8/8/8 w - - 0 1",
-                    "sol": "Ke6",
-                    "task": "Mate VI: Oposición"
+                    "type": "match",
+                    "fen": "8/8/8/8/8/8/RBNQ4/4K3 w - - 0 1",
+                    "goal": "RBNQ4/8/8/8/8/8/8/4K3",
+                    "task": "Minijuego 26: Reubicación Élite",
+                    "crop": "8x8",
+                    "turn": "w"
           },
           "27": {
-                    "type": "mate",
-                    "fen": "8/8/8/8/8/2k5/2p5/2K5 w - - 0 1",
-                    "sol": "Kd1",
-                    "task": "Mate VII: Bloqueo"
+                    "type": "match",
+                    "fen": "8/8/8/8/8/8/RBNQ4/4K3 w - - 0 1",
+                    "goal": "RBNQ4/8/8/8/8/8/8/4K3",
+                    "task": "Minijuego 27: Reubicación Élite",
+                    "crop": "8x8",
+                    "turn": "w"
           },
           "28": {
-                    "type": "mate",
-                    "fen": "k7/2Q5/2K5/8/8/8/8/8 w - - 0 1",
-                    "sol": "Qb7#",
-                    "task": "Mate VIII: Beso de la Reina"
+                    "type": "match",
+                    "fen": "8/8/8/8/8/8/RBNQ4/4K3 w - - 0 1",
+                    "goal": "RBNQ4/8/8/8/8/8/8/4K3",
+                    "task": "Minijuego 28: Reubicación Élite",
+                    "crop": "8x8",
+                    "turn": "w"
           },
           "29": {
-                    "type": "mate",
-                    "fen": "2k5/2R5/2K5/8/8/8/8/8 w - - 0 1",
-                    "sol": "Kd6",
-                    "task": "Mate IX: Jaque de Torre"
+                    "type": "match",
+                    "fen": "8/8/8/8/8/8/RBNQ4/4K3 w - - 0 1",
+                    "goal": "RBNQ4/8/8/8/8/8/8/4K3",
+                    "task": "Minijuego 29: Reubicación Élite",
+                    "crop": "8x8",
+                    "turn": "w"
           },
           "30": {
-                    "type": "mate",
-                    "fen": "rnbqkbnr/ppppp2p/8/5ppQ/8/4P3/PPPP1PPP/RNB1KBNR w KQkq - 0 3",
-                    "sol": "Qxh5#",
-                    "task": "Mate X: El Loco"
+                    "type": "match",
+                    "fen": "8/8/8/8/8/8/RBNQ4/4K3 w - - 0 1",
+                    "goal": "RBNQ4/8/8/8/8/8/8/4K3",
+                    "task": "Minijuego 30: Reubicación Élite",
+                    "crop": "8x8",
+                    "turn": "w"
           },
           "31": {
-                    "type": "reach",
-                    "fen": "8/8/8/8/8/8/P7/4K3 w - - 0 1",
-                    "target": "a8",
-                    "task": "Carrera I: Peón a la meta",
-                    "crop": "8x8"
+                    "type": "match",
+                    "fen": "8/8/8/8/8/8/RBNQ4/4K3 w - - 0 1",
+                    "goal": "RBNQ4/8/8/8/8/8/8/4K3",
+                    "task": "Minijuego 31: Reubicación Élite",
+                    "crop": "8x8",
+                    "turn": "w"
           },
           "32": {
-                    "type": "reach",
-                    "fen": "8/8/8/8/8/1P6/8/4K3 w - - 0 1",
-                    "target": "b8",
-                    "task": "Carrera II: Escalada lateral",
-                    "crop": "8x8"
+                    "type": "match",
+                    "fen": "8/8/8/8/8/8/RBNQ4/4K3 w - - 0 1",
+                    "goal": "RBNQ4/8/8/8/8/8/8/4K3",
+                    "task": "Minijuego 32: Reubicación Élite",
+                    "crop": "8x8",
+                    "turn": "w"
           },
           "33": {
-                    "type": "reach",
-                    "fen": "8/8/8/8/2P5/8/8/4K3 w - - 0 1",
-                    "target": "c8",
-                    "task": "Carrera III: El gran salto",
-                    "crop": "8x8"
+                    "type": "match",
+                    "fen": "8/8/8/8/8/8/RBNQ4/4K3 w - - 0 1",
+                    "goal": "RBNQ4/8/8/8/8/8/8/4K3",
+                    "task": "Minijuego 33: Reubicación Élite",
+                    "crop": "8x8",
+                    "turn": "w"
           },
           "34": {
-                    "type": "reach",
-                    "fen": "8/8/8/3P4/8/8/8/4K3 w - - 0 1",
-                    "target": "d8",
-                    "task": "Carrera IV: Camino despejado",
-                    "crop": "8x8"
+                    "type": "match",
+                    "fen": "8/8/8/8/8/8/RBNQ4/4K3 w - - 0 1",
+                    "goal": "RBNQ4/8/8/8/8/8/8/4K3",
+                    "task": "Minijuego 34: Reubicación Élite",
+                    "crop": "8x8",
+                    "turn": "w"
           },
           "35": {
-                    "type": "reach",
-                    "fen": "8/8/4P3/8/8/8/8/4K3 w - - 0 1",
-                    "target": "e8",
-                    "task": "Carrera V: Corazón del tablero",
-                    "crop": "8x8"
+                    "type": "match",
+                    "fen": "8/8/8/8/8/8/RBNQ4/4K3 w - - 0 1",
+                    "goal": "RBNQ4/8/8/8/8/8/8/4K3",
+                    "task": "Minijuego 35: Reubicación Élite",
+                    "crop": "8x8",
+                    "turn": "w"
           },
           "36": {
-                    "type": "reach",
-                    "fen": "8/8/8/8/5P2/8/8/4K3 w - - 0 1",
-                    "target": "f8",
-                    "task": "Carrera VI: Flanco derecho",
-                    "crop": "8x8"
+                    "type": "match",
+                    "fen": "8/8/8/8/8/8/RBNQ4/4K3 w - - 0 1",
+                    "goal": "RBNQ4/8/8/8/8/8/8/4K3",
+                    "task": "Minijuego 36: Reubicación Élite",
+                    "crop": "8x8",
+                    "turn": "w"
           },
           "37": {
-                    "type": "reach",
-                    "fen": "8/8/8/8/8/6P1/8/4K3 w - - 0 1",
-                    "target": "g8",
-                    "task": "Carrera VII: Vía rápida",
-                    "crop": "8x8"
+                    "type": "match",
+                    "fen": "8/8/8/8/8/8/RBNQ4/4K3 w - - 0 1",
+                    "goal": "RBNQ4/8/8/8/8/8/8/4K3",
+                    "task": "Minijuego 37: Reubicación Élite",
+                    "crop": "8x8",
+                    "turn": "w"
           },
           "38": {
-                    "type": "reach",
-                    "fen": "8/8/8/8/8/8/7P/4K3 w - - 0 1",
-                    "target": "h8",
-                    "task": "Carrera VIII: Borde extremo",
-                    "crop": "8x8"
+                    "type": "match",
+                    "fen": "8/8/8/8/8/8/RBNQ4/4K3 w - - 0 1",
+                    "goal": "RBNQ4/8/8/8/8/8/8/4K3",
+                    "task": "Minijuego 38: Reubicación Élite",
+                    "crop": "8x8",
+                    "turn": "w"
           },
           "39": {
-                    "type": "reach",
-                    "fen": "8/8/8/3P4/8/8/3P4/4K3 w - - 0 1",
-                    "target": "d8",
-                    "task": "Carrera IX: Doble esfuerzo",
-                    "crop": "8x8"
+                    "type": "match",
+                    "fen": "8/8/8/8/8/8/RBNQ4/4K3 w - - 0 1",
+                    "goal": "RBNQ4/8/8/8/8/8/8/4K3",
+                    "task": "Minijuego 39: Reubicación Élite",
+                    "crop": "8x8",
+                    "turn": "w"
           },
           "40": {
-                    "type": "reach",
-                    "fen": "8/8/4P1P1/8/8/8/8/4K3 w - - 0 1",
-                    "target": "f8",
-                    "task": "Carrera X: Final de infarto",
-                    "crop": "8x8"
+                    "type": "match",
+                    "fen": "8/8/8/8/8/8/RBNQ4/4K3 w - - 0 1",
+                    "goal": "RBNQ4/8/8/8/8/8/8/4K3",
+                    "task": "Minijuego 40: Reubicación Élite",
+                    "crop": "8x8",
+                    "turn": "w"
           },
           "41": {
                     "type": "match",
-                    "fen": "8/8/8/8/8/8/PPP5/4K3 w - - 0 1",
-                    "goal": "8/8/8/8/PPP5/8/8/4K3",
-                    "task": "Maestría I: Reflejo triple",
-                    "crop": "5x5"
+                    "fen": "8/8/8/8/8/8/RBNQ4/4K3 w - - 0 1",
+                    "goal": "RBNQ4/8/8/8/8/8/8/4K3",
+                    "task": "Minijuego 41: Reubicación Élite",
+                    "crop": "8x8",
+                    "turn": "w"
           },
           "42": {
-                    "type": "hunt",
-                    "fen": "8/8/8/2b1n1r1/8/8/8/4Q1K1 w - - 0 1",
-                    "task": "Maestría II: Reina vs El Ejército",
-                    "crop": "8x8"
+                    "type": "match",
+                    "fen": "8/8/8/8/8/8/RBNQ4/4K3 w - - 0 1",
+                    "goal": "RBNQ4/8/8/8/8/8/8/4K3",
+                    "task": "Minijuego 42: Reubicación Élite",
+                    "crop": "8x8",
+                    "turn": "w"
           },
           "43": {
-                    "type": "reach",
-                    "fen": "8/8/8/8/2N5/8/8/4K3 w - - 0 1",
-                    "target": "f7",
-                    "task": "Maestría III: Caballo saltarín",
-                    "crop": "8x8"
+                    "type": "match",
+                    "fen": "8/8/8/8/8/8/RBNQ4/4K3 w - - 0 1",
+                    "goal": "RBNQ4/8/8/8/8/8/8/4K3",
+                    "task": "Minijuego 43: Reubicación Élite",
+                    "crop": "8x8",
+                    "turn": "w"
           },
           "44": {
-                    "type": "mate",
-                    "fen": "7k/5K2/6Q1/8/8/8/8/8 w - - 0 1",
-                    "sol": "Qg8#",
-                    "task": "Maestría IV: Mate ahogado"
+                    "type": "match",
+                    "fen": "8/8/8/8/8/8/RBNQ4/4K3 w - - 0 1",
+                    "goal": "RBNQ4/8/8/8/8/8/8/4K3",
+                    "task": "Minijuego 44: Reubicación Élite",
+                    "crop": "8x8",
+                    "turn": "w"
           },
           "45": {
                     "type": "match",
-                    "fen": "8/8/8/8/8/8/R1B1N1Q1/4K3 w - - 0 1",
-                    "goal": "8/8/8/R1B1N1Q1/8/8/8/4K3",
-                    "task": "Maestría V: Desfile Real",
-                    "crop": "8x8"
+                    "fen": "8/8/8/8/8/8/RBNQ4/4K3 w - - 0 1",
+                    "goal": "RBNQ4/8/8/8/8/8/8/4K3",
+                    "task": "Minijuego 45: Reubicación Élite",
+                    "crop": "8x8",
+                    "turn": "w"
           },
           "46": {
-                    "type": "hunt",
-                    "fen": "8/8/3pp3/3pp3/8/8/8/4R1K1 w - - 0 1",
-                    "task": "Maestría VI: El muro de peones",
-                    "crop": "8x8"
+                    "type": "match",
+                    "fen": "8/8/8/8/8/8/RBNQ4/4K3 w - - 0 1",
+                    "goal": "RBNQ4/8/8/8/8/8/8/4K3",
+                    "task": "Minijuego 46: Reubicación Élite",
+                    "crop": "8x8",
+                    "turn": "w"
           },
           "47": {
-                    "type": "reach",
-                    "fen": "8/8/8/8/8/8/R7/4K3 w - - 0 1",
-                    "target": "h1",
-                    "task": "Maestría VII: Viaje de la Torre",
-                    "crop": "8x8"
+                    "type": "match",
+                    "fen": "8/8/8/8/8/8/RBNQ4/4K3 w - - 0 1",
+                    "goal": "RBNQ4/8/8/8/8/8/8/4K3",
+                    "task": "Minijuego 47: Reubicación Élite",
+                    "crop": "8x8",
+                    "turn": "w"
           },
           "48": {
-                    "type": "mate",
-                    "fen": "k7/1R6/2K5/8/8/8/8/8 w - - 0 1",
-                    "sol": "Rb8#",
-                    "task": "Maestría VIII: Mate de Torre"
+                    "type": "match",
+                    "fen": "8/8/8/8/8/8/RBNQ4/4K3 w - - 0 1",
+                    "goal": "RBNQ4/8/8/8/8/8/8/4K3",
+                    "task": "Minijuego 48: Reubicación Élite",
+                    "crop": "8x8",
+                    "turn": "w"
           },
           "49": {
-                    "type": "hunt",
-                    "fen": "8/3ppp3/3p1p3/3ppp3/8/8/8/4Q1K1 w - - 0 1",
-                    "task": "Maestría IX: Festín de la Reina",
-                    "crop": "8x8"
+                    "type": "match",
+                    "fen": "8/8/8/8/8/8/RBNQ4/4K3 w - - 0 1",
+                    "goal": "RBNQ4/8/8/8/8/8/8/4K3",
+                    "task": "Minijuego 49: Reubicación Élite",
+                    "crop": "8x8",
+                    "turn": "w"
           },
           "50": {
                     "type": "match",
-                    "fen": "8/8/8/8/8/8/RNBQKBNR/8 w - - 0 1",
-                    "goal": "RNBQKBNR/8/8/8/8/8/8/8",
-                    "task": "Maestría X: Inversión Total",
-                    "crop": "8x8"
+                    "fen": "8/8/8/8/8/8/RBNQ4/4K3 w - - 0 1",
+                    "goal": "RBNQ4/8/8/8/8/8/8/4K3",
+                    "task": "Minijuego 50: Reubicación Élite",
+                    "crop": "8x8",
+                    "turn": "w"
           }
 };
 
@@ -463,16 +504,27 @@
             const orientation = currentPuzzle.turn === 'b' ? 'black' : 'white';
 
             const targetCard = document.getElementById('target-card');
+            const targetWrapper = document.getElementById('target-wrapper');
+            const targetBoardEl = document.getElementById('target-board');
+
             if (currentPuzzle.type === 'match') {
                 targetCard.style.display = 'flex';
-                document.getElementById('moves-left').innerText = `Movimientos: 0`;
+                document.getElementById('moves-left').innerText = `MOVIMIENTOS: 0`;
                 if (targetBoard) targetBoard.destroy();
+
+                const cropSize = parseInt(currentPuzzle.crop[0]);
+                const visibleSize = 180;
+                const fullBoardSize = (visibleSize / cropSize) * 8;
+
+                targetBoardEl.style.width = fullBoardSize + 'px';
+
                 setTimeout(() => {
                     targetBoard = Chessboard('target-board', {
                         position: currentPuzzle.goal,
                         showNotation: false,
                         pieceTheme: '../../assets/chess/{piece}.png'
                     });
+                    setTimeout(() => targetBoard.resize(), 50);
                 }, 100);
             } else {
                 targetCard.style.display = 'none';
@@ -480,8 +532,16 @@
 
             if (board) board.destroy();
 
+            const boardWrapper = document.getElementById('board-wrapper');
             const boardEl = document.getElementById('board');
-            boardEl.className = currentPuzzle.crop ? `crop-${currentPuzzle.crop}` : '';
+
+            const cropSizeMain = currentPuzzle.crop ? parseInt(currentPuzzle.crop[0]) : 8;
+            const visibleSizeMain = Math.min(window.innerWidth * 0.9, 340);
+            const fullBoardSizeMain = (visibleSizeMain / cropSizeMain) * 8;
+
+            boardWrapper.style.width = visibleSizeMain + 'px';
+            boardWrapper.style.height = visibleSizeMain + 'px';
+            boardEl.style.width = fullBoardSizeMain + 'px';
 
             requestAnimationFrame(() => {
                 board = Chessboard('board', {
@@ -525,29 +585,28 @@
                     return;
                 }
 
-                if (currentPuzzle.type === 'match') {
-                    const fromPiece = game.get(selectedSquare);
-                    game.remove(selectedSquare);
-                    game.put({ type: fromPiece.type, color: fromPiece.color }, square);
-                    movesMade++;
-                    board.position(game.fen());
-                    document.getElementById('moves-left').innerText = `Movimientos: ${movesMade}`;
-                    selectedSquare = null;
-                    removeHighlights();
-                    checkMatchWin();
-                    return;
-                }
-
                 const moveAttempt = { from: selectedSquare, to: square, promotion: 'q' };
                 const move = game.move(moveAttempt);
 
                 if (move) {
                     movesMade++;
+
+                    // Force turn back to player if it's a maneuver puzzle
+                    if (currentPuzzle.type === 'match' || currentPuzzle.type === 'reach' || currentPuzzle.type === 'hunt') {
+                        const fenParts = game.fen().split(' ');
+                        fenParts[1] = currentPuzzle.turn || 'w';
+                        game.load(fenParts.join(' '));
+                    }
+
                     board.position(game.fen());
                     selectedSquare = null;
                     removeHighlights();
 
-                    if (currentPuzzle.type === 'hunt') {
+                    document.getElementById('moves-left').innerText = `Movimientos: ${movesMade}`;
+
+                    if (currentPuzzle.type === 'match') {
+                        checkMatchWin();
+                    } else if (currentPuzzle.type === 'hunt') {
                         checkHuntWin();
                     } else if (currentPuzzle.type === 'reach') {
                         checkReachWin(square);
@@ -569,10 +628,8 @@
                     }
                 }
             } else {
-                if (piece) {
-                    if (currentPuzzle.type === 'match' || piece.color === game.turn()) {
-                        selectPiece(square);
-                    }
+                if (piece && piece.color === game.turn()) {
+                    selectPiece(square);
                 }
             }
         }
